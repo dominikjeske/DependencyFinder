@@ -1,6 +1,11 @@
 ﻿using ByteDev.DotNet.Project;
 using ByteDev.DotNet.Solution;
 using DependencyFinder.Core.Models;
+using DependencyFinder.Utils;
+using Microsoft.Build.Locator;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.MSBuild;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -58,6 +63,67 @@ namespace DependencyFinder.Core
 
             var projectsResult = await Task.WhenAll(result);
             return projectsResult;
+        }
+
+        public async Task FindAllReferences()
+        {
+            MSBuildLocator.RegisterDefaults();
+
+            using (var workspace = MSBuildWorkspace.Create())
+            {
+                var solution = await workspace.OpenSolutionAsync(@"E:\Projects\Dependency\DependencyFinder\Test\WPF\WPF.sln");
+
+                var project = solution.Projects.FirstOrDefault(x => x.Name == "WPF");
+
+                var compilation = await project.GetCompilationAsync();
+
+                var searchedSymbol = compilation.GetTypeByMetadataName("CommonFull.TestClass");
+
+                var results = await SymbolFinder.FindReferencesAsync(searchedSymbol, solution);
+
+                foreach (var indexReference in results)
+                {
+                    foreach (ReferenceLocation indexReferenceLocation in indexReference.Locations)
+                    {
+                        int spanStart = indexReferenceLocation.Location.SourceSpan.Start;
+                        var doc = indexReferenceLocation.Document;
+
+                        var indexerInvokation = doc.GetSyntaxRootAsync().Result
+                            .DescendantNodes()
+                            .FirstOrDefault(node => node.GetLocation().SourceSpan.Start == spanStart);
+
+                        var className = indexerInvokation.Ancestors()
+                            .OfType<ClassDeclarationSyntax>()
+                            .FirstOrDefault()
+                            ?.Identifier.Text ?? String.Empty;
+
+                        var @namespace = indexerInvokation.Ancestors()
+                            .OfType<NamespaceDeclarationSyntax>()
+                            .FirstOrDefault()
+                            ?.Name.ToString() ?? String.Empty;
+
+
+                        Console.WriteLine($"{@namespace}.{className} : {indexerInvokation.GetText()}");
+                    }
+                }
+
+                //CheckDiagnostics(workspace);
+            }
+        }
+
+        private static void CheckDiagnostics(MSBuildWorkspace workspace)
+        {
+            foreach (var diagnostic in workspace.Diagnostics)
+            {
+                if (diagnostic.Kind == Microsoft.CodeAnalysis.WorkspaceDiagnosticKind.Failure)
+                {
+                    ConsoleEx.WriteErrorLine(diagnostic.Message);
+                }
+                else if (diagnostic.Kind == Microsoft.CodeAnalysis.WorkspaceDiagnosticKind.Warning)
+                {
+                    ConsoleEx.WriteWarningLine(diagnostic.Message);
+                }
+            }
         }
     }
 }
