@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29324.140
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPF", "WPF\WPF.csproj", "{CE45E74B-2E4A-455E-9729-8EC9FC6A73BD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfLib", "WpfLib\WpfLib.csproj", "{93FDC977-BA98-41D0-B295-AA09260D6E14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonFull", "..\Common\CommonFull\CommonFull\CommonFull.csproj", "{50F89DD3-183C-49F9-9030-FAB9DAFE4AE0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CE45E74B-2E4A-455E-9729-8EC9FC6A73BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE45E74B-2E4A-455E-9729-8EC9FC6A73BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE45E74B-2E4A-455E-9729-8EC9FC6A73BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE45E74B-2E4A-455E-9729-8EC9FC6A73BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93FDC977-BA98-41D0-B295-AA09260D6E14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93FDC977-BA98-41D0-B295-AA09260D6E14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93FDC977-BA98-41D0-B295-AA09260D6E14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93FDC977-BA98-41D0-B295-AA09260D6E14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50F89DD3-183C-49F9-9030-FAB9DAFE4AE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50F89DD3-183C-49F9-9030-FAB9DAFE4AE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50F89DD3-183C-49F9-9030-FAB9DAFE4AE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50F89DD3-183C-49F9-9030-FAB9DAFE4AE0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2AB3AACA-2526-45CE-A93E-2CF782ADF492}
+	EndGlobalSection
+EndGlobal

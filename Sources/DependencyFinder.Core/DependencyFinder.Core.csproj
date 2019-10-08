@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ByteDev.DotNet" Version="5.0.1" />
+    <PackageReference Include="CSharpFunctionalExtensions" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Build.Locator" Version="1.2.6" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.4.0-beta1-final" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="3.4.0-beta1-final" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DependencyFinder.Search\DependencyFinder.Search.csproj" />
+    <ProjectReference Include="..\DependencyFinder.Utils\DependencyFinder.Utils.csproj" />
+  </ItemGroup>
+
+</Project>
