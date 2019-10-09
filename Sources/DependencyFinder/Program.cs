@@ -22,7 +22,7 @@ namespace DependencyFinder
             //args = new string[] { "nuget", @"E:\Projects\Dependency\DependencyFinder\Test", "-i" };
             //args = new string[] { "nuget", @"E:\Projects\Dependency\DependencyFinder\Test", "-d" };
 
-            args = new string[] {"reference", @"E:\Projects\Dependency\DependencyFinder\Test" };
+            //args = new string[] {"reference", @"E:\Projects\Dependency\DependencyFinder\Test" };
 
             await Parser.Default.ParseArguments<SolutionOptions, NugetOptions, ReferencesOptions>(args)
                                 .MapResult((SolutionOptions so) => SolutionRun(so),
