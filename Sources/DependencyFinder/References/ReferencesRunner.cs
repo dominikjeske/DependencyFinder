@@ -18,7 +18,7 @@ namespace DependencyFinder
                 return;
             }
 
-            var sm = new SolutionManager();
+            var sm = new SolutionManager(null);
             var result = await sm.FindAllReferences();
 
             var headerThickness = new LineThickness(LineWidth.Double, LineWidth.Single);

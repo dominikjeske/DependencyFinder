@@ -1,9 +1,4 @@
-﻿using DependencyFinder.Utils;
-using FastSearchLibrary;
-using Microsoft.Build.Locator;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.MSBuild;
-using System;
+﻿using FastSearchLibrary;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -13,17 +8,17 @@ using System.Threading.Tasks;
 
 namespace DependencyFinder.Core
 {
-
-    internal class SolutionSearcher
+    public class SolutionSearcher
     {
         private readonly ConcurrentBag<FileInfo> _result = new ConcurrentBag<FileInfo>();
         private FileSearcher _searcher;
 
-        public Task<IEnumerable<FileInfo>> Search(string rootDirectory, CancellationToken token)
+        public Task<IEnumerable<FileInfo>> Search(string rootDirectory, CancellationToken token = default)
         {
             var tcs = new TaskCompletionSource<IEnumerable<FileInfo>>();
 
-            _searcher = new FileSearcher(rootDirectory, "*.sln", token);
+            //TODO
+            _searcher = new FileSearcher(rootDirectory, "*.dll", token);
 
             _searcher.FilesFound += (sender, arg) =>
             {

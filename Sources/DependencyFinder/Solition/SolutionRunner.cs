@@ -1,6 +1,9 @@
 ﻿using DependencyFinder.Core;
 using DependencyFinder.Utils;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace DependencyFinder
@@ -15,7 +18,7 @@ namespace DependencyFinder
                 return;
             }
 
-            var sm = new SolutionManager();
+            var sm = new SolutionManager(null);
             var solutions = await sm.FindSolutions(so.RootPath);
 
             int i = 0;
@@ -61,5 +64,10 @@ namespace DependencyFinder
                 i++;
             }
         }
+
+
+       
     }
+
+
 }
