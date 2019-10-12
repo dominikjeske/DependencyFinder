@@ -20,7 +20,7 @@ namespace DependencyFinder
             }
 
             var sm = new SolutionManager(null);
-            var solutions = await sm.FindSolutions(no.RootPath);
+            var solutions = sm.FindSolutions(no.RootPath);
 
             var result = await solutions.AsParallel().SelectManyAsync(async s =>
             {

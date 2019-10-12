@@ -12,11 +12,11 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.4.0-beta1-final" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="3.4.0-beta1-final" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.0.0" />
+    <PackageReference Include="System.Security.Permissions" Version="4.6.0" />
     <PackageReference Include="System.Threading.Channels" Version="4.6.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DependencyFinder.Search\DependencyFinder.Search.csproj" />
     <ProjectReference Include="..\DependencyFinder.Utils\DependencyFinder.Utils.csproj" />
   </ItemGroup>
 

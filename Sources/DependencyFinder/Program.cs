@@ -1,10 +1,8 @@
 ﻿using CommandLine;
-using DependencyFinder.Core;
 using DependencyFinder.Search;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,63 +10,24 @@ namespace DependencyFinder
 {
     internal static class Program
     {
-        private static void AddFiles(string path, string pattern, IList<string> files)
-        {
-            try
-            {
-                Directory.GetFiles(path, pattern)
-                    .ToList()
-                    .ForEach(s => files.Add(s));
-
-                Directory.GetDirectories(path)
-                    .ToList()
-                    .ForEach(s => AddFiles(s, pattern, files));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                // ok, so we are not allowed to dig into that directory. Move on.
-            }
-        }
-
         private static async Task Main(string[] args)
         {
             var sw = new Stopwatch();
             var test = new AsyncFileFinder();
 
-            sw.Reset();
+            var location = @"c:\";
+
             sw.Start();
 
-            int i = 0;
-            await foreach(var sln in test.Find(@"c:\", "*.dll", Enumerable.Empty<string>()))
+            var list = new List<string>();
+            await foreach (var sln in test.Find(location, "*.dll"))
             {
-                i++;
+                list.Add(sln);
             }
 
             sw.Stop();
 
-            Console.WriteLine($"Async: {sw.Elapsed.TotalSeconds} found {i} files");
-
-
-            sw.Reset();
-            sw.Start();
-
-            var list = new List<string>();
-            AddFiles(@"c:\", "*.dll", list);
-
-            sw.Stop();
-
-            Console.WriteLine($"Sync: {sw.Elapsed.TotalSeconds} found {list.Count} files");
-
-
-            sw.Reset();
-            sw.Start();
-
-            var searcher = new SolutionSearcher();
-            var result = await searcher.Search(@"c:\");
-            
-            sw.Stop();
-
-            Console.WriteLine($"Async2: {sw.Elapsed.TotalSeconds} found {result.Count()} files");
+            Console.WriteLine($"Async: {sw.Elapsed.TotalSeconds} found {list.Count()} files");
 
             //args = new string[] { "list", "--help" };
             //args = new string[] {"list", @"E:\Projects\Dependency\DependencyFinder\Test" };

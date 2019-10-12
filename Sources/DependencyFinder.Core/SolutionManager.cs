@@ -2,6 +2,7 @@
 using ByteDev.DotNet.Solution;
 using CSharpFunctionalExtensions;
 using DependencyFinder.Core.Models;
+using DependencyFinder.Search;
 using DependencyFinder.Utils;
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -27,11 +28,9 @@ namespace DependencyFinder.Core
             _logger = logger;
         }
 
-        public async Task<IEnumerable<FileInfo>> FindSolutions(string rootDirectory, CancellationToken cancellationToken = default)
+        public IEnumerable<FastFileInfo> FindSolutions(string rootDirectory)
         {
-            var searcher = new SolutionSearcher();
-            var result = await searcher.Search(rootDirectory, cancellationToken);
-            return result;
+            return FastFileInfo.EnumerateFiles(rootDirectory, "*.sln", SearchOption.AllDirectories);
         }
 
         public async Task<IEnumerable<Project>> OpenSolution(string solutionPath)

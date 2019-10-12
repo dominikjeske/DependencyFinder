@@ -19,7 +19,7 @@ namespace DependencyFinder
             }
 
             var sm = new SolutionManager(null);
-            var solutions = await sm.FindSolutions(so.RootPath);
+            var solutions = sm.FindSolutions(so.RootPath);
 
             int i = 0;
             foreach (var s in solutions)
