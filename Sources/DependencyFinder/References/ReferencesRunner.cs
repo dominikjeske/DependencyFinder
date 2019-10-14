@@ -19,35 +19,40 @@ namespace DependencyFinder
             }
 
             var sm = new SolutionManager(null);
-            var result = await sm.FindAllReferences();
+            
+            await foreach(var r in sm.FindAllReferences(no.RootPath, no.SourceProject, no.ClassName))
+            {
+                ConsoleEx.WriteOKLine($"{r.ProjectName}");
+            }
 
-            var headerThickness = new LineThickness(LineWidth.Double, LineWidth.Single);
-            var doc = new Document(new Span("CommonFull.TestClass:") { Color = Yellow }, "\n",
-                                   new Grid
-                                   {
-                                       Color = Gray,
-                                       Columns = { GridLength.Star(1), GridLength.Auto, GridLength.Auto, GridLength.Auto, GridLength.Auto, GridLength.Auto },
-                                       Children = {
-                                            new Cell("Project") { Stroke = headerThickness},
-                                            new Cell("File") { Stroke = headerThickness },
-                                            new Cell("Block") { Stroke = headerThickness },
-                                            new Cell("Namespace") { Stroke = headerThickness },
-                                            new Cell("Class") { Stroke = headerThickness },
-                                            new Cell("Line") { Stroke = headerThickness },
-                                            result.Select(item => new[]
-                                            {
-                                                new Cell(item.ProjectName),
-                                                new Cell(item.FileName),
-                                                new Cell(item.Block),
-                                                new Cell(item.Namespace),
-                                                new Cell(item.ClassName),
-                                                new Cell(item.LineNumber),
-                                            })
-                                       }
-                                   }
-                               );
 
-            ConsoleRenderer.RenderDocument(doc);
+            //var headerThickness = new LineThickness(LineWidth.Double, LineWidth.Single);
+            //var doc = new Document(new Span("CommonFull.TestClass:") { Color = Yellow }, "\n",
+            //                       new Grid
+            //                       {
+            //                           Color = Gray,
+            //                           Columns = { GridLength.Star(1), GridLength.Auto, GridLength.Auto, GridLength.Auto, GridLength.Auto, GridLength.Auto },
+            //                           Children = {
+            //                                new Cell("Project") { Stroke = headerThickness},
+            //                                new Cell("File") { Stroke = headerThickness },
+            //                                new Cell("Block") { Stroke = headerThickness },
+            //                                new Cell("Namespace") { Stroke = headerThickness },
+            //                                new Cell("Class") { Stroke = headerThickness },
+            //                                new Cell("Line") { Stroke = headerThickness },
+            //                                result.Select(item => new[]
+            //                                {
+            //                                    new Cell(item.ProjectName),
+            //                                    new Cell(item.FileName),
+            //                                    new Cell(item.Block),
+            //                                    new Cell(item.Namespace),
+            //                                    new Cell(item.ClassName),
+            //                                    new Cell(item.LineNumber),
+            //                                })
+            //                           }
+            //                       }
+            //                   );
+
+            //ConsoleRenderer.RenderDocument(doc);
 
         }
     }

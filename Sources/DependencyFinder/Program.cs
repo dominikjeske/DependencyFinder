@@ -1,9 +1,5 @@
 ﻿using CommandLine;
-using DependencyFinder.Search;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace DependencyFinder
@@ -22,12 +18,13 @@ namespace DependencyFinder
             //args = new string[] { "list", @"E:\Projects\Dependency\DependencyFinder\Test", "-p", "-m wpf" };
             //args = new string[] { "list", @"E:\Projects\Dependency\DependencyFinder\Test", "-n", "-g automa" };
 
-            args = new string[] {"nuget", @"E:\Projects\Dependency\DependencyFinder\Test" };
+            //args = new string[] {"nuget", @"E:\Projects\Dependency\DependencyFinder\Test" };
             //args = new string[] { "nuget", @"E:\Projects\Dependency\DependencyFinder\Test", "-i" };
             //args = new string[] { "nuget", @"E:\Projects\Dependency\DependencyFinder\Test", "-d" };
 
-            //args = new string[] {"reference", @"E:\Projects\Dependency\DependencyFinder\Test" };
+            args = new string[] { "reference", @"E:\Projects\Dependency\DependencyFinder\Test", @"-p E:\Projects\Dependency\DependencyFinder\Test\Common\CommonFull\CommonFull\CommonFull.csproj", "-c CommonFull.TestClass" };
 
+            
             await Parser.Default.ParseArguments<SolutionOptions, NugetOptions, ReferencesOptions>(args)
                                 .MapResult((SolutionOptions so) => SolutionRun(so),
                                            (NugetOptions no) => NugetRun(no),

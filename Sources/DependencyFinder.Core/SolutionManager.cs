@@ -20,6 +20,11 @@ namespace DependencyFinder.Core
 {
     public class SolutionManager
     {
+        static SolutionManager()
+        {
+            MSBuildLocator.RegisterDefaults();
+        }
+
         private readonly ILogger<SolutionManager> _logger;
 
         public SolutionManager(ILogger<SolutionManager> logger)
@@ -33,7 +38,7 @@ namespace DependencyFinder.Core
             return asyncFinder.Find(rootDirectory, "*.sln");
         }
 
-        public async IAsyncEnumerable<string> FindProjectReferences(string rootDirectory, string projectName)
+        public async IAsyncEnumerable<string> FindSolutionWithProject(string rootDirectory, string projectName)
         {
             var solutions = new List<string>();
             await foreach (var solution in FindSolutions(rootDirectory))
@@ -89,7 +94,7 @@ namespace DependencyFinder.Core
 
         private IEnumerable<Project> ReadProjectsFromSolution(string solutionPath)
         {
-            var solution = LoadSolution(solutionPath);
+            var solution = ReadSolutionFromDisk(solutionPath);
 
             if (solution.IsFailure) return Enumerable.Empty<Project>();
 
@@ -109,7 +114,7 @@ namespace DependencyFinder.Core
                             });
         }
 
-        private Result<DotNetSolution> LoadSolution(string solutionPath)
+        private Result<DotNetSolution> ReadSolutionFromDisk(string solutionPath)
         {
             try
             {
@@ -123,69 +128,78 @@ namespace DependencyFinder.Core
             }
         }
 
-        public async Task<List<Reference>> FindAllReferences()
+        public async IAsyncEnumerable<Reference> FindAllReferences(string rootPath, string sourceProject, string className)
         {
-            MSBuildLocator.RegisterDefaults();
-            var searchResult = new List<Reference>();
+            var projectName = Path.GetFileNameWithoutExtension(sourceProject);
 
+            await foreach(var solution in FindSolutionWithProject(rootPath, projectName))
+            {
+                await foreach(var reference in FindReferenceInSolution(solution, className))
+                {
+                    yield return reference;
+                }
+            }
+        }
+
+        private async IAsyncEnumerable<Reference> FindReferenceInSolution(string solutionPath, string className)
+        {
             using (var workspace = MSBuildWorkspace.Create())
             {
-                var solution = await workspace.OpenSolutionAsync(@"E:\Projects\Dependency\DependencyFinder\Test\WPF\WPF.sln");
+                var solution = await workspace.OpenSolutionAsync(solutionPath);
 
-                var project = solution.Projects.FirstOrDefault(x => x.Name == "WPF");
-
-                var compilation = await project.GetCompilationAsync();
-
-                var searchedSymbol = compilation.GetTypeByMetadataName("CommonFull.TestClass");
-
-                var results = await SymbolFinder.FindReferencesAsync(searchedSymbol, solution);
-
-                foreach (var reference in results)
+                foreach(var project in solution.Projects)
                 {
-                    foreach (ReferenceLocation location in reference.Locations)
+                    var compilation = await project.GetCompilationAsync();
+
+                    var searchedSymbol = compilation.GetTypeByMetadataName(className);
+
+                    var results = await SymbolFinder.FindReferencesAsync(searchedSymbol, solution);
+
+                    foreach (var reference in results)
                     {
-                        int spanStart = location.Location.SourceSpan.Start;
-                        var doc = location.Document;
-                        var ss = location.Location.ToString();
-
-                        var root = await doc.GetSyntaxRootAsync();
-                        var node = root.DescendantNodes()
-                                        .FirstOrDefault(node => node.GetLocation().SourceSpan.Start == spanStart);
-
-                        var line = node.SyntaxTree.GetLineSpan(location.Location.SourceSpan);
-
-                        var className = node.Ancestors()
-                                            .OfType<ClassDeclarationSyntax>()
-                                            .FirstOrDefault()
-                                           ?.Identifier.Text ?? string.Empty;
-
-                        var @namespace = node.Ancestors()
-                                             .OfType<NamespaceDeclarationSyntax>()
-                                             .FirstOrDefault()
-                                            ?.Name.ToString() ?? String.Empty;
-
-                        var block = node.Ancestors()
-                                             .OfType<BlockSyntax>()
-                                             .FirstOrDefault()
-                                            ?.ToString() ?? String.Empty;
-
-                        var objectReference = new Reference
+                        foreach (ReferenceLocation location in reference.Locations)
                         {
-                            FileName = doc.Name,
-                            ProjectName = doc.Project.Name,
-                            ClassName = className,
-                            Namespace = @namespace,
-                            Block = block,
-                            LineNumber = line.StartLinePosition.Line
-                        };
-                        searchResult.Add(objectReference);
+                            int spanStart = location.Location.SourceSpan.Start;
+                            var doc = location.Document;
+                            var ss = location.Location.ToString();
+
+                            var root = await doc.GetSyntaxRootAsync();
+                            var node = root.DescendantNodes()
+                                            .FirstOrDefault(node => node.GetLocation().SourceSpan.Start == spanStart);
+
+                            var line = node.SyntaxTree.GetLineSpan(location.Location.SourceSpan);
+
+                            var definitionClassName = node.Ancestors()
+                                                .OfType<ClassDeclarationSyntax>()
+                                                .FirstOrDefault()
+                                               ?.Identifier.Text ?? string.Empty;
+
+                            var @namespace = node.Ancestors()
+                                                 .OfType<NamespaceDeclarationSyntax>()
+                                                 .FirstOrDefault()
+                                                ?.Name.ToString() ?? String.Empty;
+
+                            var block = node.Ancestors()
+                                                 .OfType<BlockSyntax>()
+                                                 .FirstOrDefault()
+                                                ?.ToString() ?? String.Empty;
+
+                            var objectReference = new Reference
+                            {
+                                FileName = doc.Name,
+                                ProjectName = doc.Project.Name,
+                                ClassName = definitionClassName,
+                                Namespace = @namespace,
+                                Block = block,
+                                LineNumber = line.StartLinePosition.Line
+                            };
+
+                            yield return objectReference;
+
+                        }
                     }
                 }
-
-                //CheckDiagnostics(workspace);
             }
-
-            return searchResult;
         }
 
         private static void CheckDiagnostics(MSBuildWorkspace workspace)
