@@ -57,10 +57,10 @@ namespace DependencyFinder.Search
         {
             try
             {
-               // var sw = new SpinWait();
+                var sw = new SpinWait();
                 foreach (var dir in Directory.EnumerateDirectories(subdir))
                 {
-                    dirs.Writer.TryWrite(dir); //sw.SpinOnce();
+                    while (!dirs.Writer.TryWrite(dir)) sw.SpinOnce();
                 }
             }
             catch (UnauthorizedAccessException)
@@ -72,11 +72,11 @@ namespace DependencyFinder.Search
         {
             try
             {
-                //var sw = new SpinWait();
+                var sw = new SpinWait();
                 //foreach (var file in Directory.EnumerateFiles(dir, searchPattern))
                 foreach (var file in FastFileInfo.EnumerateFiles(dir, searchPattern))
                 {
-                    channel.Writer.TryWrite(file.FullName); //sw.SpinOnce();
+                    while (!channel.Writer.TryWrite(file.FullName)) sw.SpinOnce();
                 }
             }
             catch (UnauthorizedAccessException)

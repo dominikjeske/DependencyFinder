@@ -1,7 +1,9 @@
 ﻿using Alba.CsConsoleFormat;
 using DependencyFinder.Core;
+using DependencyFinder.Core.Models;
 using DependencyFinder.Utils;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,22 +22,21 @@ namespace DependencyFinder
             }
 
             var sm = new SolutionManager(null);
-            var solutions = sm.FindSolutions(no.RootPath);
 
-            var result = await solutions.AsParallel().SelectManyAsync(async s =>
+            var projects = new List<Project>();
+            await foreach(var solution in sm.FindSolutions(no.RootPath))
             {
-                var projects = await sm.OpenSolution(s.FullName);
-                return projects;
-            });
+                projects.AddRange(await sm.OpenSolution(solution));
+            }
 
-            var nugets = result.Distinct().SelectMany(p => p.Nugets.Select(n => new
+            var nugets = projects.Distinct().SelectMany(p => p.Nugets.Select(n => new
             {
                 Name = n.Name,
                 Version = n.Version,
                 Project = p.Name
             }));
 
-            if(no.IgnoreSystemNugets)
+            if (no.IgnoreSystemNugets)
             {
                 nugets = nugets.Where(x => !x.Name.IsSystemNuget());
             }
@@ -48,7 +49,7 @@ namespace DependencyFinder
                 Name = nuget.Key
             });
 
-            if(no.OnlyDiff)
+            if (no.OnlyDiff)
             {
                 grouped = grouped.Where(x => x.Min != x.Max);
             }
@@ -88,8 +89,8 @@ namespace DependencyFinder
 
     public class NugetGroup
     {
-        public Version Min { get; set; }
-        public Version Max { get; set; }
+        public VersionEx Min { get; set; }
+        public VersionEx Max { get; set; }
         public string Name { get; set; }
         public int Count { get; set; }
     }

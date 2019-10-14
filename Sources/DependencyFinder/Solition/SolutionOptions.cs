@@ -19,10 +19,10 @@ namespace DependencyFinder
         [Option('i', "ignore", HelpText = "Ignore system nugets")]
         public bool IgnoreSystemNugets { get; set; }
 
-        [Option('c', "core", HelpText = "Show only .NET core projects", SetName = "NetType")]
+        [Option('c', "core", HelpText = "Show only .NET core projects", SetName = "NetType", Default = false)]
         public bool ShowOnlyCore { get; set; }
 
-        [Option('f', "full", HelpText = "Show only .NET full framework projects", SetName = "NetType")]
+        [Option('f', "full", HelpText = "Show only .NET full framework projects", SetName = "NetType", Default = false)]
         public bool ShowOnlyFull { get; set; }
 
         [Option('m', "pname", HelpText = "Search only for project names")]

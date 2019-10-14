@@ -1,5 +1,4 @@
 ﻿using DependencyFinder.Core.Models;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,7 +23,7 @@ namespace DependencyFinder.Core
                     .Select(pr => new NugetPackage
                     {
                         Name = pr.Attribute("id").Value,
-                        Version = new Version(pr.Attribute("version").Value),
+                        Version = VersionEx.FromString(pr.Attribute("version").Value),
                         TargetFramework = pr.Attribute("targetFramework").Value
                     });
 
@@ -38,7 +37,7 @@ namespace DependencyFinder.Core
                     .Select(pr => new NugetPackage
                     {
                         Name = pr.Attribute("Include").Value,
-                        Version = new Version(pr.Attribute("Version").Value)
+                        Version = VersionEx.FromString(pr.Attribute("Version").Value)
                     });
 
                 return packageReferences;

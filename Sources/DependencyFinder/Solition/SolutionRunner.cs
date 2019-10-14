@@ -1,9 +1,6 @@
 ﻿using DependencyFinder.Core;
 using DependencyFinder.Utils;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace DependencyFinder
@@ -22,15 +19,15 @@ namespace DependencyFinder
             var solutions = sm.FindSolutions(so.RootPath);
 
             int i = 0;
-            foreach (var s in solutions)
+            await foreach (var s in solutions)
             {
-                ConsoleEx.WriteOKLine($"{i}. {s.FullName}");
+                ConsoleEx.WriteOKLine($"{i}. {s}");
                 if (so.ListProjects || so.ListNugets)
                 {
-                    var projects = await sm.OpenSolution(s.FullName);
+                    var projects = await sm.OpenSolution(s);
                     foreach (var p in projects)
                     {
-                        if (so.ShowOnlyCore && !p.IsNetCore || !so.ShowOnlyCore && p.IsNetCore)
+                        if ((so.ShowOnlyCore && !p.IsNetCore) || (so.ShowOnlyFull && p.IsNetCore))
                         {
                             continue;
                         }
@@ -64,10 +61,5 @@ namespace DependencyFinder
                 i++;
             }
         }
-
-
-       
     }
-
-
 }

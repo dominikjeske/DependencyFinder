@@ -13,7 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
@@ -28,52 +27,86 @@ namespace DependencyFinder.Core
             _logger = logger;
         }
 
-        public IEnumerable<FastFileInfo> FindSolutions(string rootDirectory)
+        public IAsyncEnumerable<string> FindSolutions(string rootDirectory)
         {
-            return FastFileInfo.EnumerateFiles(rootDirectory, "*.sln", SearchOption.AllDirectories);
+            var asyncFinder = new AsyncFileFinder();
+            return asyncFinder.Find(rootDirectory, "*.sln");
+        }
+
+        public async IAsyncEnumerable<string> FindProjectReferences(string rootDirectory, string projectName)
+        {
+            var solutions = new List<string>();
+            await foreach (var solution in FindSolutions(rootDirectory))
+            {
+                if(ReadProjectsFromSolution(solution).Any(p => p.Name == projectName))
+                {
+                    yield return solution;
+                }
+            }
         }
 
         public async Task<IEnumerable<Project>> OpenSolution(string solutionPath)
         {
+            var projects = ReadProjectsFromSolution(solutionPath);
+            var result = await ReadProjectDetails(projects);
+            return result;
+        }
+
+        private async Task<IEnumerable<Project>> ReadProjectDetails(IEnumerable<Project> projects)
+        {
+            var tasks = projects.AsParallel().Select(async project =>
+            {
+                var projectInfo = DotNetProject.Load(project.AbsolutePath);
+                project.IsNetCore = projectInfo.Format == ProjectFormat.New;
+
+                var nugets = await ReadNuget(project.AbsolutePath, projectInfo);
+                project.Nugets.AddRange(nugets);
+
+                return project;
+            }).ToList();
+
+            var result =  await Task.WhenAll(tasks);
+
+            return result;
+        }
+
+        private async Task<IEnumerable<NugetPackage>> ReadNuget(string projectPath, DotNetProject project)
+        {
+            if (project.Format == ProjectFormat.Old)
+            {
+                var nugets = await NugetConfigReader.GetNugetPackages(projectPath);
+                return nugets;
+            }
+            else
+            {
+                return project.PackageReferences.Select(p => new NugetPackage
+                {
+                    Name = p.Name,
+                    Version = VersionEx.FromString(p.Version)
+                });
+            }
+        }
+
+        private IEnumerable<Project> ReadProjectsFromSolution(string solutionPath)
+        {
             var solution = LoadSolution(solutionPath);
-            if (solution.IsFailure) return null;
+
+            if (solution.IsFailure) return Enumerable.Empty<Project>();
 
             var solutionDirectory = Path.GetDirectoryName(solutionPath);
 
-            var projects = solution.Value.Projects.Select(p => new Project
-            {
-                Id = p.Id,
-                Name = p.Name,
-                RelativePath = p.Path,
-                AbsolutePath = Path.GetFullPath(Path.Combine(solutionDirectory, p.Path)),
-                Type = p.Type?.Description,
-                Solution = solutionPath
-            });
-
-            var result = projects.AsParallel().Select(async p =>
-            {
-                var project = DotNetProject.Load(p.AbsolutePath);
-                p.IsNetCore = project.Format == ProjectFormat.New;
-
-                if (project.Format == ProjectFormat.Old)
-                {
-                    var nugets = await NugetConfigReader.GetNugetPackages(p.AbsolutePath);
-                    p.Nugets.AddRange(nugets);
-                }
-                else
-                {
-                    p.Nugets.AddRange(project.PackageReferences.Select(p => new NugetPackage
-                    {
-                        Name = p.Name,
-                        Version = new Version(p.Version)
-                    }));
-                }
-
-                return p;
-            }).ToList();
-
-            var projectsResult = await Task.WhenAll(result);
-            return projectsResult;
+            return solution.Value
+                            .Projects
+                            .Where(x => !x.Type.IsSolutionFolder && x.Type.Description == "C#")
+                            .Select(p => new Project
+                            {
+                                Id = p.Id,
+                                Name = p.Name,
+                                RelativePath = p.Path,
+                                AbsolutePath = Path.GetFullPath(Path.Combine(solutionDirectory, p.Path)),
+                                Type = p.Type?.Description,
+                                Solution = solutionPath
+                            });
         }
 
         private Result<DotNetSolution> LoadSolution(string solutionPath)

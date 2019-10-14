@@ -12,23 +12,6 @@ namespace DependencyFinder
     {
         private static async Task Main(string[] args)
         {
-            var sw = new Stopwatch();
-            var test = new AsyncFileFinder();
-
-            var location = @"c:\";
-
-            sw.Start();
-
-            var list = new List<string>();
-            await foreach (var sln in test.Find(location, "*.dll"))
-            {
-                list.Add(sln);
-            }
-
-            sw.Stop();
-
-            Console.WriteLine($"Async: {sw.Elapsed.TotalSeconds} found {list.Count()} files");
-
             //args = new string[] { "list", "--help" };
             //args = new string[] {"list", @"E:\Projects\Dependency\DependencyFinder\Test" };
             //args = new string[] {"list", @"E:\Projects\Dependency\DependencyFinder\Test", "-p" };
@@ -39,13 +22,12 @@ namespace DependencyFinder
             //args = new string[] { "list", @"E:\Projects\Dependency\DependencyFinder\Test", "-p", "-m wpf" };
             //args = new string[] { "list", @"E:\Projects\Dependency\DependencyFinder\Test", "-n", "-g automa" };
 
-            //args = new string[] {"nuget", @"E:\Projects\Dependency\DependencyFinder\Test" };
+            args = new string[] {"nuget", @"E:\Projects\Dependency\DependencyFinder\Test" };
             //args = new string[] { "nuget", @"E:\Projects\Dependency\DependencyFinder\Test", "-i" };
             //args = new string[] { "nuget", @"E:\Projects\Dependency\DependencyFinder\Test", "-d" };
 
             //args = new string[] {"reference", @"E:\Projects\Dependency\DependencyFinder\Test" };
 
-            return;
             await Parser.Default.ParseArguments<SolutionOptions, NugetOptions, ReferencesOptions>(args)
                                 .MapResult((SolutionOptions so) => SolutionRun(so),
                                            (NugetOptions no) => NugetRun(no),

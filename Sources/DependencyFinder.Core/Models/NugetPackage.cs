@@ -6,6 +6,6 @@ namespace DependencyFinder.Core.Models
     {
         public string Name { get; set; }
         public string TargetFramework { get; set; }
-        public Version Version { get; set; }
+        public VersionEx Version { get; set; }
     }
 }
