@@ -76,5 +76,17 @@ namespace DependencyFinder.Core.Models
         }
 
         public int CompareTo([AllowNull] VersionEx other) => Comparison(this, other);
+
+        public override int GetHashCode()
+        {
+            unchecked // Overflow is fine, just wrap
+            {
+                int hash = (int)2166136261;
+                // Suitable nullity checks etc, of course :)
+                hash = (hash * 16777619) ^ Value.GetHashCode();
+                hash = (hash * 16777619) ^ Beta.GetHashCode();
+                return hash;
+            }
+        }
     }
 }

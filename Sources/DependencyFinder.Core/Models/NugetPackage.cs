@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DependencyFinder.Core.Models
+﻿namespace DependencyFinder.Core.Models
 {
     public class NugetPackage
     {

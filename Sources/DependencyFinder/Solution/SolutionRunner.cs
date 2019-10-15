@@ -1,5 +1,4 @@
 ﻿using DependencyFinder.Core;
-using DependencyFinder.Utils;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -9,7 +8,7 @@ namespace DependencyFinder
     {
         public async Task Run(SolutionOptions so)
         {
-            if(string.IsNullOrWhiteSpace(so.RootPath))
+            if (string.IsNullOrWhiteSpace(so.RootPath))
             {
                 so.RootPath = Directory.GetCurrentDirectory();
             }

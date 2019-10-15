@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyFinder", "Depende
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyFinder.Core", "DependencyFinder.Core\DependencyFinder.Core.csproj", "{FD2EAA48-2A15-4D2E-8453-5D01DCDBF34D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyFinder.Utils", "DependencyFinder.Utils\DependencyFinder.Utils.csproj", "{A468D26B-73A0-48D9-BE53-F0805164AEFD}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{FD2EAA48-2A15-4D2E-8453-5D01DCDBF34D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD2EAA48-2A15-4D2E-8453-5D01DCDBF34D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD2EAA48-2A15-4D2E-8453-5D01DCDBF34D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A468D26B-73A0-48D9-BE53-F0805164AEFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A468D26B-73A0-48D9-BE53-F0805164AEFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A468D26B-73A0-48D9-BE53-F0805164AEFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A468D26B-73A0-48D9-BE53-F0805164AEFD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

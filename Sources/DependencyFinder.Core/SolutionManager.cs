@@ -3,7 +3,6 @@ using ByteDev.DotNet.Solution;
 using CSharpFunctionalExtensions;
 using DependencyFinder.Core.Models;
 using DependencyFinder.Search;
-using DependencyFinder.Utils;
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
@@ -43,7 +42,7 @@ namespace DependencyFinder.Core
             var solutions = new List<string>();
             await foreach (var solution in FindSolutions(rootDirectory))
             {
-                if(ReadProjectsFromSolution(solution).Any(p => p.Name == projectName))
+                if (ReadProjectsFromSolution(solution).Any(p => p.Name == projectName))
                 {
                     yield return solution;
                 }
@@ -70,7 +69,7 @@ namespace DependencyFinder.Core
                 return project;
             }).ToList();
 
-            var result =  await Task.WhenAll(tasks);
+            var result = await Task.WhenAll(tasks);
 
             return result;
         }
@@ -132,9 +131,9 @@ namespace DependencyFinder.Core
         {
             var projectName = Path.GetFileNameWithoutExtension(sourceProject);
 
-            await foreach(var solution in FindSolutionWithProject(rootPath, projectName))
+            await foreach (var solution in FindSolutionWithProject(rootPath, projectName))
             {
-                await foreach(var reference in FindReferenceInSolution(solution, projectName, className))
+                await foreach (var reference in FindReferenceInSolution(solution, projectName, className))
                 {
                     yield return reference;
                 }
@@ -148,7 +147,6 @@ namespace DependencyFinder.Core
                 var solution = await workspace.OpenSolutionAsync(solutionPath);
                 var project = solution.Projects.FirstOrDefault(p => p.Name == projectName); //TODO check for null
 
-    
                 var compilation = await project.GetCompilationAsync();
 
                 var searchedSymbol = compilation.GetTypeByMetadataName(className.Trim());
@@ -195,42 +193,40 @@ namespace DependencyFinder.Core
                         };
 
                         yield return objectReference;
-
                     }
                 }
-                
             }
         }
 
         //TODO
-        private static void CheckDiagnostics(MSBuildWorkspace workspace)
-        {
-            foreach (var diagnostic in workspace.Diagnostics)
-            {
-                if (diagnostic.Kind == Microsoft.CodeAnalysis.WorkspaceDiagnosticKind.Failure)
-                {
-                    ConsoleEx.WriteErrorLine(diagnostic.Message);
-                }
-                else if (diagnostic.Kind == Microsoft.CodeAnalysis.WorkspaceDiagnosticKind.Warning)
-                {
-                    ConsoleEx.WriteWarningLine(diagnostic.Message);
-                }
-            }
-        }
+        //private static void CheckDiagnostics(MSBuildWorkspace workspace)
+        //{
+        //    foreach (var diagnostic in workspace.Diagnostics)
+        //    {
+        //        if (diagnostic.Kind == Microsoft.CodeAnalysis.WorkspaceDiagnosticKind.Failure)
+        //        {
+        //            ConsoleEx.WriteErrorLine(diagnostic.Message);
+        //        }
+        //        else if (diagnostic.Kind == Microsoft.CodeAnalysis.WorkspaceDiagnosticKind.Warning)
+        //        {
+        //            ConsoleEx.WriteWarningLine(diagnostic.Message);
+        //        }
+        //    }
+        //}
 
-        public IAsyncEnumerable<R> Execute<T, R>(IEnumerable<T> tasks, Func<T, Task<R>> action)
-        {
-            var channel = Channel.CreateUnbounded<R>(new UnboundedChannelOptions { SingleWriter = false, SingleReader = true });
+        //public IAsyncEnumerable<R> Execute<T, R>(IEnumerable<T> tasks, Func<T, Task<R>> action)
+        //{
+        //    var channel = Channel.CreateUnbounded<R>(new UnboundedChannelOptions { SingleWriter = false, SingleReader = true });
 
-            var result = Parallel.ForEach(tasks, async (data) =>
-            {
-                var result = await action(data);
-                await channel.Writer.WriteAsync(result);
-            });
+        //    var result = Parallel.ForEach(tasks, async (data) =>
+        //    {
+        //        var result = await action(data);
+        //        await channel.Writer.WriteAsync(result);
+        //    });
 
-            var xxxx = result.IsCompleted;
+        //    var xxxx = result.IsCompleted;
 
-            return channel.Reader.ReadAllAsync();
-        }
+        //    return channel.Reader.ReadAllAsync();
+        //}
     }
 }

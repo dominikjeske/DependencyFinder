@@ -1,7 +1,6 @@
 ﻿using Alba.CsConsoleFormat;
 using DependencyFinder.Core;
 using DependencyFinder.Core.Models;
-using DependencyFinder.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,7 +27,7 @@ namespace DependencyFinder
             var sm = new SolutionManager(null);
 
             var projects = new List<Project>();
-            await foreach(var solution in sm.FindSolutions(no.RootPath))
+            await foreach (var solution in sm.FindSolutions(no.RootPath))
             {
                 projects.AddRange(await sm.OpenSolution(solution));
             }

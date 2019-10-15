@@ -1,6 +1,5 @@
 ﻿using Alba.CsConsoleFormat;
 using DependencyFinder.Core;
-using DependencyFinder.Utils;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -64,8 +63,6 @@ namespace DependencyFinder
                     ConsoleEx.WriteOKLine($"{r.ProjectName} [{r.FileName}->{r.Namespace}.{r.ClassName}:{r.LineNumber}]");
                 }
             }
-
-
         }
     }
 }
