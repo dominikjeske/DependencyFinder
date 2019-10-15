@@ -13,5 +13,8 @@ namespace DependencyFinder
 
         [Option('c', "class", HelpText = "Name of the class we are searching for")]
         public string ClassName { get; set; }
+
+        [Option('t', "table", HelpText = "Display result in table (result are displayed after all results are found)")]
+        public bool IsTableView { get; set; }
     }
 }

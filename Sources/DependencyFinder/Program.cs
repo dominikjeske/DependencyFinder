@@ -22,9 +22,10 @@ namespace DependencyFinder
             //args = new string[] { "nuget", @"E:\Projects\Dependency\DependencyFinder\Test", "-i" };
             //args = new string[] { "nuget", @"E:\Projects\Dependency\DependencyFinder\Test", "-d" };
 
-            args = new string[] { "reference", @"E:\Projects\Dependency\DependencyFinder\Test", @"-p E:\Projects\Dependency\DependencyFinder\Test\Common\CommonFull\CommonFull\CommonFull.csproj", "-c CommonFull.TestClass" };
+            //args = new string[] { "reference", @"E:\Projects\Dependency\DependencyFinder\Test", @"-p E:\Projects\Dependency\DependencyFinder\Test\Common\CommonFull\CommonFull\CommonFull.csproj", "-c CommonFull.TestClass" };
+            args = new string[] { "reference", @"E:\Projects\Dependency\DependencyFinder\Test", @"-p E:\Projects\Dependency\DependencyFinder\Test\Common\CommonFull\CommonFull\CommonFull.csproj", "-c CommonFull.TestClass", "-t" };
 
-            
+
             await Parser.Default.ParseArguments<SolutionOptions, NugetOptions, ReferencesOptions>(args)
                                 .MapResult((SolutionOptions so) => SolutionRun(so),
                                            (NugetOptions no) => NugetRun(no),
