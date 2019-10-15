@@ -56,5 +56,11 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\CommonFull\CommonFull\CommonFull.csproj">
+      <Project>{50F89DD3-183C-49F9-9030-FAB9DAFE4AE0}</Project>
+      <Name>CommonFull</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

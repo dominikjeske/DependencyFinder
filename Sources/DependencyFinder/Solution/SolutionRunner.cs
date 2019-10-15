@@ -9,6 +9,11 @@ namespace DependencyFinder
     {
         public async Task Run(SolutionOptions so)
         {
+            if(string.IsNullOrWhiteSpace(so.RootPath))
+            {
+                so.RootPath = Directory.GetCurrentDirectory();
+            }
+
             if (!Directory.Exists(so.RootPath))
             {
                 ConsoleEx.WriteErrorLine($"Path {so.RootPath} not exists");

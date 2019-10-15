@@ -7,22 +7,22 @@ namespace DependencyFinder
     [Verb("list", HelpText = "List content of solutions")]
     public class SolutionOptions
     {
-        [Value(0, HelpText = "Root folder of solutions", Required = true)]
+        [Value(0, HelpText = "Root folder of solutions")]
         public string RootPath { get; set; }
 
-        [Option('p', "projects", HelpText = "List projects", SetName = "ViewType")]
+        [Option('p', "projects", HelpText = "List projects")]
         public bool ListProjects { get; set; }
 
-        [Option('n', "nugets", HelpText = "List nugets", SetName = "ViewType")]
+        [Option('n', "nugets", HelpText = "List nugets")]
         public bool ListNugets { get; set; }
 
         [Option('i', "ignore", HelpText = "Ignore system nugets")]
         public bool IgnoreSystemNugets { get; set; }
 
-        [Option('c', "core", HelpText = "Show only .NET core projects", SetName = "NetType", Default = false)]
+        [Option('c', "core", HelpText = "Show only .NET core projects", Default = false)]
         public bool ShowOnlyCore { get; set; }
 
-        [Option('f', "full", HelpText = "Show only .NET full framework projects", SetName = "NetType", Default = false)]
+        [Option('f', "full", HelpText = "Show only .NET full framework projects", Default = false)]
         public bool ShowOnlyFull { get; set; }
 
         [Option('m', "pname", HelpText = "Search only for project names")]

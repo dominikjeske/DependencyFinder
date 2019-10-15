@@ -5,7 +5,7 @@ namespace DependencyFinder
     [Verb("nuget", HelpText = "List nuget packages")]
     public class NugetOptions
     {
-        [Value(0, HelpText = "Root folder of solutions", Required = true)]
+        [Value(0, HelpText = "Root folder of solutions")]
         public string RootPath { get; set; }
 
         [Option('i', "ignore", HelpText = "Ignore system nugets")]

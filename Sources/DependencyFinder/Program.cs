@@ -9,7 +9,9 @@ namespace DependencyFinder
         private static async Task Main(string[] args)
         {
             //args = new string[] { "list", "--help" };
+            //args = new string[] {"list"};
             //args = new string[] {"list", @"E:\Projects\Dependency\DependencyFinder\Test" };
+            //args = new string[] { "list", @"E:\Projects\Dependency\DependencyFinder\Test", "-f" };
             //args = new string[] {"list", @"E:\Projects\Dependency\DependencyFinder\Test", "-p" };
             //args = new string[] {"list", @"E:\Projects\Dependency\DependencyFinder\Test", "-n" };
             //args = new string[] {"list", @"E:\Projects\Dependency\DependencyFinder\Test", "-n", "-i" };
@@ -23,7 +25,7 @@ namespace DependencyFinder
             //args = new string[] { "nuget", @"E:\Projects\Dependency\DependencyFinder\Test", "-d" };
 
             //args = new string[] { "reference", @"E:\Projects\Dependency\DependencyFinder\Test", @"-p E:\Projects\Dependency\DependencyFinder\Test\Common\CommonFull\CommonFull\CommonFull.csproj", "-c CommonFull.TestClass" };
-            args = new string[] { "reference", @"E:\Projects\Dependency\DependencyFinder\Test", @"-p E:\Projects\Dependency\DependencyFinder\Test\Common\CommonFull\CommonFull\CommonFull.csproj", "-c CommonFull.TestClass", "-t" };
+            //args = new string[] { "reference", @"E:\Projects\Dependency\DependencyFinder\Test", @"-p E:\Projects\Dependency\DependencyFinder\Test\Common\CommonFull\CommonFull\CommonFull.csproj", "-c CommonFull.TestClass", "-t" };
 
 
             await Parser.Default.ParseArguments<SolutionOptions, NugetOptions, ReferencesOptions>(args)
