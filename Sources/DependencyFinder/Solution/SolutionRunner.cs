@@ -25,7 +25,8 @@ namespace DependencyFinder
             int i = 0;
             await foreach (var s in solutions)
             {
-                ConsoleEx.WriteOKLine($"{i}. {s}");
+                bool solution = false;
+                
                 if (so.ListProjects || so.ListNugets)
                 {
                     var projects = await sm.OpenSolution(s);
@@ -41,10 +42,20 @@ namespace DependencyFinder
                             continue;
                         }
 
-                        ConsoleEx.WriteTitleLine($"  - {p.Name}");
-
-                        if (so.ListNugets)
+                        if(so.ListProjects)
                         {
+                            if(!solution)
+                            {
+                                solution = true;
+                                ConsoleEx.WriteOKLine($"{i}. {s}");
+                            }
+
+                            ConsoleEx.WriteTitleLine($"  - {p.Name}");
+                        }
+                        else if (so.ListNugets)
+                        {
+                            bool project = false;
+
                             foreach (var n in p.Nugets)
                             {
                                 if (so.IgnoreSystemNugets && n.Name.IsSystemNuget())
@@ -57,6 +68,16 @@ namespace DependencyFinder
                                     continue;
                                 }
 
+                                if (!solution)
+                                {
+                                    solution = true;
+                                    ConsoleEx.WriteOKLine($"{i}. {s}");
+                                }
+                                if (!project)
+                                {
+                                    project = true;
+                                    ConsoleEx.WriteTitleLine($"  - {p.Name}");
+                                }
                                 ConsoleEx.WriteDebugLine($"    - {n.Name} [{n.Version}]");
                             }
                         }

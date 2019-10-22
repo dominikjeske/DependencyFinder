@@ -12,7 +12,7 @@ namespace DependencyFinder
             //args = new string[] {"list"};
             //args = new string[] {"list", @"E:\Projects\Dependency\DependencyFinder\Test" };
             //args = new string[] { "list", @"E:\Projects\Dependency\DependencyFinder\Test", "-f" };
-            //args = new string[] {"list", @"E:\Projects\Dependency\DependencyFinder\Test", "-p" };
+            //args = new string[] {"list", @"C:\Source\Payments\humbak\ib3.0", "-n" };
             //args = new string[] {"list", @"E:\Projects\Dependency\DependencyFinder\Test", "-n" };
             //args = new string[] {"list", @"E:\Projects\Dependency\DependencyFinder\Test", "-n", "-i" };
             //args = new string[] {"list", @"E:\Projects\Dependency\DependencyFinder\Test", "-n", "-c" };
@@ -20,7 +20,7 @@ namespace DependencyFinder
             //args = new string[] { "list", @"E:\Projects\Dependency\DependencyFinder\Test", "-p", "-m wpf" };
             //args = new string[] { "list", @"E:\Projects\Dependency\DependencyFinder\Test", "-n", "-g automa" };
 
-            //args = new string[] {"nuget", @"E:\Projects\Dependency\DependencyFinder\Test" };
+            //args = new string[] {"nuget", @"C:\Source\Payments\humbak\ib3.0" };
             //args = new string[] { "nuget", @"E:\Projects\Dependency\DependencyFinder\Test", "-i" };
             //args = new string[] { "nuget", @"E:\Projects\Dependency\DependencyFinder\Test", "-d" };
 

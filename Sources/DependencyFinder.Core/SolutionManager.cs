@@ -60,11 +60,26 @@ namespace DependencyFinder.Core
         {
             var tasks = projects.AsParallel().Select(async project =>
             {
-                var projectInfo = DotNetProject.Load(project.AbsolutePath);
-                project.IsNetCore = projectInfo.Format == ProjectFormat.New;
+                try
+                {
+                    if (File.Exists(project.AbsolutePath))
+                    {
+                        var projectInfo = DotNetProject.Load(project.AbsolutePath);
+                        project.IsNetCore = projectInfo.Format == ProjectFormat.New;
 
-                var nugets = await ReadNuget(project.AbsolutePath, projectInfo);
-                project.Nugets.AddRange(nugets);
+                        var nugets = await ReadNuget(project.AbsolutePath, projectInfo);
+                        project.Nugets.AddRange(nugets);
+                    }
+                }
+                catch(InvalidDotNetProjectException ex)
+                {
+
+                }
+                catch (Exception ee)
+                {
+
+                }
+                
 
                 return project;
             }).ToList();
