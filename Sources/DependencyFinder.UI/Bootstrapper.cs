@@ -19,10 +19,26 @@ namespace DependencyFinder.UI
         {
             container = new SimpleContainer();
 
+            BindingScope.AddChildResolver<Fluent.Ribbon>(FluentRibbonChildResolver);
+
             container.Singleton<IWindowManager, WindowManager>();
+            
 
             container.PerRequest<ShellViewModel>();
         }
+
+        static IEnumerable<DependencyObject> FluentRibbonChildResolver(Fluent.Ribbon ribbon)
+        {
+            foreach (var ti in ribbon.Tabs)
+            {
+                foreach (var group in ti.Groups)
+                {
+                    foreach (var obj in BindingScope.GetNamedElements(group))
+                        yield return obj;
+                }
+            }
+        }
+
 
         protected override void OnStartup(object sender, StartupEventArgs e)
         {

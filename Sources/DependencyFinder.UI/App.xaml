@@ -3,11 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:DependencyFinder.UI">
     <Application.Resources>
-        <ResourceDictionary>
+        <ResourceDictionary >
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary>
                     <local:Bootstrapper x:Key="Bootstrapper" />
                 </ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/Fluent;Component/Themes/Generic.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Fluent;component/Themes/Themes/Dark.Cobalt.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
