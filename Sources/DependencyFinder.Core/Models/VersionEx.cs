@@ -64,10 +64,22 @@ namespace DependencyFinder.Core.Models
 
         public static VersionEx FromString(string version)
         {
+            if(version == null)
+            {
+                return new VersionEx() { Value = new Version("0.0.0"), Beta = "None" };
+            }
+
             var previewDelimeter = version.IndexOf("-");
+            var templatedIndex = version.IndexOf("$");
+            version = version.Replace("*", "0");
+
             if (previewDelimeter > -1)
             {
                 return new VersionEx() { Value = new Version(version[..previewDelimeter]), Beta = version[(previewDelimeter + 1)..^0] };
+            }
+            if (templatedIndex > -1)
+            {
+                return new VersionEx() { Value = new Version("0.0.0"), Beta = "Template" };
             }
             else
             {
