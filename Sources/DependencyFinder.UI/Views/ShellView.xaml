@@ -5,6 +5,8 @@
                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                      xmlns:local="clr-namespace:DependencyFinder.UI.Views"
+                     xmlns:cal="http://www.caliburnproject.org"
+                     cal:Message.Attach="[Event Loaded] = [Action OnLoaded()]"
                      mc:Ignorable="d"
                      Title="ShellView" Height="450" Width="800">
     <Grid>
@@ -42,12 +44,31 @@
                 <ColumnDefinition Width="127*" />
             </Grid.ColumnDefinitions>
 
-            <ListView Grid.Row="0"
-              Grid.Column="0">
-            </ListView>
 
-            <Button Grid.Row="1" Content="{Binding SolutionsRoot, Mode=TwoWay}" />
-            <TextBox Grid.Row="2" Text="{Binding SolutionsRoot, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TreeView Grid.Row="0"
+                      Grid.Column="0"
+                      ItemsSource="{Binding Solutions}">
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                        <Setter Property="FontWeight" Value="Normal" />
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="FontWeight" Value="Bold" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                        <TextBlock Text="{Binding Name}" />
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+
+
         </Grid>
     </Grid>
 </Fluent:RibbonWindow>

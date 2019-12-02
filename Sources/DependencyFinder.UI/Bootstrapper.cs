@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Windows;
 using Caliburn.Micro;
+using DependencyFinder.Core;
 using DependencyFinder.UI.ViewModels;
 
 namespace DependencyFinder.UI
@@ -22,6 +23,7 @@ namespace DependencyFinder.UI
             BindingScope.AddChildResolver<Fluent.Ribbon>(FluentRibbonChildResolver);
 
             container.Singleton<IWindowManager, WindowManager>();
+            container.Singleton<ISolutionManager, SolutionManager>();
             
 
             container.PerRequest<ShellViewModel>();

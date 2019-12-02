@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace DependencyFinder.Core
 {
-    public class SolutionManager
+    public class SolutionManager : ISolutionManager
     {
         static SolutionManager()
         {
@@ -71,7 +71,7 @@ namespace DependencyFinder.Core
                         project.Nugets.AddRange(nugets);
                     }
                 }
-                catch(InvalidDotNetProjectException ex)
+                catch (InvalidDotNetProjectException ex)
                 {
 
                 }
@@ -79,7 +79,7 @@ namespace DependencyFinder.Core
                 {
 
                 }
-                
+
 
                 return project;
             }).ToList();
