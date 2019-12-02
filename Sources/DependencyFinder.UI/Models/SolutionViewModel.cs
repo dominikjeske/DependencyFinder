@@ -1,22 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DependencyFinder.Core.Models;
 using System.IO;
-using System.Text;
 
 namespace DependencyFinder.UI.Models
 {
-    public class ProjectViewModel : TreeViewItemViewModel
-    {
-        public ProjectViewModel(TreeViewItemViewModel parent, bool lazyLoadChildren) : base(parent, lazyLoadChildren)
-        {
-        }   
-    }
-
     public class SolutionViewModel : TreeViewItemViewModel
     {
         public SolutionViewModel(string solution, bool lazyLoadChildren = false) : base(null, lazyLoadChildren)
         {
             Name = Path.GetFileName(solution);
+        }
+
+        public ProjectViewModel AddProject(Project project)
+        {
+            var pvm = new ProjectViewModel(project, this, false);
+
+            Children.Add(pvm);
+
+            return pvm;
         }
     }
 }

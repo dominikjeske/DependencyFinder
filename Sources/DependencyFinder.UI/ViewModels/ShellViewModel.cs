@@ -31,8 +31,11 @@ namespace DependencyFinder.UI.ViewModels
                 var projects = await _solutionManager.OpenSolution(s);
                 foreach (var p in projects)
                 {
+                    var pvm = solutionViewModel.AddProject(p);
+
                     foreach (var n in p.Nugets)
                     {
+                        pvm.AddNuget(n);
                     }
                 }
             }

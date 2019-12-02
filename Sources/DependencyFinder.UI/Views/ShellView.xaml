@@ -4,7 +4,8 @@
                      xmlns:Fluent="urn:fluent-ribbon"
                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                     xmlns:local="clr-namespace:DependencyFinder.UI.Views"
+                     xmlns:local="clr-namespace:DependencyFinder.UI.ViewModels"
+                     xmlns:models="clr-namespace:DependencyFinder.UI.Models"
                      xmlns:cal="http://www.caliburnproject.org"
                      cal:Message.Attach="[Event Loaded] = [Action OnLoaded()]"
                      mc:Ignorable="d"
@@ -25,10 +26,8 @@
             <!--Tabs-->
             <Fluent:RibbonTabItem Header="Home">
                 <Fluent:RibbonGroupBox Header="Group">
-                    <Fluent:Button Header="Green"
-                                />
-                    <Fluent:Button Header="Grey" 
-                                 />
+                    <Fluent:Button Header="Green" />
+                    <Fluent:Button Header="Grey" />
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
         </Fluent:Ribbon>
@@ -44,14 +43,15 @@
                 <ColumnDefinition Width="127*" />
             </Grid.ColumnDefinitions>
 
-
             <TreeView Grid.Row="0"
                       Grid.Column="0"
-                      ItemsSource="{Binding Solutions}">
+                      ItemsSource="{Binding Solutions}"
+                      Background="#363636">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">
                         <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                         <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                        <Setter Property="Foreground" Value="White" />
                         <Setter Property="FontWeight" Value="Normal" />
                         <Style.Triggers>
                             <Trigger Property="IsSelected" Value="True">
@@ -61,14 +61,100 @@
                     </Style>
                 </TreeView.ItemContainerStyle>
 
-                <TreeView.ItemTemplate>
+                <!--<TreeView.ItemTemplate>
                     <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                         <TextBlock Text="{Binding Name}" />
                     </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
+                </TreeView.ItemTemplate>-->
+                <TreeView.Resources>
+                    <HierarchicalDataTemplate  DataType="{x:Type models:SolutionViewModel}"
+                                               ItemsSource="{Binding Children}">
+                        <StackPanel Orientation="Horizontal">
+                            <Rectangle Width="16" Height="16" Margin="3,0">
+                                <Rectangle.Fill>
+                                    <DrawingBrush>
+                                        <DrawingBrush.Drawing>
+                                            <DrawingGroup>
+                                                <DrawingGroup.Children>
+                                                    <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M0.0009,0.000400000000013279L0.0009,143.2164 -0.0001,143.2164 -0.0001,220.7834 0.0009,220.7834 0.0009,223.9994 5.0539,223.9994 28.2199,238.7424 46.0699,223.9994 67.4959,223.9994 100.4829,256.0004 113.5879,256.0004 150.9999,240.7584 150.9999,223.9994 255.9999,223.9994 255.9999,0.000400000000013279z" />
+                                                    <GeometryDrawing Brush="#FF414141" Geometry="F1M241,16L241,208 152,208 152,192 225,192 225,64 33,64 33,128.548 29.014,125.39 17,133.035 17,16z" />
+                                                    <GeometryDrawing Brush="#FF672079" Geometry="F1M75.043,181.6191L108,156.0001 108,207.0001z M28,199.0001L28,164.0001 47.022,181.5621z M108,122.0001L59.51,169.9671 28,145.0001 17,152.0001 17,212.0001 28,219.0001 59.5,192.9831 109,241.0001 136,230.0001 136,134.0001z" />
+                                                    <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1M108,207L108,156 75.043,181.619z M47.021,181.562L28,164 28,199z M225,63L225,192 152,192 152,123.449 104.404,103.052 58.336,148.623 33,128.548 33,63z" />
+                                                </DrawingGroup.Children>
+                                            </DrawingGroup>
+                                        </DrawingBrush.Drawing>
+                                    </DrawingBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
+                            <TextBlock Text="{Binding Name}" />
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+
+                    <HierarchicalDataTemplate  DataType="{x:Type models:ProjectViewModel}"
+                                               ItemsSource="{Binding Children}">
+                        <StackPanel Orientation="Horizontal">
+                            <Rectangle Width="16" Height="16" Margin="3,0">
+                                <Rectangle.Fill>
+                                    <DrawingBrush>
+                                        <DrawingBrush.Drawing>
+                                            <DrawingGroup>
+                                                <DrawingGroup.Children>
+                                                    <GeometryDrawing Brush="#00FFFFFF" Geometry="F1M16,16L0,16 0,0 16,0z" />
+                                                    <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M0,15L16,15 16,1 0,1z" />
+                                                    <GeometryDrawing Brush="#FF414141" Geometry="F1M10,7L11,7 11,8 10,8z M9,10L10,10 10,9 11,9 11,10 12,10 12,9 13,9 13,8 12,8 12,7 13,7 13,6 12,6 12,5 11,5 11,6 10,6 10,5 9,5 9,6 8,6 8,7 9,7 9,8 8,8 8,9 9,9z" />
+                                                    <GeometryDrawing Brush="#FF414141" Geometry="F1M5.8496,11C6.5296,11,7.0786,10.898,7.4996,10.692L7.4996,9.499C7.0786,9.747 6.6156,9.871 6.1076,9.871 5.5766,9.871 5.1546,9.705 4.8396,9.372 4.5256,9.039 4.3696,8.592 4.3696,8.031 4.3696,7.445 4.5356,6.981 4.8686,6.639 5.2016,6.297 5.6386,6.125 6.1796,6.125 6.6736,6.125 7.1146,6.241 7.4996,6.473L7.4996,5.215C7.1146,5.072 6.6386,5 6.0766,5 5.1656,5 4.4256,5.289 3.8556,5.866 3.2856,6.443 2.9996,7.195 2.9996,8.124 2.9996,8.995 3.2536,9.692 3.7616,10.216 4.2676,10.739 4.9646,11 5.8496,11" />
+                                                    <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1M10,8L11,8 11,7 10,7z" />
+                                                    <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1M13,7L12,7 12,8 13,8 13,9 12,9 12,10 11,10 11,9 10,9 10,10 9,10 9,9 8,9 8,8 9,8 9,7 8,7 8,6 9,6 9,5 10,5 10,6 11,6 11,5 12,5 12,6 13,6z M7.5,6.473C7.114,6.241 6.674,6.125 6.18,6.125 5.639,6.125 5.201,6.297 4.868,6.639 4.535,6.981 4.369,7.445 4.369,8.031 4.369,8.592 4.525,9.039 4.84,9.372 5.154,9.705 5.576,9.871 6.107,9.871 6.615,9.871 7.079,9.747 7.5,9.499L7.5,10.692C7.079,10.898 6.529,11 5.85,11 4.965,11 4.268,10.739 3.762,10.216 3.254,9.692 3,8.995 3,8.124 3,7.195 3.285,6.443 3.855,5.866 4.426,5.289 5.166,5 6.076,5 6.639,5 7.114,5.072 7.5,5.215z M2,13L14,13 14,3 2,3z" />
+                                                    <GeometryDrawing Brush="#FF378A33" Geometry="F1M14,13L2,13 2,3 14,3z M1,14L15,14 15,2 1,2z" />
+                                                </DrawingGroup.Children>
+                                            </DrawingGroup>
+                                        </DrawingBrush.Drawing>
+                                    </DrawingBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
+                            <TextBlock Text="{Binding Name}" />
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+
+                    <HierarchicalDataTemplate  DataType="{x:Type models:NugetViewModel}"
+                                               ItemsSource="{Binding Children}">
+                        <StackPanel Orientation="Horizontal">
+                            <Rectangle Width="16" Height="16" Margin="3,0">
+                                <Rectangle.Fill>
+                                    <DrawingBrush>
+                                        <DrawingBrush.Drawing>
+                                            <DrawingGroup>
+                                                <DrawingGroup.Children>
+                                                    <GeometryDrawing Brush="#00FFFFFF" Geometry="F1M16,16L0,16 0,0 16,0z" />
+                                                    <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M2.4014,4.8027C1.0774,4.8027 0.0004000000000004,3.7257 0.0004000000000004,2.4017 0.0004000000000004,1.0767 1.0774,-0.000300000000000189 2.4014,-0.000300000000000189 3.7254,-0.000300000000000189 4.8024,1.0767 4.8024,2.4017 4.8024,3.7257 3.7254,4.8027 2.4014,4.8027" />
+                                                    <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M16,12C16,14.209,14.209,16,12,16L7,16C4.791,16,3,14.209,3,12L3,7C3,4.791,4.791,3,7,3L12,3C14.209,3,16,4.791,16,7z" />
+                                                    <GeometryDrawing Brush="#FFB1D6EF" Geometry="F1M2.3999,4.1997C1.4069,4.1997 0.5999,3.3927 0.5999,2.3997 0.5999,1.4077 1.4069,0.5997 2.3999,0.5997 3.3929,0.5997 4.1999,1.4077 4.1999,2.3997 4.1999,3.3927 3.3929,4.1997 2.3999,4.1997" />
+                                                    <GeometryDrawing Brush="#FF2179BF" Geometry="F1M2.3999,3.7937C1.6309,3.7937 1.0059,3.1687 1.0059,2.3997 1.0059,1.6317 1.6309,1.0057 2.3999,1.0057 3.1689,1.0057 3.7939,1.6317 3.7939,2.3997 3.7939,3.1687 3.1689,3.7937 2.3999,3.7937" />
+                                                    <GeometryDrawing Brush="#FFB1D6EF" Geometry="F1M12.2286,15.2286L6.7716,15.2286C5.1146,15.2286,3.7716,13.8856,3.7716,12.2286L3.7716,6.7716C3.7716,5.1146,5.1146,3.7716,6.7716,3.7716L12.2286,3.7716C13.8856,3.7716,15.2286,5.1146,15.2286,6.7716L15.2286,12.2286C15.2286,13.8856,13.8856,15.2286,12.2286,15.2286" />
+                                                    <GeometryDrawing Brush="#FF2179BF" Geometry="F1M11.7764,14.804L7.2234,14.804C5.5514,14.804,4.1964,13.449,4.1964,11.776L4.1964,7.224C4.1964,5.552,5.5514,4.196,7.2234,4.196L11.7764,4.196C13.4484,4.196,14.8044,5.552,14.8044,7.224L14.8044,11.776C14.8044,13.449,13.4484,14.804,11.7764,14.804" />
+                                                    <GeometryDrawing Brush="#FF0095D6" Geometry="F1M4.196,11.7764L4.172,7.2184C4.172,5.5464,5.515,4.2294,7.188,4.2294L11.667,4.1874C13.284,4.1874 14.703,5.3694 14.788,6.9654 12.08,9.7724 4.196,11.8244 4.196,11.7764" />
+                                                    <GeometryDrawing Brush="#FF0095D6" Geometry="F1M1.6492,2.562C1.4342,2.562 1.2252,2.536 1.0212,2.499 1.0152,2.45 1.0062,2.403 1.0062,2.353 1.0062,1.587 1.6302,0.962999999999999 2.3962,0.962999999999999 2.9992,0.962999999999999 3.5082,1.35 3.7012,1.888 3.1232,2.307 2.4182,2.562 1.6492,2.562" />
+                                                    <GeometryDrawing Brush="#FFEFEFF0" Geometry="F1M14.0424,11.6228C14.0424,12.9618 12.9574,14.0468 11.6184,14.0468 10.2804,14.0468 9.1944,12.9618 9.1944,11.6228 9.1944,10.2838 10.2804,9.1988 11.6184,9.1988 12.9574,9.1988 14.0424,10.2838 14.0424,11.6228" />
+                                                    <GeometryDrawing Brush="#FFEFEFF0" Geometry="F1M8.4869,6.7573C8.4869,7.6173 7.7899,8.3143 6.9299,8.3143 6.0699,8.3143 5.3729,7.6173 5.3729,6.7573 5.3729,5.8973 6.0699,5.2003 6.9299,5.2003 7.7899,5.2003 8.4869,5.8973 8.4869,6.7573" />
+                                                </DrawingGroup.Children>
+                                            </DrawingGroup>
+                                        </DrawingBrush.Drawing>
+                                    </DrawingBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
+                            <TextBlock Text="{Binding Name}" />
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+
+
+                    <!--<DataTemplate DataType="{x:Type local:CityViewModel}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Width="16" Height="16" Margin="3,0" Source="Images\City.png" />
+                            <TextBlock Text="{Binding CityName}" />
+                        </StackPanel>
+                    </DataTemplate>-->
+                </TreeView.Resources>
             </TreeView>
-
-
         </Grid>
     </Grid>
 </Fluent:RibbonWindow>
