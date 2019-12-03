@@ -25,28 +25,26 @@
 
             <!--Tabs-->
             <Fluent:RibbonTabItem Header="Home">
-                <Fluent:RibbonGroupBox Header="Group">
-                    <Fluent:Button Header="Green" />
-                    <Fluent:Button Header="Grey" />
+                <Fluent:RibbonGroupBox Header="Main">
+                    <Fluent:Button Header="Refresh" />
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
         </Fluent:Ribbon>
 
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="321*" />
-                <RowDefinition Height="50*" />
-                <RowDefinition Height="50*" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="33*" />
+                <ColumnDefinition Width="50*" />
                 <ColumnDefinition Width="127*" />
             </Grid.ColumnDefinitions>
 
             <TreeView Grid.Row="0"
                       Grid.Column="0"
                       ItemsSource="{Binding Solutions}"
-                      Background="#363636">
+                      Background="#363636"
+                      Padding="0, 10, 0, 0">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">
                         <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
