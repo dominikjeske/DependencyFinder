@@ -12,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace DependencyFinder.Core
@@ -69,17 +68,39 @@ namespace DependencyFinder.Core
 
                         var nugets = await ReadNuget(project.AbsolutePath, projectInfo);
                         project.Nugets.AddRange(nugets);
+
+                        foreach (var pr in projectInfo.ProjectReferences)
+                        {
+                            project.ProjectReferences.Add(new Models.ProjectReference { FilePath = pr.FilePath, Name = Path.GetFileName(pr.FilePath) });
+                        }
+
+                        foreach (var targ in projectInfo.ProjectTargets)
+                        {
+                            project.ProjectTargets.Add(new ProjectTarget { Description = targ.Description, Type = targ.Type.ToString(), TargetValue = targ.TargetValue, Version = targ.Version });
+                        }
+
+                        project.IsMultiTarget = projectInfo.IsMultiTarget;
+                        project.AssemblyInfo = new AssemblyInfo
+                        {
+                            Company = projectInfo.AssemblyInfo.Company,
+                            Configuration = projectInfo.AssemblyInfo.Configuration,
+                            Copyright = projectInfo.AssemblyInfo.Copyright,
+                            Description = projectInfo.AssemblyInfo.Description,
+                            FileVersion = projectInfo.AssemblyInfo.FileVersion,
+                            InformationalVersion = projectInfo.AssemblyInfo.InformationalVersion,
+                            NeutralLanguage = projectInfo.AssemblyInfo.NeutralLanguage,
+                            Product = projectInfo.AssemblyInfo.Product,
+                            AssemblyTitle = projectInfo.AssemblyInfo.Title,
+                            AssemblyVersion = projectInfo.AssemblyInfo.Version
+                        };
                     }
                 }
                 catch (InvalidDotNetProjectException ex)
                 {
-
                 }
                 catch (Exception ee)
                 {
-
                 }
-
 
                 return project;
             }).ToList();

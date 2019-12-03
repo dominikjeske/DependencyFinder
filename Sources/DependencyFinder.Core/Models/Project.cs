@@ -13,8 +13,13 @@ namespace DependencyFinder.Core.Models
         public string Type { get; set; }
         public string Solution { get; set; }
         public bool IsNetCore { get; set; }
+        public bool IsMultiTarget { get; set; }
+        public AssemblyInfo AssemblyInfo { get; set; }
 
         public List<NugetPackage> Nugets { get; set; } = new List<NugetPackage>();
+        public List<ProjectReference> ProjectReferences { get; set; } = new List<ProjectReference>();
+        public List<ProjectTarget> ProjectTargets { get; set; } = new List<ProjectTarget>();
+        
 
         protected override IEnumerable<object> GetEqualityComponents()
         {
