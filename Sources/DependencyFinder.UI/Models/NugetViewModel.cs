@@ -10,6 +10,7 @@ namespace DependencyFinder.UI.Models
         {
             _nugetPackage = nugetPackage;
             Name = $"{nugetPackage.Name} [{nugetPackage.Version}]";
+            FullName = Name;
         }
     }
 }

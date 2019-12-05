@@ -12,6 +12,8 @@ namespace DependencyFinder.UI.Models
         {
             _project = project;
             Name = Path.GetFileName(project.Name);
+            FullName = project.AbsolutePath;
+
             IsNetCore = project.IsNetCore;
 
             Children.Add(new NugetCollectionViewModel(_project.Nugets, this, lazyLoadChildren));

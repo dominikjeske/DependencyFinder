@@ -14,16 +14,14 @@
                 <ResourceDictionary Source="pack://application:,,,/Fluent;component/Themes/Themes/Dark.Cobalt.xaml" />
                 
                 <ResourceDictionary>
-                    <!--<controls:HighlightingTextBlock Text="{Binding Name}"
-                                                            HighlightText="{Binding ElementName=FilterBox, Path=Text}"
-                                                            HighlightBackground="LightPink"
-                                                            HighlightForeground="White" />-->
+
                     <Style TargetType="controls:HighlightingTextBlock" x:Key="SearchTextBlockStyle">
                         <Setter Property="Text" Value="{Binding Name}" />
                         <Setter Property="HighlightText" Value="{Binding ElementName=FilterBox, Path=Text}" />
                         <Setter Property="HighlightBackground" Value="#FEFCC8" />
                         <Setter Property="HighlightForeground" Value="Black" />
                     </Style>
+ 
                     <Style TargetType="{x:Type TreeViewItem}" x:Key="TreeviewItemStyle">
                         <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                         <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />

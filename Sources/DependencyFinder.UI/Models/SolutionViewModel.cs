@@ -8,6 +8,7 @@ namespace DependencyFinder.UI.Models
         public SolutionViewModel(string solution, bool lazyLoadChildren = false) : base(null, lazyLoadChildren)
         {
             Name = Path.GetFileName(solution);
+            FullName = solution;
         }
 
         public ProjectViewModel AddProject(Project project)

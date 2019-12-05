@@ -75,8 +75,9 @@
 
                 <TreeView.Resources>
                     <HierarchicalDataTemplate  DataType="{x:Type models:SolutionViewModel}"
-                                               ItemsSource="{Binding Children}">
-                        <StackPanel Orientation="Horizontal">
+                                               ItemsSource="{Binding Children}"
+                                               >
+                        <StackPanel Orientation="Horizontal" ToolTip="{Binding FullName}">
                             <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource SolutionIconBrush}"/>
                             <controls:HighlightingTextBlock Style="{StaticResource SearchTextBlockStyle}" />
                         </StackPanel>
@@ -84,26 +85,29 @@
 
                     <HierarchicalDataTemplate  DataType="{x:Type models:ProjectViewModel}"
                                                ItemsSource="{Binding Children}">
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal" ToolTip="{Binding FullName}">
                             <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource ProjectIconBrush}"/>
-                            <controls:HighlightingTextBlock Style="{StaticResource SearchTextBlockStyle}" />
-
-                            <!--<TextBlock.Style>
-                                <Style TargetType="{x:Type TextBlock}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsNetCore}" Value="False">
-                                            <Setter Property="Foreground" Value="Red"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>-->
-
+                            <controls:HighlightingTextBlock>
+                                <controls:HighlightingTextBlock.Style>
+                                    <Style TargetType="controls:HighlightingTextBlock">
+                                        <Setter Property="Text" Value="{Binding Name}" />
+                                        <Setter Property="HighlightText" Value="{Binding ElementName=FilterBox, Path=Text}" />
+                                        <Setter Property="HighlightBackground" Value="#FEFCC8" />
+                                        <Setter Property="HighlightForeground" Value="Black" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsNetCore}" Value="False">
+                                                <Setter Property="Foreground" Value="Red"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </controls:HighlightingTextBlock.Style>
+                            </controls:HighlightingTextBlock>
                         </StackPanel>
                     </HierarchicalDataTemplate>
                    
                     <HierarchicalDataTemplate  DataType="{x:Type models:ProjectRefViewModel}"
                                                ItemsSource="{Binding Children}">
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal" ToolTip="{Binding FullName}">
                             <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource ProjectReferenceBrush2}"/>
                             <controls:HighlightingTextBlock Style="{StaticResource SearchTextBlockStyle}" />
                         </StackPanel>
@@ -111,7 +115,7 @@
 
                     <HierarchicalDataTemplate  DataType="{x:Type models:NugetViewModel}"
                                                ItemsSource="{Binding Children}">
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal" ToolTip="{Binding FullName}">
                             <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource NugetIconBrush}"/>
                             <controls:HighlightingTextBlock Style="{StaticResource SearchTextBlockStyle}" />
                         </StackPanel>
@@ -125,7 +129,6 @@
                         </StackPanel>
                     </HierarchicalDataTemplate>
 
-
                     <HierarchicalDataTemplate  DataType="{x:Type models:NugetCollectionViewModel}"
                                                ItemsSource="{Binding Children}">
                         <StackPanel Orientation="Horizontal">
@@ -133,14 +136,6 @@
                             <TextBlock Text="{Binding Name}"></TextBlock>
                         </StackPanel>
                     </HierarchicalDataTemplate>
-
-
-                    <!--<DataTemplate DataType="{x:Type local:CityViewModel}">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Width="16" Height="16" Margin="3,0" Source="Images\City.png" />
-                            <TextBlock Text="{Binding CityName}" />
-                        </StackPanel>
-                    </DataTemplate>-->
                 </TreeView.Resources>
             </TreeView>
         </Grid>
