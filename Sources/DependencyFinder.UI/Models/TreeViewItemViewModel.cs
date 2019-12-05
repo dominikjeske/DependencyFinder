@@ -16,6 +16,7 @@ namespace DependencyFinder.UI.Models
 
         private bool _isExpanded;
         private bool _isSelected;
+        public bool IsVisible { get; set; } = true;
 
         public string Name { get; set; }
 

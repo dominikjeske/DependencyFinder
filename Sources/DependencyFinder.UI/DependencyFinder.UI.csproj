@@ -17,4 +17,10 @@
     <ProjectReference Include="..\DependencyFinder.Core\DependencyFinder.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controls\" />
+    <Folder Include="Themes\" />
+    <Folder Include="ValueConverters\" />
+  </ItemGroup>
+
 </Project>

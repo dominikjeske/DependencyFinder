@@ -6,10 +6,16 @@
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                      xmlns:local="clr-namespace:DependencyFinder.UI.ViewModels"
                      xmlns:models="clr-namespace:DependencyFinder.UI.Models"
+                     xmlns:converters="clr-namespace:DependencyFinder.UI.ValueConverters"
+                     xmlns:controls="clr-namespace:DependencyFinder.UI.Controls"
                      xmlns:cal="http://www.caliburnproject.org"
+                     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
                      cal:Message.Attach="[Event Loaded] = [Action OnLoaded()]"
                      mc:Ignorable="d"
                      Title="ShellView" Height="450" Width="800">
+    <Fluent:RibbonWindow.Resources>
+        <converters:BooleanToVisiblityConverter x:Key="boolToVisibilityConverter"/>
+    </Fluent:RibbonWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -33,6 +39,7 @@
 
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -40,31 +47,38 @@
                 <ColumnDefinition Width="127*" />
             </Grid.ColumnDefinitions>
 
-            <TreeView Grid.Row="0"
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="20"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <xctk:WatermarkTextBox Watermark="Search..." 
+                                       Grid.Row="0"
+                                       HorizontalAlignment="Stretch"
+                                       Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       x:Name="FilterBox"/>
+                <Button Grid.Column="1" 
+                        Background="#363636"
+                        Foreground="White"
+                        Content="X"
+                        cal:Message.Attach="[Event Click] = [Action OnClearFilter()]"/>
+            </Grid>
+            
+
+            <TreeView Grid.Row="1"
                       Grid.Column="0"
                       ItemsSource="{Binding Solutions}"
                       Background="#363636"
+                      ItemContainerStyle="{StaticResource TreeviewItemStyle}"
                       Padding="0, 10, 0, 0">
-                <TreeView.ItemContainerStyle>
-                    <Style TargetType="{x:Type TreeViewItem}">
-                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                        <Setter Property="Foreground" Value="White" />
-                        <Setter Property="FontWeight" Value="Normal" />
-                        <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="FontWeight" Value="Bold" />
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </TreeView.ItemContainerStyle>
+                
 
                 <TreeView.Resources>
                     <HierarchicalDataTemplate  DataType="{x:Type models:SolutionViewModel}"
                                                ItemsSource="{Binding Children}">
                         <StackPanel Orientation="Horizontal">
                             <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource SolutionIconBrush}"/>
-                            <TextBlock Text="{Binding Name}" />
+                            <controls:HighlightingTextBlock Style="{StaticResource SearchTextBlockStyle}" />
                         </StackPanel>
                     </HierarchicalDataTemplate>
 
@@ -72,33 +86,26 @@
                                                ItemsSource="{Binding Children}">
                         <StackPanel Orientation="Horizontal">
                             <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource ProjectIconBrush}"/>
-                            <TextBlock Text="{Binding Name}">
-                                <TextBlock.Style>
-                                    <Style TargetType="{x:Type TextBlock}">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsNetCore}" Value="False">
-                                                <Setter Property="Foreground" Value="Red"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
+                            <controls:HighlightingTextBlock Style="{StaticResource SearchTextBlockStyle}" />
+
+                            <!--<TextBlock.Style>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsNetCore}" Value="False">
+                                            <Setter Property="Foreground" Value="Red"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>-->
+
                         </StackPanel>
                     </HierarchicalDataTemplate>
-
-                    <HierarchicalDataTemplate  DataType="{x:Type models:ProjectCollectionViewModel}"
-                                               ItemsSource="{Binding Children}">
-                        <StackPanel Orientation="Horizontal">
-                            <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource ProjectReferenceBrush2}"/>
-                            <TextBlock Text="{Binding Name}" />
-                        </StackPanel>
-                    </HierarchicalDataTemplate>
-
+                   
                     <HierarchicalDataTemplate  DataType="{x:Type models:ProjectRefViewModel}"
                                                ItemsSource="{Binding Children}">
                         <StackPanel Orientation="Horizontal">
                             <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource ProjectReferenceBrush2}"/>
-                            <TextBlock Text="{Binding Name}" />
+                            <controls:HighlightingTextBlock Style="{StaticResource SearchTextBlockStyle}" />
                         </StackPanel>
                     </HierarchicalDataTemplate>
 
@@ -106,15 +113,24 @@
                                                ItemsSource="{Binding Children}">
                         <StackPanel Orientation="Horizontal">
                             <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource NugetIconBrush}"/>
-                            <TextBlock Text="{Binding Name}" />
+                            <controls:HighlightingTextBlock Style="{StaticResource SearchTextBlockStyle}" />
                         </StackPanel>
                     </HierarchicalDataTemplate>
+
+                    <HierarchicalDataTemplate  DataType="{x:Type models:ProjectCollectionViewModel}"
+                                               ItemsSource="{Binding Children}">
+                        <StackPanel Orientation="Horizontal">
+                            <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource ProjectReferenceBrush2}"/>
+                            <TextBlock Text="{Binding Name}"></TextBlock>
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+
 
                     <HierarchicalDataTemplate  DataType="{x:Type models:NugetCollectionViewModel}"
                                                ItemsSource="{Binding Children}">
                         <StackPanel Orientation="Horizontal">
                             <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource NugetIconBrush}"/>
-                            <TextBlock Text="{Binding Name}" />
+                            <TextBlock Text="{Binding Name}"></TextBlock>
                         </StackPanel>
                     </HierarchicalDataTemplate>
 

@@ -1,22 +1,33 @@
 ﻿using Caliburn.Micro;
 using DependencyFinder.Core;
 using DependencyFinder.UI.Models;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Windows.Data;
 
 namespace DependencyFinder.UI.ViewModels
 {
+
     public class ShellViewModel : Screen
     {
         public string SolutionsRoot { get; set; }
         public ObservableCollection<SolutionViewModel> Solutions { get; set; } = new ObservableCollection<SolutionViewModel>();
+        public string Filter { get; set; }
 
+        private ICollectionView _collectionView;
         private readonly ISolutionManager _solutionManager;
 
         public ShellViewModel(ISolutionManager solutionManager)
         {
             SolutionsRoot = @"E:\Projects\Dependency\DependencyFinder\Test";
+
             _solutionManager = solutionManager;
+            _collectionView = CollectionViewSource.GetDefaultView(Solutions);
+            _collectionView.Filter = FilterPredicate;
         }
 
         private async Task LoadSolutions()
@@ -39,6 +50,54 @@ namespace DependencyFinder.UI.ViewModels
         public async Task OnLoaded()
         {
             await LoadSolutions();
+        }
+
+        public void OnFilterChanged()
+        {
+            ValidateList(Solutions);
+        }
+
+        public void OnClearFilter()
+        {
+            Filter = "";
+        }
+
+        private bool ValidateList(IEnumerable<TreeViewItemViewModel> list)
+        {
+            bool anyChildVisible = false;
+
+            foreach (var item in list)
+            {
+                if(ValidateItem(item))
+                {
+                    anyChildVisible = true;
+                }
+            }
+
+            return anyChildVisible;
+        }
+
+        private bool ValidateItem(TreeViewItemViewModel item)
+        {
+            var anyChildVisible = ValidateList(item.Children);
+
+            var shouldBeVisible = item.Name.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) > -1;
+
+            item.IsVisible = shouldBeVisible || anyChildVisible;
+
+            if(item.IsVisible && item.Parent != null)
+            {
+                item.Parent.IsExpanded = true;
+            }
+
+            return item.IsVisible;
+        }
+
+        public bool FilterPredicate(object item)
+        {
+            TreeViewItemViewModel treeItem = (TreeViewItemViewModel)item;
+
+            return true;
         }
     }
 }
