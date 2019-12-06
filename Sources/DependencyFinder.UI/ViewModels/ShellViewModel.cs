@@ -17,6 +17,7 @@ namespace DependencyFinder.UI.ViewModels
         public string SolutionsRoot { get; set; }
         public ObservableCollection<SolutionViewModel> Solutions { get; set; } = new ObservableCollection<SolutionViewModel>();
         public string Filter { get; set; }
+        public TreeViewItemViewModel SelectedSolutionItem { get; set; }
 
         private ICollectionView _collectionView;
         private readonly ISolutionManager _solutionManager;

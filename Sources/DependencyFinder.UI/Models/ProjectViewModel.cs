@@ -1,23 +1,26 @@
 ﻿using DependencyFinder.Core.Models;
 using System.IO;
+using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace DependencyFinder.UI.Models
 {
     public class ProjectViewModel : TreeViewItemViewModel
     {
-        private readonly Project _project;
+        [ExpandableObject]
+        public Project Project { get; }
+
         public bool IsNetCore { get; set; }
 
         public ProjectViewModel(Project project, TreeViewItemViewModel parent, bool lazyLoadChildren) : base(parent, lazyLoadChildren)
         {
-            _project = project;
+            Project = project;
             Name = Path.GetFileName(project.Name);
             FullName = project.AbsolutePath;
 
             IsNetCore = project.IsNetCore;
 
-            Children.Add(new NugetCollectionViewModel(_project.Nugets, this, lazyLoadChildren));
-            Children.Add(new ProjectCollectionViewModel(_project.ProjectReferences, this, lazyLoadChildren));
+            Children.Add(new NugetCollectionViewModel(Project.Nugets, this, lazyLoadChildren));
+            Children.Add(new ProjectCollectionViewModel(Project.ProjectReferences, this, lazyLoadChildren));
         }
     }
 }

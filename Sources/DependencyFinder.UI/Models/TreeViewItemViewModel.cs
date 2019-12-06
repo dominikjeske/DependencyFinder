@@ -16,7 +16,10 @@ namespace DependencyFinder.UI.Models
 
         private bool _isExpanded;
         private bool _isSelected;
+
+        [Browsable(false)]
         public bool IsVisible { get; set; } = true;
+
         public string Name { get; set; }
         public string FullName { get; set; }
 
@@ -30,31 +33,23 @@ namespace DependencyFinder.UI.Models
                 _children.Add(DummyChild);
         }
 
-        // This is used to create the DummyChild instance.
         private TreeViewItemViewModel()
         {
         }
 
-        /// <summary>
-        /// Returns the logical child items of this object.
-        /// </summary>
+        [Browsable(false)]
         public ObservableCollection<TreeViewItemViewModel> Children
         {
             get { return _children; }
         }
 
-        /// <summary>
-        /// Returns true if this object's Children have not yet been populated.
-        /// </summary>
+        [Browsable(false)]
         public bool HasDummyChild
         {
             get { return this.Children.Count == 1 && this.Children[0] == DummyChild; }
         }
 
-        /// <summary>
-        /// Gets/sets whether the TreeViewItem
-        /// associated with this object is expanded.
-        /// </summary>
+        [Browsable(false)]
         public bool IsExpanded
         {
             get { return _isExpanded; }
@@ -79,10 +74,7 @@ namespace DependencyFinder.UI.Models
             }
         }
 
-        /// <summary>
-        /// Gets/sets whether the TreeViewItem
-        /// associated with this object is selected.
-        /// </summary>
+        [Browsable(false)]
         public bool IsSelected
         {
             get { return _isSelected; }
@@ -96,14 +88,11 @@ namespace DependencyFinder.UI.Models
             }
         }
 
-        /// <summary>
-        /// Invoked when the child items need to be loaded on demand.
-        /// Subclasses can override this to populate the Children collection.
-        /// </summary>
         protected virtual void LoadChildren()
         {
         }
 
+        [Browsable(false)]
         public TreeViewItemViewModel Parent
         {
             get { return _parent; }

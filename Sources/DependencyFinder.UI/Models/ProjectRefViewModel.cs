@@ -1,15 +1,17 @@
 ﻿using DependencyFinder.Core.Models;
+using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace DependencyFinder.UI.Models
 {
     public class ProjectRefViewModel : TreeViewItemViewModel
     {
-        private readonly ProjectReference _projectReference;
+        [ExpandableObject]
+        public ProjectReference ProjectReference { get; }
 
         public ProjectRefViewModel(ProjectReference projectRef, TreeViewItemViewModel parent, bool lazyLoadChildren) : base(parent, lazyLoadChildren)
         {
-            _projectReference = projectRef;
-            Name = _projectReference.Name;
+            ProjectReference = projectRef;
+            Name = ProjectReference.Name;
         }
     }
 }

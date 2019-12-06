@@ -2,12 +2,13 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Caliburn.Micro" Version="4.0.102-alpha" />
+    <PackageReference Include="Caliburn.Micro" Version="4.0.104-alpha" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="3.6.2" />
     <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.78" />
     <PackageReference Include="Fluent.Ribbon" Version="7.0.0" />
     <PackageReference Include="PropertyChanged.Fody" Version="3.1.3" />

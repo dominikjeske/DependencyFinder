@@ -1,20 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AsyncEnumerator" Version="4.0.1" />
+    <PackageReference Include="AsyncEnumerator" Version="4.0.2" />
     <PackageReference Include="ByteDev.DotNet" Version="5.0.1" />
     <PackageReference Include="CSharpFunctionalExtensions" Version="2.2.2" />
     <PackageReference Include="Microsoft.Build.Locator" Version="1.2.6" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.4.0-beta4-final" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="3.4.0-beta4-final" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.0.0" />
-    <PackageReference Include="System.Security.Permissions" Version="4.6.0" />
-    <PackageReference Include="System.Threading.Channels" Version="4.6.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.4.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="3.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.0" />
+    <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
+    <PackageReference Include="System.Threading.Channels" Version="4.7.0" />
   </ItemGroup>
 
 </Project>
