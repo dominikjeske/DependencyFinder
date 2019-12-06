@@ -4,7 +4,6 @@
                      xmlns:Fluent="urn:fluent-ribbon"
                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                     xmlns:local="clr-namespace:DependencyFinder.UI.ViewModels"
                      xmlns:models="clr-namespace:DependencyFinder.UI.Models"
                      xmlns:converters="clr-namespace:DependencyFinder.UI.ValueConverters"
                      xmlns:controls="clr-namespace:DependencyFinder.UI.Controls"
@@ -19,23 +18,20 @@
     <Fluent:RibbonWindow.Resources>
         <converters:BooleanToVisiblityConverter x:Key="boolToVisibilityConverter" />
     </Fluent:RibbonWindow.Resources>
-    <Grid>
+    <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <Fluent:Ribbon Grid.Row="0">
-            <!--Backstage-->
-            <Fluent:Ribbon.Menu>
-                <Fluent:Backstage>
-                </Fluent:Backstage>
-            </Fluent:Ribbon.Menu>
 
-            <!--Tabs-->
             <Fluent:RibbonTabItem Header="Home">
                 <Fluent:RibbonGroupBox Header="Main">
-                    <Fluent:Button Header="Refresh" />
+                    <Fluent:Button Header="Explore"
+                                   Icon="{DynamicResource FolderBrush}"
+                                   LargeIcon="{DynamicResource FolderBrush}"
+                                   cal:Message.Attach="[Event Click] = [Action ExploreClick()]" />
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
         </Fluent:Ribbon>
@@ -47,9 +43,9 @@
             <xcad:LayoutRoot x:Name="_layoutRoot">
                 <xcad:LayoutPanel Orientation="Horizontal">
                     <xcad:LayoutAnchorablePane DockWidth="300">
-                        <xcad:LayoutAnchorable ContentId="solutionTree" 
-                                               Title="Solution Tree" 
-                                               CanHide="False" 
+                        <xcad:LayoutAnchorable ContentId="solutionTree"
+                                               Title="Solution Tree"
+                                               CanHide="False"
                                                CanClose="False"
                                                AutoHideWidth="240">
                             <Grid Grid.Row="1">
@@ -72,7 +68,7 @@
                                             Background="#363636"
                                             Foreground="White"
                                             Content="X"
-                                            cal:Message.Attach="[Event Click] = [Action OnClearFilter()]" />
+                                            cal:Message.Attach="[Event Click] = [Action FilterClearClick()]" />
                                 </Grid>
 
                                 <TreeView Grid.Row="1"
@@ -160,10 +156,9 @@
                     <xcad:LayoutAnchorablePaneGroup DockWidth="300">
                         <xcad:LayoutAnchorablePane>
                             <xcad:LayoutAnchorable ContentId="properties" Title="Properties">
-                                <xctk:PropertyGrid SelectedObject="{Binding SelectedSolutionItem}" 
+                                <xctk:PropertyGrid SelectedObject="{Binding SelectedSolutionItem}"
                                                    Foreground="Black"
-                                                   IsReadOnly="True"
-                                                   />
+                                                   IsReadOnly="True" />
                             </xcad:LayoutAnchorable>
                         </xcad:LayoutAnchorablePane>
                     </xcad:LayoutAnchorablePaneGroup>

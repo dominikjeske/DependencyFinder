@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Data;
 
 namespace DependencyFinder.UI.ViewModels
@@ -58,10 +60,26 @@ namespace DependencyFinder.UI.ViewModels
             ValidateList(Solutions);
         }
 
-        public void OnClearFilter()
+        public void FilterClearClick()
         {
             Filter = "";
         }
+
+        public void ExploreClick()
+        {
+            try
+            {
+                var path = Path.GetDirectoryName(SelectedSolutionItem.FullName);
+                Process.Start(Environment.GetEnvironmentVariable("WINDIR") + @"\explorer.exe", path);
+            }
+            catch (Exception ee)
+            {
+                MessageBox.Show(ee.ToString());
+            }
+        }
+
+        public bool CanExploreClick => !string.IsNullOrWhiteSpace(SelectedSolutionItem?.FullName) && Directory.Exists(Path.GetDirectoryName(SelectedSolutionItem.FullName));
+        
 
         private bool ValidateList(IEnumerable<TreeViewItemViewModel> list)
         {
