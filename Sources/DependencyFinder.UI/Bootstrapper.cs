@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Threading;
 using Caliburn.Micro;
 using DependencyFinder.Core;
 using DependencyFinder.UI.ViewModels;
@@ -24,7 +25,6 @@ namespace DependencyFinder.UI
 
             container.Singleton<IWindowManager, WindowManager>();
             container.Singleton<ISolutionManager, SolutionManager>();
-            
 
             container.PerRequest<ShellViewModel>();
         }
@@ -39,6 +39,13 @@ namespace DependencyFinder.UI
                         yield return obj;
                 }
             }
+        }
+
+        protected override void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            MessageBox.Show(e.ToString());
+
+            e.Handled = true;
         }
 
 

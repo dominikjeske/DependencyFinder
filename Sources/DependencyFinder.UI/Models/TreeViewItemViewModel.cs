@@ -3,6 +3,7 @@ using System.ComponentModel;
 
 namespace DependencyFinder.UI.Models
 {
+
     /// <summary>
     /// Base class for all ViewModel classes displayed by TreeViewItems.
     /// This acts as an adapter between a raw data object and a TreeViewItem.

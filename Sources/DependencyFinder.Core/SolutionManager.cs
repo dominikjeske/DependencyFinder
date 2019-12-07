@@ -137,7 +137,7 @@ namespace DependencyFinder.Core
 
             return solution.Value
                             .Projects
-                            .Where(x => !x.Type.IsSolutionFolder && x.Type.Description == "C#")
+                            .Where(x => !x.Type.IsSolutionFolder) //x.Type.Description == "C#"
                             .Select(p => new Project
                             {
                                 Id = p.Id,

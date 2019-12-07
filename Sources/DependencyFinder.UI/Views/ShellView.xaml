@@ -12,9 +12,10 @@
                      xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
                      xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
                      xmlns:e="http://schemas.microsoft.com/xaml/behaviors"
+                     xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
                      cal:Message.Attach="[Event Loaded] = [Action OnLoaded()]"
                      mc:Ignorable="d"
-                     Title="ShellView" Height="600" Width="1024">
+                     Title="ShellView" Height="1000" Width="1500">
     <Fluent:RibbonWindow.Resources>
         <converters:BooleanToVisiblityConverter x:Key="boolToVisibilityConverter" />
     </Fluent:RibbonWindow.Resources>
@@ -29,9 +30,13 @@
             <Fluent:RibbonTabItem Header="Home">
                 <Fluent:RibbonGroupBox Header="Main">
                     <Fluent:Button Header="Explore"
-                                   Icon="{DynamicResource FolderBrush}"
-                                   LargeIcon="{DynamicResource FolderBrush}"
+                                   Icon="{DynamicResource FolderImage}"
+                                   LargeIcon="{DynamicResource FolderImage}"
                                    cal:Message.Attach="[Event Click] = [Action ExploreClick()]" />
+                    <Fluent:Button Header="Open"
+                                   Icon="{DynamicResource SolutionImage}"
+                                   LargeIcon="{DynamicResource SolutionImage}"
+                                   cal:Message.Attach="[Event Click] = [Action OpenClick()]" />
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
         </Fluent:Ribbon>
@@ -149,7 +154,13 @@
                     </xcad:LayoutAnchorablePane>
                     <xcad:LayoutDocumentPaneGroup>
                         <xcad:LayoutDocumentPane>
-                            <xcad:LayoutDocument ContentId="document1" Title="Document 1">
+                            <xcad:LayoutDocument ContentId="document1" Title="{Binding DocumentTitle}">
+                                <avalonEdit:TextEditor
+                                            Document="{Binding Document, UpdateSourceTrigger=PropertyChanged}"
+                                            SyntaxHighlighting="{Binding DocumentSyntax}"
+                                            FontFamily="Consolas"
+                                            ShowLineNumbers="True"
+                                            FontSize="10pt"/>
                             </xcad:LayoutDocument>
                         </xcad:LayoutDocumentPane>
                     </xcad:LayoutDocumentPaneGroup>

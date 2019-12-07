@@ -1,27 +1,29 @@
 ﻿using Caliburn.Micro;
 using DependencyFinder.Core;
 using DependencyFinder.UI.Models;
+using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Data;
 
 namespace DependencyFinder.UI.ViewModels
 {
-
     public class ShellViewModel : Screen
     {
         public string SolutionsRoot { get; set; }
         public ObservableCollection<SolutionViewModel> Solutions { get; set; } = new ObservableCollection<SolutionViewModel>();
         public string Filter { get; set; }
         public TreeViewItemViewModel SelectedSolutionItem { get; set; }
+        public TextDocument Document { get; set; }
+        public IHighlightingDefinition DocumentSyntax { get; set; }
+        public string DocumentTitle { get; set; }
 
-        private ICollectionView _collectionView;
         private readonly ISolutionManager _solutionManager;
 
         public ShellViewModel(ISolutionManager solutionManager)
@@ -29,8 +31,6 @@ namespace DependencyFinder.UI.ViewModels
             SolutionsRoot = @"E:\Projects\Dependency\DependencyFinder\Test";
 
             _solutionManager = solutionManager;
-            _collectionView = CollectionViewSource.GetDefaultView(Solutions);
-            _collectionView.Filter = FilterPredicate;
         }
 
         private async Task LoadSolutions()
@@ -60,6 +60,31 @@ namespace DependencyFinder.UI.ViewModels
             ValidateList(Solutions);
         }
 
+        public void OnSelectedSolutionItemChanged()
+        {
+            var filePath = SelectedSolutionItem.FullName;
+
+            if (string.IsNullOrWhiteSpace(filePath)) return;
+
+            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                using (StreamReader reader = FileReader.OpenStream(fs, Encoding.UTF8))
+                {
+                    DocumentSyntax = HighlightingManager.Instance.GetDefinitionByExtension(Path.GetExtension(filePath));
+                    Document = new TextDocument(reader.ReadToEnd());
+                    DocumentTitle = Path.GetFileName(filePath);
+
+                    //TODO read only support
+                    //if ((System.IO.File.GetAttributes(this._filePath) & FileAttributes.ReadOnly) != 0)
+                    //{
+                    //    this.IsReadOnly = true;
+                    //    this.IsReadOnlyReason = "This file cannot be edit because another process is currently writting to it.\n" +
+                    //                            "Change the file access permissions or save the file in a different location if you want to edit it.";
+                    //}
+                }
+            }
+        }
+
         public void FilterClearClick()
         {
             Filter = "";
@@ -67,19 +92,18 @@ namespace DependencyFinder.UI.ViewModels
 
         public void ExploreClick()
         {
-            try
-            {
-                var path = Path.GetDirectoryName(SelectedSolutionItem.FullName);
-                Process.Start(Environment.GetEnvironmentVariable("WINDIR") + @"\explorer.exe", path);
-            }
-            catch (Exception ee)
-            {
-                MessageBox.Show(ee.ToString());
-            }
+            var path = Path.GetDirectoryName(SelectedSolutionItem.FullName);
+            Process.Start(Environment.GetEnvironmentVariable("WINDIR") + @"\explorer.exe", path);
         }
 
         public bool CanExploreClick => !string.IsNullOrWhiteSpace(SelectedSolutionItem?.FullName) && Directory.Exists(Path.GetDirectoryName(SelectedSolutionItem.FullName));
-        
+
+        public void OpenClick()
+        {
+            Process.Start(Environment.GetEnvironmentVariable("WINDIR") + @"\explorer.exe", SelectedSolutionItem.FullName);
+        }
+
+        public bool CanOpenClick => !string.IsNullOrWhiteSpace(SelectedSolutionItem?.FullName);
 
         private bool ValidateList(IEnumerable<TreeViewItemViewModel> list)
         {
@@ -87,7 +111,7 @@ namespace DependencyFinder.UI.ViewModels
 
             foreach (var item in list)
             {
-                if(ValidateItem(item))
+                if (ValidateItem(item))
                 {
                     anyChildVisible = true;
                 }
@@ -104,19 +128,12 @@ namespace DependencyFinder.UI.ViewModels
 
             item.IsVisible = shouldBeVisible || anyChildVisible;
 
-            if(item.IsVisible && item.Parent != null)
+            if (item.IsVisible && item.Parent != null)
             {
                 item.Parent.IsExpanded = true;
             }
 
             return item.IsVisible;
-        }
-
-        public bool FilterPredicate(object item)
-        {
-            TreeViewItemViewModel treeItem = (TreeViewItemViewModel)item;
-
-            return true;
         }
     }
 }
