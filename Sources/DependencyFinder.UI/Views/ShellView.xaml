@@ -11,6 +11,7 @@
                      xmlns:cal="http://www.caliburnproject.org"
                      xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
                      xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
+                     xmlns:templates="clr-namespace:DependencyFinder.UI.TemplateSelectors"
                      xmlns:e="http://schemas.microsoft.com/xaml/behaviors"
                      xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
                      cal:Message.Attach="[Event Loaded] = [Action OnLoaded()]"
@@ -18,6 +19,7 @@
                      Title="ShellView" Height="1000" Width="1500">
     <Fluent:RibbonWindow.Resources>
         <converters:BooleanToVisiblityConverter x:Key="boolToVisibilityConverter" />
+        <converters:ActiveDocumentConverter x:Key="ActiveDocumentConverter" />
     </Fluent:RibbonWindow.Resources>
     <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
@@ -44,7 +46,30 @@
         <xcad:DockingManager Grid.Row="1"
                              AllowMixedOrientation="True"
                              BorderBrush="Black"
-                             BorderThickness="1">
+                             BorderThickness="1"
+                             DocumentsSource="{Binding Path=OpenDocuments, Mode=TwoWay}" 
+                             ActiveContent="{Binding Path=ActiveDocument, Mode=TwoWay, Converter={StaticResource ActiveDocumentConverter}}" 
+                             >
+            <xcad:DockingManager.LayoutItemTemplateSelector>
+                <templates:DocumentsTemplateSelector>
+                    <templates:DocumentsTemplateSelector.ProjectTemplate>
+                        <DataTemplate>
+                            <avalonEdit:TextEditor Document="{Binding Content}"
+                                                   SyntaxHighlighting="{Binding Syntax}"
+                                                   FontFamily="Consolas"
+                                                   ShowLineNumbers="True"
+                                                   FontSize="10pt"/>
+                        </DataTemplate>
+                    </templates:DocumentsTemplateSelector.ProjectTemplate>
+                </templates:DocumentsTemplateSelector>
+            </xcad:DockingManager.LayoutItemTemplateSelector>
+
+            <xcad:DockingManager.DocumentHeaderTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Content.Title}" Margin="3" FontSize="10pt" FontWeight="Bold" />
+                </DataTemplate>
+            </xcad:DockingManager.DocumentHeaderTemplate>
+
             <xcad:LayoutRoot x:Name="_layoutRoot">
                 <xcad:LayoutPanel Orientation="Horizontal">
                     <xcad:LayoutAnchorablePane DockWidth="300">
@@ -81,6 +106,7 @@
                                           ItemsSource="{Binding Solutions}"
                                           Background="#363636"
                                           ItemContainerStyle="{StaticResource TreeviewItemStyle}"
+                                          cal:Message.Attach="[Event MouseDoubleClick] = [Action ProjectDoubleClick()]"
                                           Padding="0, 10, 0, 0">
                                     <e:Interaction.Behaviors>
                                         <behaviors:BindableSelectedItemBehavior SelectedItem="{Binding SelectedSolutionItem, Mode=TwoWay}" />
@@ -152,18 +178,13 @@
                             </Grid>
                         </xcad:LayoutAnchorable>
                     </xcad:LayoutAnchorablePane>
+
                     <xcad:LayoutDocumentPaneGroup>
                         <xcad:LayoutDocumentPane>
-                            <xcad:LayoutDocument ContentId="document1" Title="{Binding DocumentTitle}">
-                                <avalonEdit:TextEditor
-                                            Document="{Binding Document, UpdateSourceTrigger=PropertyChanged}"
-                                            SyntaxHighlighting="{Binding DocumentSyntax}"
-                                            FontFamily="Consolas"
-                                            ShowLineNumbers="True"
-                                            FontSize="10pt"/>
-                            </xcad:LayoutDocument>
+                            
                         </xcad:LayoutDocumentPane>
                     </xcad:LayoutDocumentPaneGroup>
+
                     <xcad:LayoutAnchorablePaneGroup DockWidth="300">
                         <xcad:LayoutAnchorablePane>
                             <xcad:LayoutAnchorable ContentId="properties" Title="Properties">

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,11 +19,11 @@ namespace DependencyFinder.UI.ViewModels
     {
         public string SolutionsRoot { get; set; }
         public ObservableCollection<SolutionViewModel> Solutions { get; set; } = new ObservableCollection<SolutionViewModel>();
+        public ObservableCollection<DocumentViewModel> OpenDocuments { get; set; } = new ObservableCollection<DocumentViewModel>();
         public string Filter { get; set; }
         public TreeViewItemViewModel SelectedSolutionItem { get; set; }
-        public TextDocument Document { get; set; }
-        public IHighlightingDefinition DocumentSyntax { get; set; }
-        public string DocumentTitle { get; set; }
+        public DocumentViewModel ActiveDocument { get; set; }
+
 
         private readonly ISolutionManager _solutionManager;
 
@@ -62,28 +63,10 @@ namespace DependencyFinder.UI.ViewModels
 
         public void OnSelectedSolutionItemChanged()
         {
-            var filePath = SelectedSolutionItem.FullName;
-
-            if (string.IsNullOrWhiteSpace(filePath)) return;
-
-            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                using (StreamReader reader = FileReader.OpenStream(fs, Encoding.UTF8))
-                {
-                    DocumentSyntax = HighlightingManager.Instance.GetDefinitionByExtension(Path.GetExtension(filePath));
-                    Document = new TextDocument(reader.ReadToEnd());
-                    DocumentTitle = Path.GetFileName(filePath);
-
-                    //TODO read only support
-                    //if ((System.IO.File.GetAttributes(this._filePath) & FileAttributes.ReadOnly) != 0)
-                    //{
-                    //    this.IsReadOnly = true;
-                    //    this.IsReadOnlyReason = "This file cannot be edit because another process is currently writting to it.\n" +
-                    //                            "Change the file access permissions or save the file in a different location if you want to edit it.";
-                    //}
-                }
-            }
+            
         }
+
+        
 
         public void FilterClearClick()
         {
@@ -103,7 +86,59 @@ namespace DependencyFinder.UI.ViewModels
             Process.Start(Environment.GetEnvironmentVariable("WINDIR") + @"\explorer.exe", SelectedSolutionItem.FullName);
         }
 
+        public void ProjectDoubleClick()
+        {
+            var alreadyOpenDocument = OpenDocuments.FirstOrDefault(d => d.AssociatedModel == SelectedSolutionItem);
+
+            if (alreadyOpenDocument != null)
+            {
+                ActiveDocument = alreadyOpenDocument;
+            }
+            else
+            {
+                OpenDocument(SelectedSolutionItem);
+            }
+        }
+
+
         public bool CanOpenClick => !string.IsNullOrWhiteSpace(SelectedSolutionItem?.FullName);
+
+
+        private void OpenDocument(TreeViewItemViewModel model)
+        {
+            var filePath = model.FullName;
+
+            if (string.IsNullOrWhiteSpace(filePath)) return;
+
+            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                using (StreamReader reader = FileReader.OpenStream(fs, Encoding.UTF8))
+                {
+                    var syntax = HighlightingManager.Instance.GetDefinitionByExtension(Path.GetExtension(filePath));
+                    var content = new TextDocument(reader.ReadToEnd());
+                    var title = Path.GetFileName(filePath);
+
+                    var document = new DocumentViewModel
+                    {
+                        AssociatedModel = model,
+                        Content = content,
+                        Syntax = syntax,
+                        Title = title
+                    };
+
+                    OpenDocuments.Add(document);
+                    ActiveDocument = document;
+
+                    //TODO read only support
+                    //if ((System.IO.File.GetAttributes(this._filePath) & FileAttributes.ReadOnly) != 0)
+                    //{
+                    //    this.IsReadOnly = true;
+                    //    this.IsReadOnlyReason = "This file cannot be edit because another process is currently writting to it.\n" +
+                    //                            "Change the file access permissions or save the file in a different location if you want to edit it.";
+                    //}
+                }
+            }
+        }
 
         private bool ValidateList(IEnumerable<TreeViewItemViewModel> list)
         {
