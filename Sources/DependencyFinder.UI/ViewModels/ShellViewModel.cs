@@ -63,7 +63,34 @@ namespace DependencyFinder.UI.ViewModels
 
         public void OnSelectedSolutionItemChanged()
         {
-            
+            var alreadyOpenDocument = OpenDocuments.FirstOrDefault(d => d.AssociatedModel == SelectedSolutionItem);
+            if(alreadyOpenDocument != null)
+            {
+                ActiveDocument = alreadyOpenDocument;
+                return;
+            }
+
+
+            var currentTemporary = OpenDocuments.FirstOrDefault(d => d.IsTemporary);
+
+            var document = OpenDocument(SelectedSolutionItem);
+
+            if(currentTemporary == null)
+            {
+                currentTemporary = new DocumentViewModel
+                {
+                    IsTemporary = true
+                };
+
+                OpenDocuments.Add(currentTemporary);
+            }
+
+            currentTemporary.AssociatedModel = document.AssociatedModel;
+            currentTemporary.Content = document.Content;
+            currentTemporary.Syntax = document.Syntax;
+            currentTemporary.Title = $"*{document.Title}";
+
+            ActiveDocument = currentTemporary;
         }
 
         
@@ -90,13 +117,22 @@ namespace DependencyFinder.UI.ViewModels
         {
             var alreadyOpenDocument = OpenDocuments.FirstOrDefault(d => d.AssociatedModel == SelectedSolutionItem);
 
+            if(alreadyOpenDocument.IsTemporary)
+            {
+                OpenDocuments.Remove(alreadyOpenDocument);
+                alreadyOpenDocument = null;
+            }
+
             if (alreadyOpenDocument != null)
             {
                 ActiveDocument = alreadyOpenDocument;
             }
             else
             {
-                OpenDocument(SelectedSolutionItem);
+                var document = OpenDocument(SelectedSolutionItem);
+
+                OpenDocuments.Add(document);
+                ActiveDocument = document;
             }
         }
 
@@ -104,11 +140,11 @@ namespace DependencyFinder.UI.ViewModels
         public bool CanOpenClick => !string.IsNullOrWhiteSpace(SelectedSolutionItem?.FullName);
 
 
-        private void OpenDocument(TreeViewItemViewModel model)
+        private DocumentViewModel OpenDocument(TreeViewItemViewModel model)
         {
             var filePath = model.FullName;
 
-            if (string.IsNullOrWhiteSpace(filePath)) return;
+            if (string.IsNullOrWhiteSpace(filePath)) return DocumentViewModel.Empty;
 
             using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
@@ -126,8 +162,7 @@ namespace DependencyFinder.UI.ViewModels
                         Title = title
                     };
 
-                    OpenDocuments.Add(document);
-                    ActiveDocument = document;
+                    return document;
 
                     //TODO read only support
                     //if ((System.IO.File.GetAttributes(this._filePath) & FileAttributes.ReadOnly) != 0)
