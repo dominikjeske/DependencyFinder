@@ -19,7 +19,7 @@ namespace DependencyFinder.Core.Models
         public List<NugetPackage> Nugets { get; set; } = new List<NugetPackage>();
         public List<ProjectReference> ProjectReferences { get; set; } = new List<ProjectReference>();
         public List<ProjectTarget> ProjectTargets { get; set; } = new List<ProjectTarget>();
-        
+        public List<ProjectReference> DirectReferences { get; set; } = new List<ProjectReference>();
 
         protected override IEnumerable<object> GetEqualityComponents()
         {

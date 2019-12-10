@@ -161,7 +161,7 @@
                                         <HierarchicalDataTemplate  DataType="{x:Type models:ProjectCollectionViewModel}"
                                                ItemsSource="{Binding Children}">
                                             <StackPanel Orientation="Horizontal">
-                                                <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource ProjectReferenceBrush2}" />
+                                                <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource ProjectFileBrush}" />
                                                 <TextBlock Text="{Binding Name}"></TextBlock>
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
@@ -170,6 +170,14 @@
                                                ItemsSource="{Binding Children}">
                                             <StackPanel Orientation="Horizontal">
                                                 <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource NugetIconBrush}" />
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+
+                                        <HierarchicalDataTemplate  DataType="{x:Type models:ReferencesCollectionViewModel}"
+                                               ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource ProjectReferenceBrush2}" />
                                                 <TextBlock Text="{Binding Name}"></TextBlock>
                                             </StackPanel>
                                         </HierarchicalDataTemplate>

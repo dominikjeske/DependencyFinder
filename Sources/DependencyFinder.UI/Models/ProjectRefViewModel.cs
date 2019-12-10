@@ -12,6 +12,7 @@ namespace DependencyFinder.UI.Models
         {
             ProjectReference = projectRef;
             Name = ProjectReference.Name;
+            FullName = ProjectReference.FilePath;
         }
     }
 }

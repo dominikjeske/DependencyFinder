@@ -21,6 +21,7 @@ namespace DependencyFinder.UI.Models
 
             Children.Add(new NugetCollectionViewModel(Project.Nugets, this, lazyLoadChildren));
             Children.Add(new ProjectCollectionViewModel(Project.ProjectReferences, this, lazyLoadChildren));
+            Children.Add(new ReferencesCollectionViewModel(Project.DirectReferences, this, lazyLoadChildren));
         }
     }
 }

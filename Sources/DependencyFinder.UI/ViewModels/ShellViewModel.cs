@@ -24,12 +24,12 @@ namespace DependencyFinder.UI.ViewModels
         public TreeViewItemViewModel SelectedSolutionItem { get; set; }
         public DocumentViewModel ActiveDocument { get; set; }
 
-
         private readonly ISolutionManager _solutionManager;
 
         public ShellViewModel(ISolutionManager solutionManager)
         {
-            SolutionsRoot = @"E:\Projects\Dependency\DependencyFinder\Test";
+            SolutionsRoot = Path.Combine((new DirectoryInfo(Directory.GetCurrentDirectory())).Parent.Parent.Parent.Parent.Parent.ToString(), "Test");
+            //SolutionsRoot = @"E:\Projects\Dependency\DependencyFinder\Test\WPF2\WpfAppStandalone";
 
             _solutionManager = solutionManager;
         }
@@ -64,18 +64,17 @@ namespace DependencyFinder.UI.ViewModels
         public void OnSelectedSolutionItemChanged()
         {
             var alreadyOpenDocument = OpenDocuments.FirstOrDefault(d => d.AssociatedModel == SelectedSolutionItem);
-            if(alreadyOpenDocument != null)
+            if (alreadyOpenDocument != null)
             {
                 ActiveDocument = alreadyOpenDocument;
                 return;
             }
 
-
             var currentTemporary = OpenDocuments.FirstOrDefault(d => d.IsTemporary);
 
             var document = OpenDocument(SelectedSolutionItem);
 
-            if(currentTemporary == null)
+            if (currentTemporary == null)
             {
                 currentTemporary = new DocumentViewModel
                 {
@@ -92,8 +91,6 @@ namespace DependencyFinder.UI.ViewModels
 
             ActiveDocument = currentTemporary;
         }
-
-        
 
         public void FilterClearClick()
         {
@@ -117,7 +114,7 @@ namespace DependencyFinder.UI.ViewModels
         {
             var alreadyOpenDocument = OpenDocuments.FirstOrDefault(d => d.AssociatedModel == SelectedSolutionItem);
 
-            if(alreadyOpenDocument.IsTemporary)
+            if (alreadyOpenDocument.IsTemporary)
             {
                 OpenDocuments.Remove(alreadyOpenDocument);
                 alreadyOpenDocument = null;
@@ -136,15 +133,14 @@ namespace DependencyFinder.UI.ViewModels
             }
         }
 
-
         public bool CanOpenClick => !string.IsNullOrWhiteSpace(SelectedSolutionItem?.FullName);
-
 
         private DocumentViewModel OpenDocument(TreeViewItemViewModel model)
         {
             var filePath = model.FullName;
 
             if (string.IsNullOrWhiteSpace(filePath)) return DocumentViewModel.Empty;
+            if (!File.Exists(filePath)) return DocumentViewModel.Empty;
 
             using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {

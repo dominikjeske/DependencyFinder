@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyFinder.Core", "De
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyFinder.UI", "DependencyFinder.UI\DependencyFinder.UI.csproj", "{68ABF38B-2122-4C39-AC84-2C6C13D0C807}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyFinder.Parser", "DependencyFinder.Parser\DependencyFinder.Parser.csproj", "{00C313BE-69F3-429C-B9F9-B8DA3C189605}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{68ABF38B-2122-4C39-AC84-2C6C13D0C807}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68ABF38B-2122-4C39-AC84-2C6C13D0C807}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68ABF38B-2122-4C39-AC84-2C6C13D0C807}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00C313BE-69F3-429C-B9F9-B8DA3C189605}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00C313BE-69F3-429C-B9F9-B8DA3C189605}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00C313BE-69F3-429C-B9F9-B8DA3C189605}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00C313BE-69F3-429C-B9F9-B8DA3C189605}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

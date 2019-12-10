@@ -50,6 +50,25 @@ namespace DependencyFinder.Core
 
         public async Task<IEnumerable<Project>> OpenSolution(string solutionPath)
         {
+            try
+            {
+
+                
+
+                //using (var workspace = MSBuildWorkspace.Create())
+                //{
+                //    var proj = await workspace.OpenProjectAsync(@"E:\Projects\Dependency\DependencyFinder\Test\WPF\WPF\WPF.csproj");
+
+                //}
+            }
+            catch (Exception e)
+            {
+
+                throw;
+            }
+            
+
+
             var projects = ReadProjectsFromSolution(solutionPath);
             var result = await ReadProjectDetails(projects);
             return result;
@@ -68,7 +87,7 @@ namespace DependencyFinder.Core
 
                         var nugets = await ReadNuget(project.AbsolutePath, projectInfo);
                         project.Nugets.AddRange(nugets);
-
+                        
                         foreach (var pr in projectInfo.ProjectReferences)
                         {
                             project.ProjectReferences.Add(new Models.ProjectReference { FilePath = pr.FilePath, Name = Path.GetFileName(pr.FilePath) });
@@ -77,6 +96,11 @@ namespace DependencyFinder.Core
                         foreach (var targ in projectInfo.ProjectTargets)
                         {
                             project.ProjectTargets.Add(new ProjectTarget { Description = targ.Description, Type = targ.Type.ToString(), TargetValue = targ.TargetValue, Version = targ.Version });
+                        }
+
+                        foreach (var pr in projectInfo.References.Where(x => !string.IsNullOrWhiteSpace(x.Path) && string.IsNullOrWhiteSpace(x.Version)))
+                        {
+                            project.DirectReferences.Add(new Models.ProjectReference { FilePath = pr.Path, Name = pr.Name });
                         }
 
                         project.IsMultiTarget = projectInfo.IsMultiTarget;
