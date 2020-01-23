@@ -8,6 +8,7 @@ using DependencyFinder.UI.ViewModels;
 
 namespace DependencyFinder.UI
 {
+    //TODO http://blogs.microsoft.co.il/iblogger/2015/01/27/catching-exceptions-from-caliburn-micro-actionmessage-invocation/
     public class Bootstrapper : BootstrapperBase
     {
         private SimpleContainer container;
