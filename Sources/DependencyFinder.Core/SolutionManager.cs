@@ -4,11 +4,14 @@ using CSharpFunctionalExtensions;
 using DependencyFinder.Core.Models;
 using DependencyFinder.Search;
 using Microsoft.Build.Locator;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.Extensions.Logging;
+using Nito.AsyncEx;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,6 +21,131 @@ namespace DependencyFinder.Core
 {
     public class SolutionManager : ISolutionManager
     {
+        private readonly ConcurrentDictionary<string, AsyncLazy<Solution>> _solutionCache = new ConcurrentDictionary<string, AsyncLazy<Solution>>();
+
+        private Task<Solution> GetSolution(string SolutionPath)
+        {
+            var solution = _solutionCache.GetOrAdd(SolutionPath, s =>
+            {
+                return new AsyncLazy<Solution>(async () =>
+                {
+                    var workspace = MSBuildWorkspace.Create();
+                    var solution = await workspace.OpenSolutionAsync(s);
+
+                    return solution;
+                });
+            });
+
+            return solution.Task;
+        }
+
+        public async Task<IEnumerable<TypeDetails>> GetProjectTypes(string projectPath, string solutionPath)
+        {
+            var projectName = Path.GetFileNameWithoutExtension(projectPath);
+
+            var solution = await GetSolution(solutionPath);
+
+            var types = solution.Projects
+                           .Where(x => x.Name == projectName)
+                           .SelectMany(project => project.Documents)
+                           .Select(document =>
+                               new
+                               {
+                                   Model = document.GetSemanticModelAsync().Result,
+                                   Declarations = document.GetSyntaxRootAsync()
+                                                          .Result
+                                                          .DescendantNodes()
+                                                          .OfType<BaseTypeDeclarationSyntax>()
+                               }
+                           )
+                           .SelectMany(pair => pair.Declarations.Select(declaration => pair.Model.GetDeclaredSymbol(declaration) as INamedTypeSymbol))
+                           .Where(t => t.DeclaredAccessibility == Accessibility.Public);
+
+            var xx = types.Where(t => t.TypeKind == TypeKind.Class);
+
+            
+           IEnumerable <TypeDetails> interfaces = types.Where(t => t.TypeKind == TypeKind.Interface)
+                                                       .Select(x =>
+                                                       new InterfaceDetails
+                                                       {
+                                                           Name = x.Name,
+                                                           Kind = x.TypeKind.ToString(),
+                                                           Members = x.GetMembers()
+                                                                      .Where(x => x.CanBeReferencedByName)
+                                                                      .Select(y => new MethodMember
+                                                                      {
+                                                                          Name = y.Name
+                                                                      }).ToList()
+                                                       }
+                                                       );
+
+            IEnumerable<TypeDetails> classes =  types.Where(t => t.TypeKind == TypeKind.Class)
+                                                    .Select(x =>
+                                                   new ClassDetails
+                                                   {
+                                                       Name = x.Name,
+                                                       Kind = x.TypeKind.ToString(),
+                                                       Members =  ((IEnumerable<Member>)(x.GetMembers()
+                                                                   .Where(x => x.CanBeReferencedByName && x.Kind == SymbolKind.Method)
+                                                                   .Select(y => new MethodMember { Name = y.Name })
+                                                                  )).Union
+                                                                  (x.GetMembers()
+                                                                   .Where(x => x.CanBeReferencedByName && x.Kind == SymbolKind.Property)
+                                                                   .Select(y => new PropertyMember { Name = y.Name }))
+                                                                  .Union
+                                                                  (x.GetMembers()
+                                                                   .Where(x => x.CanBeReferencedByName && x.Kind == SymbolKind.Field)
+                                                                   .Select(y => new FieldMember { Name = y.Name }))
+                                                                  .Union
+                                                                  (x.GetMembers()
+                                                                   .Where(x => x.CanBeReferencedByName && x.Kind == SymbolKind.Event)
+                                                                   .Select(y => new EventMember { Name = y.Name }))
+                                                   }
+                                               );
+
+            IEnumerable<TypeDetails> enums = types.Where(t => t.TypeKind == TypeKind.Enum)
+                                                    .Select(x =>
+                                                   new EnumDetails
+                                                   {
+                                                       Name = x.Name,
+                                                       Kind = x.TypeKind.ToString(),
+                                                       Members = x.GetMembers()
+                                                                  .Where(x => x.CanBeReferencedByName)
+                                                                  .Select(y => new PropertyMember
+                                                                  {
+                                                                      Name = y.Name
+                                                                  }).ToList()
+                                                   }
+                                               );
+
+            IEnumerable<TypeDetails> structs = types.Where(t => t.TypeKind == TypeKind.Struct)
+                                                    .Select(x =>
+                                                   new StructDetails
+                                                   {
+                                                       Name = x.Name,
+                                                       Kind = x.TypeKind.ToString(),
+                                                       Members = ((IEnumerable<Member>)(x.GetMembers()
+                                                                   .Where(x => x.CanBeReferencedByName && x.Kind == SymbolKind.Method)
+                                                                   .Select(y => new MethodMember { Name = y.Name })
+                                                                  )).Union
+                                                                  (x.GetMembers()
+                                                                   .Where(x => x.CanBeReferencedByName && x.Kind == SymbolKind.Property)
+                                                                   .Select(y => new PropertyMember { Name = y.Name }))
+                                                                  .Union
+                                                                  (x.GetMembers()
+                                                                   .Where(x => x.CanBeReferencedByName && x.Kind == SymbolKind.Field)
+                                                                   .Select(y => new FieldMember { Name = y.Name }))
+                                                                  .Union
+                                                                  (x.GetMembers()
+                                                                   .Where(x => x.CanBeReferencedByName && x.Kind == SymbolKind.Event)
+                                                                   .Select(y => new EventMember { Name = y.Name }))
+                                                   }
+                                               );
+
+            return interfaces.Union(classes).Union(enums).Union(structs);
+
+        }
+
         static SolutionManager()
         {
             MSBuildLocator.RegisterDefaults();
@@ -48,33 +176,14 @@ namespace DependencyFinder.Core
             }
         }
 
-        public async Task<IEnumerable<Project>> OpenSolution(string solutionPath)
+        public async Task<IEnumerable<ProjectDetails>> OpenSolution(string solutionPath)
         {
-            try
-            {
-
-                
-
-                //using (var workspace = MSBuildWorkspace.Create())
-                //{
-                //    var proj = await workspace.OpenProjectAsync(@"E:\Projects\Dependency\DependencyFinder\Test\WPF\WPF\WPF.csproj");
-
-                //}
-            }
-            catch (Exception e)
-            {
-
-                throw;
-            }
-            
-
-
             var projects = ReadProjectsFromSolution(solutionPath);
             var result = await ReadProjectDetails(projects);
             return result;
         }
 
-        private async Task<IEnumerable<Project>> ReadProjectDetails(IEnumerable<Project> projects)
+        private async Task<IEnumerable<ProjectDetails>> ReadProjectDetails(IEnumerable<ProjectDetails> projects)
         {
             var tasks = projects.AsParallel().Select(async project =>
             {
@@ -87,7 +196,7 @@ namespace DependencyFinder.Core
 
                         var nugets = await ReadNuget(project.AbsolutePath, projectInfo);
                         project.Nugets.AddRange(nugets);
-                        
+
                         foreach (var pr in projectInfo.ProjectReferences)
                         {
                             project.ProjectReferences.Add(new Models.ProjectReference { FilePath = pr.FilePath, Name = Path.GetFileName(pr.FilePath) });
@@ -119,6 +228,7 @@ namespace DependencyFinder.Core
                         };
                     }
                 }
+                //TODO
                 catch (InvalidDotNetProjectException ex)
                 {
                 }
@@ -151,18 +261,18 @@ namespace DependencyFinder.Core
             }
         }
 
-        private IEnumerable<Project> ReadProjectsFromSolution(string solutionPath)
+        private IEnumerable<ProjectDetails> ReadProjectsFromSolution(string solutionPath)
         {
             var solution = ReadSolutionFromDisk(solutionPath);
 
-            if (solution.IsFailure) return Enumerable.Empty<Project>();
+            if (solution.IsFailure) return Enumerable.Empty<ProjectDetails>();
 
             var solutionDirectory = Path.GetDirectoryName(solutionPath);
 
             return solution.Value
                             .Projects
                             .Where(x => !x.Type.IsSolutionFolder) //x.Type.Description == "C#"
-                            .Select(p => new Project
+                            .Select(p => new ProjectDetails
                             {
                                 Id = p.Id,
                                 Name = p.Name,
@@ -255,6 +365,15 @@ namespace DependencyFinder.Core
                         yield return objectReference;
                     }
                 }
+            }
+        }
+
+        public void Dispose()
+        {
+            //TODO maybe it could be safer way
+            foreach (var solution in _solutionCache.Values.Where(c => c.IsStarted).Select(x => x.Task.Result))
+            {
+                solution.Workspace.Dispose();
             }
         }
 

@@ -49,6 +49,13 @@ namespace DependencyFinder.UI
             e.Handled = true;
         }
 
+        protected override void OnExit(object sender, EventArgs e)
+        {
+            var solutionManager = container.GetInstance<ISolutionManager>();
+            solutionManager.Dispose();
+
+            base.OnExit(sender, e);
+        }
 
         protected override void OnStartup(object sender, StartupEventArgs e)
         {

@@ -40,7 +40,7 @@ namespace DependencyFinder.UI.ViewModels
 
             await foreach (var s in solutions)
             {
-                var solutionViewModel = new SolutionViewModel(s);
+                var solutionViewModel = new SolutionViewModel(s, _solutionManager, false);
                 Solutions.Add(solutionViewModel);
 
                 var projects = await _solutionManager.OpenSolution(s);
@@ -110,11 +110,20 @@ namespace DependencyFinder.UI.ViewModels
             Process.Start(Environment.GetEnvironmentVariable("WINDIR") + @"\explorer.exe", SelectedSolutionItem.FullName);
         }
 
+        public bool CanOpenClick => !string.IsNullOrWhiteSpace(SelectedSolutionItem?.FullName);
+
+        public void FindClick()
+        {
+
+        }
+
+        public bool CanFindClick => SelectedSolutionItem is TypeViewModel || SelectedSolutionItem is MemberViewModel;
+
         public void ProjectDoubleClick()
         {
             var alreadyOpenDocument = OpenDocuments.FirstOrDefault(d => d.AssociatedModel == SelectedSolutionItem);
 
-            if (alreadyOpenDocument.IsTemporary)
+            if (alreadyOpenDocument?.IsTemporary == true)
             {
                 OpenDocuments.Remove(alreadyOpenDocument);
                 alreadyOpenDocument = null;
@@ -133,10 +142,12 @@ namespace DependencyFinder.UI.ViewModels
             }
         }
 
-        public bool CanOpenClick => !string.IsNullOrWhiteSpace(SelectedSolutionItem?.FullName);
+       
 
         private DocumentViewModel OpenDocument(TreeViewItemViewModel model)
         {
+            if (model == null) return DocumentViewModel.Empty;
+
             var filePath = model.FullName;
 
             if (string.IsNullOrWhiteSpace(filePath)) return DocumentViewModel.Empty;
@@ -173,6 +184,9 @@ namespace DependencyFinder.UI.ViewModels
 
         private bool ValidateList(IEnumerable<TreeViewItemViewModel> list)
         {
+            //TODO check this
+            if (list == null) return false;
+
             bool anyChildVisible = false;
 
             foreach (var item in list)
@@ -190,7 +204,7 @@ namespace DependencyFinder.UI.ViewModels
         {
             var anyChildVisible = ValidateList(item.Children);
 
-            var shouldBeVisible = item.Name.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) > -1;
+            var shouldBeVisible = item.Name?.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) > -1;
 
             item.IsVisible = shouldBeVisible || anyChildVisible;
 

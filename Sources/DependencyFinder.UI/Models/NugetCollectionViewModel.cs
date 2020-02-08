@@ -1,4 +1,5 @@
-﻿using DependencyFinder.Core.Models;
+﻿using DependencyFinder.Core;
+using DependencyFinder.Core.Models;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace DependencyFinder.Core.Models
 {
-    public class Project : ValueObject
+    public class ProjectDetails : ValueObject
     {
         public Guid Id { get; set; }
         public string Name { get; set; }

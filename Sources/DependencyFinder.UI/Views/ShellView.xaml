@@ -34,11 +34,18 @@
                     <Fluent:Button Header="Explore"
                                    Icon="{DynamicResource FolderImage}"
                                    LargeIcon="{DynamicResource FolderImage}"
+                                   MinWidth="60"
                                    cal:Message.Attach="[Event Click] = [Action ExploreClick()]" />
                     <Fluent:Button Header="Open"
                                    Icon="{DynamicResource SolutionImage}"
                                    LargeIcon="{DynamicResource SolutionImage}"
+                                   MinWidth="60"
                                    cal:Message.Attach="[Event Click] = [Action OpenClick()]" />
+                    <Fluent:Button Header="Find All References"
+                                   Icon="{DynamicResource FindImage}"
+                                   LargeIcon="{DynamicResource FindImage}"
+                                   MinWidth="60"
+                                   cal:Message.Attach="[Event Click] = [Action FindClick()]" />
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
         </Fluent:Ribbon>
@@ -181,6 +188,79 @@
                                                 <TextBlock Text="{Binding Name}"></TextBlock>
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
+
+                                        <HierarchicalDataTemplate  DataType="{x:Type models:TypesCollectionViewModel}"
+                                               ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource ClassBrush}" />
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+
+                                        <HierarchicalDataTemplate  DataType="{x:Type models:ClassViewModel}"
+                                               ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource ClassBrush}" />
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+
+                                        <HierarchicalDataTemplate  DataType="{x:Type models:InterfaceViewModel}"
+                                               ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource InterfaceBrush}" />
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+
+                                        <HierarchicalDataTemplate  DataType="{x:Type models:EnumViewModel}"
+                                               ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource EnumBrush}" />
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+
+                                        <HierarchicalDataTemplate  DataType="{x:Type models:StructViewModel}"
+                                               ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource StructBrush}" />
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+
+                                        <HierarchicalDataTemplate  DataType="{x:Type models:MethodViewModel}"
+                                               ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource MethodBrush}" />
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+
+                                        <HierarchicalDataTemplate  DataType="{x:Type models:PropertyViewModel}"
+                                               ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource PropertyBrush}" />
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+
+                                        <HierarchicalDataTemplate  DataType="{x:Type models:FieldViewModel}"
+                                               ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource FieldBrush}" />
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+
+                                        <HierarchicalDataTemplate  DataType="{x:Type models:EventViewModel}"
+                                               ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource EventBrush}" />
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+
                                     </TreeView.Resources>
                                 </TreeView>
                             </Grid>

@@ -26,7 +26,7 @@ namespace DependencyFinder
 
             var sm = new SolutionManager(null);
 
-            var projects = new List<Project>();
+            var projects = new List<ProjectDetails>();
             await foreach (var solution in sm.FindSolutions(no.RootPath))
             {
                 projects.AddRange(await sm.OpenSolution(solution));
