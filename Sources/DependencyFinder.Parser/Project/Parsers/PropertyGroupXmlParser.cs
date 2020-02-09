@@ -10,7 +10,7 @@ namespace ByteDev.DotNet.Project.Parsers
         {
             const string name = "TargetFrameworkVersion";
             XNamespace nameSpace = "http://schemas.microsoft.com/developer/msbuild/2003";
-            
+
             return propertyGroups.SingleOrDefault(pg => pg.Element(nameSpace + name) != null)?
                 .Element(nameSpace + name);
         }

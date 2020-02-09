@@ -17,7 +17,7 @@ namespace ByteDev.DotNet.Project
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:ByteDev.DotNet.Project.InvalidDotNetProjectException" /> class. 
+        /// Initializes a new instance of the <see cref="T:ByteDev.DotNet.Project.InvalidDotNetProjectException" /> class.
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
         public InvalidDotNetProjectException(string message) : base(message)
@@ -25,7 +25,7 @@ namespace ByteDev.DotNet.Project
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:ByteDev.DotNet.Project.InvalidDotNetProjectException" /> class.  
+        /// Initializes a new instance of the <see cref="T:ByteDev.DotNet.Project.InvalidDotNetProjectException" /> class.
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
         /// <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>

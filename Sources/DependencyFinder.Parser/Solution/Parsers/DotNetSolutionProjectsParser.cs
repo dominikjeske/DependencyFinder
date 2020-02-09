@@ -1,15 +1,15 @@
-﻿using System;
+﻿using ByteDev.DotNet.Solution.Converters;
+using ByteDev.DotNet.Solution.Factories;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using ByteDev.DotNet.Solution.Converters;
-using ByteDev.DotNet.Solution.Factories;
 
 namespace ByteDev.DotNet.Solution.Parsers
 {
     internal class DotNetSolutionProjectsParser : ISolutionTextParser<IList<DotNetSolutionProject>>
     {
-        private const string ProjectPattern = 
+        private const string ProjectPattern =
             "^Project\\(\"{(?<TypeId>[A-F0-9-]+)}\"\\) = " +
             "\"(?<Name>.*?)\", " +
             "\"(?<Path>.*?)\", " +
@@ -60,7 +60,7 @@ namespace ByteDev.DotNet.Solution.Parsers
 
             if (string.IsNullOrEmpty(sections))
                 return projectSections;
-            
+
             var psMatches = Regex.Matches(sections, ProjectSectionPattern, RegexOptions.Multiline);
 
             foreach (Match psMatch in psMatches)

@@ -18,7 +18,7 @@ namespace ByteDev.DotNet.Project
         public string Name { get; internal set; }
 
         /// <summary>
-        /// Package version number. Typically in: (Major).(Minor).(Patch) format. 
+        /// Package version number. Typically in: (Major).(Minor).(Patch) format.
         /// </summary>
         public string Version { get; internal set; }
 

@@ -29,7 +29,7 @@ namespace DependencyFinder
             var projects = new List<ProjectDetails>();
             await foreach (var solution in sm.FindSolutions(no.RootPath))
             {
-                projects.AddRange(await sm.OpenSolution(solution));
+                projects.AddRange(await sm.ReadSolution(solution));
             }
 
             var nugets = projects.Distinct().SelectMany(p => p.Nugets.Select(n => new

@@ -8,8 +8,10 @@
             {
                 case "preSolution":
                     return GlobalSectionType.PreSolution;
+
                 case "postSolution":
                     return GlobalSectionType.PostSolution;
+
                 default:
                     return GlobalSectionType.Unknown;
             }

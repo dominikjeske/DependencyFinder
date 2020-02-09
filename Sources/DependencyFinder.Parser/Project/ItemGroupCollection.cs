@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using ByteDev.DotNet.Project.Parsers;
+using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Xml.Linq;
-using ByteDev.DotNet.Project.Parsers;
 
 namespace ByteDev.DotNet.Project
 {

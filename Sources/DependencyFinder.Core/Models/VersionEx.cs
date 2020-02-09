@@ -64,7 +64,7 @@ namespace DependencyFinder.Core.Models
 
         public static VersionEx FromString(string version)
         {
-            if(version == null)
+            if (version == null)
             {
                 return new VersionEx() { Value = new Version("0.0.0"), Beta = "None" };
             }

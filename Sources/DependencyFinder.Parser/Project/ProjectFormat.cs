@@ -9,6 +9,7 @@
         /// The older (pre-VS2017) format.
         /// </summary>
         Old,
+
         /// <summary>
         /// The newer (VS2017) format.
         /// </summary>

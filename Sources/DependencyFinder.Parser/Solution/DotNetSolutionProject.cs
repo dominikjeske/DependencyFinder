@@ -14,7 +14,7 @@ namespace ByteDev.DotNet.Solution
         /// Project type.
         /// </summary>
         public DotNetSolutionProjectType Type { get; set; }
-        
+
         /// <summary>
         /// Project name.
         /// </summary>

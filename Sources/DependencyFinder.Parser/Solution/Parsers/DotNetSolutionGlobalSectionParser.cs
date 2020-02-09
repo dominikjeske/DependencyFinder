@@ -1,15 +1,15 @@
-﻿using System;
+﻿using ByteDev.DotNet.Solution.Converters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using ByteDev.DotNet.Solution.Converters;
 
 namespace ByteDev.DotNet.Solution.Parsers
 {
     internal class DotNetSolutionGlobalSectionParser : ISolutionTextParser<IList<DotNetSolutionGlobalSection>>
     {
         private const string GlobalSectionPattern = @"GlobalSection(?<Record>(.|\n|\r)*?)EndGlobalSection";
-        
+
         public IList<DotNetSolutionGlobalSection> Parse(string slnText)
         {
             var matches = Regex.Matches(slnText, GlobalSectionPattern, RegexOptions.Multiline);
@@ -38,7 +38,7 @@ namespace ByteDev.DotNet.Solution.Parsers
                 Type = ExtractType(header)
             };
 
-            var settingLines = record.Split(new[] {'\n'}, StringSplitOptions.RemoveEmptyEntries)
+            var settingLines = record.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
                 .Skip(1)
                 .Select(l => l.Trim())
                 .Where(l => l != string.Empty)
@@ -46,7 +46,7 @@ namespace ByteDev.DotNet.Solution.Parsers
 
             foreach (var settingLine in settingLines)
             {
-                var nameValue = settingLine.Split(new[] {" = "}, StringSplitOptions.None).ToArray();
+                var nameValue = settingLine.Split(new[] { " = " }, StringSplitOptions.None).ToArray();
 
                 gc.Settings.Add(nameValue[0], nameValue[1]);
             }

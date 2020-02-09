@@ -22,7 +22,6 @@ namespace DependencyFinder
 
         public static void WriteTitleLine(string text) => Write(text, ConsoleColor.DarkMagenta);
 
-
         public static void WriteOK(string text) => Write(text, ConsoleColor.Green, false);
 
         public static void WriteError(string text) => Write(text, ConsoleColor.Red, false);

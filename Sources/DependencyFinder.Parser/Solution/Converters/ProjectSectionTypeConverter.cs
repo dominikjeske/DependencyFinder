@@ -8,8 +8,10 @@
             {
                 case "preProject":
                     return ProjectSectionType.PreProject;
+
                 case "postProject":
                     return ProjectSectionType.PostProject;
+
                 default:
                     return ProjectSectionType.Unknown;
             }

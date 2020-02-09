@@ -30,7 +30,7 @@ namespace ByteDev.DotNet.Solution
         /// <exception cref="T:System.ArgumentException"><paramref name="description" /> is null or empty.</exception>
         public DotNetSolutionProjectType(Guid id, string description)
         {
-            if(string.IsNullOrEmpty(description))
+            if (string.IsNullOrEmpty(description))
                 throw new ArgumentException("Description was null or empty.", nameof(description));
 
             Id = id;

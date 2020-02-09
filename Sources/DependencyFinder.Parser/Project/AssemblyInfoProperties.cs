@@ -20,9 +20,9 @@ namespace ByteDev.DotNet.Project
 
         internal AssemblyInfoProperties(PropertyGroupCollection propertyGroupCollection)
         {
-            if(propertyGroupCollection == null)
+            if (propertyGroupCollection == null)
                 throw new ArgumentNullException(nameof(propertyGroupCollection));
-            
+
             _company = new Lazy<string>(() => propertyGroupCollection.GetElementValue("Company"));
             _configuration = new Lazy<string>(() => propertyGroupCollection.GetElementValue("Configuration"));
             _copyright = new Lazy<string>(() => propertyGroupCollection.GetElementValue("Copyright"));
@@ -34,7 +34,7 @@ namespace ByteDev.DotNet.Project
             _assemblyVersion = new Lazy<string>(() => propertyGroupCollection.GetElementValue("AssemblyVersion"));
             _neutralLanguage = new Lazy<string>(() => propertyGroupCollection.GetElementValue("NeutralLanguage"));
         }
-        
+
         /// <summary>
         /// Specifies company name for assembly manifest.
         /// </summary>

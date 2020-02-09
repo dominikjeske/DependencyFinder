@@ -1,8 +1,8 @@
-﻿using System;
+﻿using ByteDev.DotNet.Solution.Factories;
+using ByteDev.DotNet.Solution.Parsers;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using ByteDev.DotNet.Solution.Factories;
-using ByteDev.DotNet.Solution.Parsers;
 
 namespace ByteDev.DotNet.Solution
 {
@@ -26,7 +26,7 @@ namespace ByteDev.DotNet.Solution
         /// <exception cref="T:System.ArgumentException"><paramref name="slnText" /> is null or empty.</exception>
         public DotNetSolution(string slnText)
         {
-            if(string.IsNullOrEmpty(slnText))
+            if (string.IsNullOrEmpty(slnText))
                 throw new ArgumentException("Solution text was null or empty.", nameof(slnText));
 
             _formatVersion = new Lazy<string>(() => new FormatVersionParser().Parse(slnText));

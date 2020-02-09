@@ -1,8 +1,8 @@
-﻿using System;
+﻿using ByteDev.DotNet.Project.Parsers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using ByteDev.DotNet.Project.Parsers;
 
 namespace ByteDev.DotNet.Project
 {
@@ -17,7 +17,7 @@ namespace ByteDev.DotNet.Project
 
         public string GetElementValue(string elementName)
         {
-            if(string.IsNullOrEmpty(elementName))
+            if (string.IsNullOrEmpty(elementName))
                 throw new ArgumentException("Element name was null or empty.", nameof(elementName));
 
             return PropertyGroupElements

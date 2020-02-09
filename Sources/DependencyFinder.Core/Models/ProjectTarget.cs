@@ -1,6 +1,5 @@
 ﻿namespace DependencyFinder.Core.Models
 {
-
     public class ProjectTarget
     {
         public string TargetValue { get; set; }

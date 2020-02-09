@@ -20,7 +20,7 @@ namespace DependencyFinder.UI.Models
 
         protected override void LoadChildren()
         {
-            Children.Add(TypeViewModel.Empty(this));
+            Children.Add(new WaitingViewModel(this));
 
             Task.Run(() => _solutionManager.GetProjectTypes(_projectPath, _solutionPath)).ContinueWith((result) =>
             {
@@ -28,7 +28,7 @@ namespace DependencyFinder.UI.Models
 
                 foreach (var type in result.Result)
                 {
-                    if(type is InterfaceDetails id)
+                    if (type is InterfaceDetails id)
                     {
                         Children.Add(new InterfaceViewModel(id, this));
                     }
@@ -44,7 +44,6 @@ namespace DependencyFinder.UI.Models
                     {
                         Children.Add(new StructViewModel(sd, this));
                     }
-
                 }
             }, TaskScheduler.FromCurrentSynchronizationContext());
 

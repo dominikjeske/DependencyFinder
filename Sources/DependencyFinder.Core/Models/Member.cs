@@ -13,24 +13,19 @@ namespace DependencyFinder.Core.Models
         }
     }
 
-
     public class MethodMember : Member
     {
-
     }
 
     public class PropertyMember : Member
     {
-           
     }
 
     public class EventMember : Member
     {
-
     }
 
     public class FieldMember : Member
     {
-
     }
 }

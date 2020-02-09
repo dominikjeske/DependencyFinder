@@ -18,7 +18,7 @@ namespace ByteDev.DotNet.Project
         /// <exception cref="T:ByteDev.DotNet.Project.InvalidDotNetProjectException">Target value is not valid.</exception>
         public DotNetProjectTarget(string targetValue)
         {
-            if(string.IsNullOrEmpty(targetValue))
+            if (string.IsNullOrEmpty(targetValue))
                 throw new ArgumentException("Target value was null or empty.", nameof(targetValue));
 
             TargetValue = targetValue;
@@ -55,7 +55,7 @@ namespace ByteDev.DotNet.Project
         {
             return TargetValue;
         }
-        
+
         private void SetTypeAndVersion(string targetValue)
         {
             if (targetValue.StartsWith(TargetValuePrefix.Core, true, CultureInfo.InvariantCulture))
@@ -72,7 +72,7 @@ namespace ByteDev.DotNet.Project
                 return;
             }
 
-            if(targetValue.StartsWith(TargetValuePrefix.FrameworkNew, true, CultureInfo.InvariantCulture))
+            if (targetValue.StartsWith(TargetValuePrefix.FrameworkNew, true, CultureInfo.InvariantCulture))
             {
                 Type = TargetType.Framework;
                 Version = targetValue.Substring(TargetValuePrefix.FrameworkNew.Length);
@@ -95,13 +95,13 @@ namespace ByteDev.DotNet.Project
             switch (Type)
             {
                 case TargetType.Framework:
-                    Description = _isOldStyleFormat ? 
-                        $".NET Framework {TargetValue.Substring(TargetValuePrefix.FrameworkOld.Length)}" : 
+                    Description = _isOldStyleFormat ?
+                        $".NET Framework {TargetValue.Substring(TargetValuePrefix.FrameworkOld.Length)}" :
                         $".NET Framework {VersionNumberFormatter.Format(TargetValue.Substring(TargetValuePrefix.FrameworkNew.Length))}";
                     break;
 
                 case TargetType.Core:
-                    Description = $".NET Core {TargetValue.Substring(TargetValuePrefix.Core.Length)}"; 
+                    Description = $".NET Core {TargetValue.Substring(TargetValuePrefix.Core.Length)}";
                     break;
 
                 case TargetType.Standard:

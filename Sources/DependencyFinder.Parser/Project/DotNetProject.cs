@@ -1,8 +1,8 @@
-﻿using System;
+﻿using ByteDev.DotNet.Project.Parsers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using ByteDev.DotNet.Project.Parsers;
 
 namespace ByteDev.DotNet.Project
 {
@@ -12,7 +12,7 @@ namespace ByteDev.DotNet.Project
     public class DotNetProject
     {
         private const char ProjectTargetDelimiter = ';';
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="T:ByteDev.DotNet.Project.DotNetProject" /> class.
         /// </summary>
@@ -21,7 +21,7 @@ namespace ByteDev.DotNet.Project
         /// <exception cref="T:ByteDev.DotNet.Project.InvalidDotNetProjectException">The project XML is not valid.</exception>
         public DotNetProject(XDocument xDocument)
         {
-            if(xDocument == null)
+            if (xDocument == null)
                 throw new ArgumentNullException(nameof(xDocument));
 
             SetPropertyGroupProperties(xDocument);
@@ -42,7 +42,7 @@ namespace ByteDev.DotNet.Project
         /// Whether the project is in the new or old format.
         /// </summary>
         public ProjectFormat Format { get; private set; }
-        
+
         /// <summary>
         /// Collection of references to other projects.
         /// </summary>
@@ -57,10 +57,10 @@ namespace ByteDev.DotNet.Project
         public IEnumerable<Reference> References { get; private set; }
 
         /// <summary>
-        /// Assembly info properties. 
+        /// Assembly info properties.
         /// </summary>
         public AssemblyInfoProperties AssemblyInfo { get; private set; }
-        
+
         /// <summary>
         /// Nuget meta data properties.
         /// </summary>
@@ -92,11 +92,11 @@ namespace ByteDev.DotNet.Project
             var propertyGroups = new PropertyGroupCollection(xDocument);
 
             SetFormatAndProjectTargets(propertyGroups);
-            
+
             AssemblyInfo = new AssemblyInfoProperties(propertyGroups);
             NugetMetaData = new NugetMetaDataProperties(propertyGroups);
         }
-        
+
         private void SetFormatAndProjectTargets(PropertyGroupCollection propertyGroups)
         {
             var targetElement = PropertyGroupXmlParser.GetOldStyleTargetElement(propertyGroups.PropertyGroupElements);
@@ -104,7 +104,7 @@ namespace ByteDev.DotNet.Project
             if (targetElement == null)
             {
                 targetElement = PropertyGroupXmlParser.GetNewStyleTargetElement(propertyGroups.PropertyGroupElements);
-                
+
                 if (targetElement == null)
                     throw new InvalidDotNetProjectException("Project document contains no target framework.");
 
@@ -114,7 +114,7 @@ namespace ByteDev.DotNet.Project
             {
                 Format = ProjectFormat.Old;
             }
-            
+
             ProjectTargets = targetElement
                 .Value
                 .Split(ProjectTargetDelimiter)

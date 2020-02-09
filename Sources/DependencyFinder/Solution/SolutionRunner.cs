@@ -26,10 +26,10 @@ namespace DependencyFinder
             await foreach (var s in solutions)
             {
                 bool solution = false;
-                
+
                 if (so.ListProjects || so.ListNugets)
                 {
-                    var projects = await sm.OpenSolution(s);
+                    var projects = await sm.ReadSolution(s);
                     foreach (var p in projects)
                     {
                         if ((so.ShowOnlyCore && !p.IsNetCore) || (so.ShowOnlyFull && p.IsNetCore))
@@ -42,9 +42,9 @@ namespace DependencyFinder
                             continue;
                         }
 
-                        if(so.ListProjects)
+                        if (so.ListProjects)
                         {
-                            if(!solution)
+                            if (!solution)
                             {
                                 solution = true;
                                 ConsoleEx.WriteOKLine($"{i}. {s}");

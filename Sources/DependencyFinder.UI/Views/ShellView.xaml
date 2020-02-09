@@ -54,9 +54,8 @@
                              AllowMixedOrientation="True"
                              BorderBrush="Black"
                              BorderThickness="1"
-                             DocumentsSource="{Binding Path=OpenDocuments, Mode=TwoWay}" 
-                             ActiveContent="{Binding Path=ActiveDocument, Mode=TwoWay, Converter={StaticResource ActiveDocumentConverter}}" 
-                             >
+                             DocumentsSource="{Binding Path=OpenDocuments, Mode=TwoWay}"
+                             ActiveContent="{Binding Path=ActiveDocument, Mode=TwoWay, Converter={StaticResource ActiveDocumentConverter}}">
             <xcad:DockingManager.LayoutItemTemplateSelector>
                 <templates:DocumentsTemplateSelector>
                     <templates:DocumentsTemplateSelector.ProjectTemplate>
@@ -65,7 +64,7 @@
                                                    SyntaxHighlighting="{Binding Syntax}"
                                                    FontFamily="Consolas"
                                                    ShowLineNumbers="True"
-                                                   FontSize="10pt"/>
+                                                   FontSize="10pt" />
                         </DataTemplate>
                     </templates:DocumentsTemplateSelector.ProjectTemplate>
                 </templates:DocumentsTemplateSelector>
@@ -261,6 +260,12 @@
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
 
+                                        <HierarchicalDataTemplate  DataType="{x:Type models:WaitingViewModel}"
+                                               ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
                                     </TreeView.Resources>
                                 </TreeView>
                             </Grid>
@@ -269,7 +274,6 @@
 
                     <xcad:LayoutDocumentPaneGroup>
                         <xcad:LayoutDocumentPane>
-                            
                         </xcad:LayoutDocumentPane>
                     </xcad:LayoutDocumentPaneGroup>
 

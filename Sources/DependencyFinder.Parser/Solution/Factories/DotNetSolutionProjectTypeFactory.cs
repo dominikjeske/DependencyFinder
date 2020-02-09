@@ -62,7 +62,7 @@ namespace ByteDev.DotNet.Solution.Factories
             {ProjectTypeIds.XnaXBox, "XNA (XBox)"},
             {ProjectTypeIds.XnaZune, "XNA (Zune)"}
         };
-        
+
         public DotNetSolutionProjectType Create(Guid projectTypeId)
         {
             try

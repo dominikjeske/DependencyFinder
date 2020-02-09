@@ -212,9 +212,7 @@
                             </DrawingGroup>
                         </DrawingBrush.Drawing>
                     </DrawingBrush>
-                    
-                    
-                    
+
                     <DrawingBrush x:Key="MethodBrush">
                         <DrawingBrush.Drawing>
                             <DrawingGroup>
@@ -252,8 +250,6 @@
                             </DrawingGroup>
                         </DrawingBrush.Drawing>
                     </DrawingBrush>
-
-
 
                     <DrawingImage x:Key="FolderImage" x:Shared="False">
                         <DrawingImage.Drawing>
@@ -293,8 +289,6 @@
                             </DrawingGroup>
                         </DrawingImage.Drawing>
                     </DrawingImage>
-
-
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

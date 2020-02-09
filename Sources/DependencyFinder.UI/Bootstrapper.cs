@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Caliburn.Micro;
+using DependencyFinder.Core;
+using DependencyFinder.UI.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Threading;
-using Caliburn.Micro;
-using DependencyFinder.Core;
-using DependencyFinder.UI.ViewModels;
 
 namespace DependencyFinder.UI
 {
@@ -30,7 +30,7 @@ namespace DependencyFinder.UI
             container.PerRequest<ShellViewModel>();
         }
 
-        static IEnumerable<DependencyObject> FluentRibbonChildResolver(Fluent.Ribbon ribbon)
+        private static IEnumerable<DependencyObject> FluentRibbonChildResolver(Fluent.Ribbon ribbon)
         {
             foreach (var ti in ribbon.Tabs)
             {

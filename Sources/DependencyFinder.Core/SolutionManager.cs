@@ -23,7 +23,7 @@ namespace DependencyFinder.Core
     {
         private readonly ConcurrentDictionary<string, AsyncLazy<Solution>> _solutionCache = new ConcurrentDictionary<string, AsyncLazy<Solution>>();
 
-        private Task<Solution> GetSolution(string SolutionPath)
+        private Task<Solution> OpenSolution(string SolutionPath)
         {
             var solution = _solutionCache.GetOrAdd(SolutionPath, s =>
             {
@@ -41,109 +41,40 @@ namespace DependencyFinder.Core
 
         public async Task<IEnumerable<TypeDetails>> GetProjectTypes(string projectPath, string solutionPath)
         {
+            IEnumerable<TypeDetails> typesList;
             var projectName = Path.GetFileNameWithoutExtension(projectPath);
 
-            var solution = await GetSolution(solutionPath);
+            var solution = await OpenSolution(solutionPath);
 
             var types = solution.Projects
-                           .Where(x => x.Name == projectName)
-                           .SelectMany(project => project.Documents)
-                           .Select(document =>
-                               new
-                               {
-                                   Model = document.GetSemanticModelAsync().Result,
-                                   Declarations = document.GetSyntaxRootAsync()
-                                                          .Result
-                                                          .DescendantNodes()
-                                                          .OfType<BaseTypeDeclarationSyntax>()
-                               }
-                           )
-                           .SelectMany(pair => pair.Declarations.Select(declaration => pair.Model.GetDeclaredSymbol(declaration) as INamedTypeSymbol))
-                           .Where(t => t.DeclaredAccessibility == Accessibility.Public);
+                                .Where(x => x.Name == projectName)
+                                .SelectMany(project => project.Documents)
+                                .Select(document =>
+                                    new
+                                    {
+                                        Model = document.GetSemanticModelAsync().Result,
+                                        Declarations = document.GetSyntaxRootAsync()
+                                                               .Result
+                                                               .DescendantNodes()
+                                                               .OfType<BaseTypeDeclarationSyntax>()
+                                    }
+                                )
+                                .SelectMany(pair => pair.Declarations.Select(declaration => pair.Model.GetDeclaredSymbol(declaration) as INamedTypeSymbol))
+                                .Where(t => t.DeclaredAccessibility == Accessibility.Public);
 
-            var xx = types.Where(t => t.TypeKind == TypeKind.Class);
+            typesList = types.Where(t => t.TypeKind == TypeKind.Interface)
+                             .Select(x => new InterfaceDetails(x.Name, x.GetMethodMembers()));
 
-            
-           IEnumerable <TypeDetails> interfaces = types.Where(t => t.TypeKind == TypeKind.Interface)
-                                                       .Select(x =>
-                                                       new InterfaceDetails
-                                                       {
-                                                           Name = x.Name,
-                                                           Kind = x.TypeKind.ToString(),
-                                                           Members = x.GetMembers()
-                                                                      .Where(x => x.CanBeReferencedByName)
-                                                                      .Select(y => new MethodMember
-                                                                      {
-                                                                          Name = y.Name
-                                                                      }).ToList()
-                                                       }
-                                                       );
+            typesList = typesList.Union(types.Where(t => t.TypeKind == TypeKind.Class)
+                                 .Select(x => new ClassDetails(x.Name, x.GetClassMembers())));
 
-            IEnumerable<TypeDetails> classes =  types.Where(t => t.TypeKind == TypeKind.Class)
-                                                    .Select(x =>
-                                                   new ClassDetails
-                                                   {
-                                                       Name = x.Name,
-                                                       Kind = x.TypeKind.ToString(),
-                                                       Members =  ((IEnumerable<Member>)(x.GetMembers()
-                                                                   .Where(x => x.CanBeReferencedByName && x.Kind == SymbolKind.Method)
-                                                                   .Select(y => new MethodMember { Name = y.Name })
-                                                                  )).Union
-                                                                  (x.GetMembers()
-                                                                   .Where(x => x.CanBeReferencedByName && x.Kind == SymbolKind.Property)
-                                                                   .Select(y => new PropertyMember { Name = y.Name }))
-                                                                  .Union
-                                                                  (x.GetMembers()
-                                                                   .Where(x => x.CanBeReferencedByName && x.Kind == SymbolKind.Field)
-                                                                   .Select(y => new FieldMember { Name = y.Name }))
-                                                                  .Union
-                                                                  (x.GetMembers()
-                                                                   .Where(x => x.CanBeReferencedByName && x.Kind == SymbolKind.Event)
-                                                                   .Select(y => new EventMember { Name = y.Name }))
-                                                   }
-                                               );
+            typesList = typesList.Union(types.Where(t => t.TypeKind == TypeKind.Enum)
+                                 .Select(x => new EnumDetails(x.Name, x.GetPropertyMembers())));
 
-            IEnumerable<TypeDetails> enums = types.Where(t => t.TypeKind == TypeKind.Enum)
-                                                    .Select(x =>
-                                                   new EnumDetails
-                                                   {
-                                                       Name = x.Name,
-                                                       Kind = x.TypeKind.ToString(),
-                                                       Members = x.GetMembers()
-                                                                  .Where(x => x.CanBeReferencedByName)
-                                                                  .Select(y => new PropertyMember
-                                                                  {
-                                                                      Name = y.Name
-                                                                  }).ToList()
-                                                   }
-                                               );
+            typesList = typesList.Union(types.Where(t => t.TypeKind == TypeKind.Struct)
+                                 .Select(x => new StructDetails(x.Name, x.GetClassMembers())));
 
-            IEnumerable<TypeDetails> structs = types.Where(t => t.TypeKind == TypeKind.Struct)
-                                                    .Select(x =>
-                                                   new StructDetails
-                                                   {
-                                                       Name = x.Name,
-                                                       Kind = x.TypeKind.ToString(),
-                                                       Members = ((IEnumerable<Member>)(x.GetMembers()
-                                                                   .Where(x => x.CanBeReferencedByName && x.Kind == SymbolKind.Method)
-                                                                   .Select(y => new MethodMember { Name = y.Name })
-                                                                  )).Union
-                                                                  (x.GetMembers()
-                                                                   .Where(x => x.CanBeReferencedByName && x.Kind == SymbolKind.Property)
-                                                                   .Select(y => new PropertyMember { Name = y.Name }))
-                                                                  .Union
-                                                                  (x.GetMembers()
-                                                                   .Where(x => x.CanBeReferencedByName && x.Kind == SymbolKind.Field)
-                                                                   .Select(y => new FieldMember { Name = y.Name }))
-                                                                  .Union
-                                                                  (x.GetMembers()
-                                                                   .Where(x => x.CanBeReferencedByName && x.Kind == SymbolKind.Event)
-                                                                   .Select(y => new EventMember { Name = y.Name }))
-                                                   }
-                                               );
-
-            return interfaces.Union(classes).Union(enums).Union(structs);
-
+            return typesList;
         }
 
         static SolutionManager()
@@ -176,7 +107,7 @@ namespace DependencyFinder.Core
             }
         }
 
-        public async Task<IEnumerable<ProjectDetails>> OpenSolution(string solutionPath)
+        public async Task<IEnumerable<ProjectDetails>> ReadSolution(string solutionPath)
         {
             var projects = ReadProjectsFromSolution(solutionPath);
             var result = await ReadProjectDetails(projects);

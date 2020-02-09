@@ -43,7 +43,7 @@ namespace DependencyFinder.UI.ViewModels
                 var solutionViewModel = new SolutionViewModel(s, _solutionManager, false);
                 Solutions.Add(solutionViewModel);
 
-                var projects = await _solutionManager.OpenSolution(s);
+                var projects = await _solutionManager.ReadSolution(s);
                 foreach (var p in projects)
                 {
                     solutionViewModel.AddProject(p);
@@ -114,7 +114,6 @@ namespace DependencyFinder.UI.ViewModels
 
         public void FindClick()
         {
-
         }
 
         public bool CanFindClick => SelectedSolutionItem is TypeViewModel || SelectedSolutionItem is MemberViewModel;
@@ -141,8 +140,6 @@ namespace DependencyFinder.UI.ViewModels
                 ActiveDocument = document;
             }
         }
-
-       
 
         private DocumentViewModel OpenDocument(TreeViewItemViewModel model)
         {

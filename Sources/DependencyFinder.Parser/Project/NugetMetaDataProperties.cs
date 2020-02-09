@@ -44,10 +44,10 @@ namespace ByteDev.DotNet.Project
         private readonly Lazy<IEnumerable<string>> _authors;
 
         private readonly Lazy<Dictionary<string, string>> _nuspecProperties;
-        
+
         internal NugetMetaDataProperties(PropertyGroupCollection propertyGroups)
         {
-            if(propertyGroups == null)
+            if (propertyGroups == null)
                 throw new ArgumentNullException(nameof(propertyGroups));
 
             _isPackable = new Lazy<bool>(() => propertyGroups.GetElementBoolValue("IsPackable", true));
@@ -64,7 +64,7 @@ namespace ByteDev.DotNet.Project
             _noPackageAnalysis = new Lazy<bool>(() => propertyGroups.GetElementBoolValue("NoPackageAnalysis"));
             _includeBuildOutput = new Lazy<bool>(() => propertyGroups.GetElementBoolValue("IncludeBuildOutput"));
             _includeContentInPack = new Lazy<bool>(() => propertyGroups.GetElementBoolValue("IncludeContentInPack", true));
-            
+
             _packageTags = new Lazy<IEnumerable<string>>(() => propertyGroups.GetElementValue("PackageTags").SplitOnCommaOrSpace());
             _contentTargetFolders = new Lazy<IEnumerable<string>>(() =>
             {
@@ -86,7 +86,7 @@ namespace ByteDev.DotNet.Project
 
             _minClientVersion = new Lazy<string>(() => propertyGroups.GetElementValue("MinClientVersion"));
             _buildOutputTargetFolder = new Lazy<string>(() => propertyGroups.GetElementValue("BuildOutputTargetFolder"));
-            
+
             _packageRequireLicenseAcceptance = new Lazy<bool>(() => Convert.ToBoolean(propertyGroups.GetElementValue("PackageRequireLicenseAcceptance")));
             _packageLicenseExpression = new Lazy<string>(() => propertyGroups.GetElementValue("PackageLicenseExpression"));
             _packageOutputPath = new Lazy<string>(() => propertyGroups.GetElementValue("PackageOutputPath"));
@@ -99,7 +99,6 @@ namespace ByteDev.DotNet.Project
             _repositoryType = new Lazy<string>(() => propertyGroups.GetElementValue("RepositoryType"));
             _packageReleaseNotes = new Lazy<string>(() => propertyGroups.GetElementValue("PackageReleaseNotes"));
             _copyright = new Lazy<string>(() => propertyGroups.GetElementValue("Copyright"));
-
         }
 
         /// <summary>
@@ -144,7 +143,7 @@ namespace ByteDev.DotNet.Project
         /// Copyright details for the package.
         /// </summary>
         public string Copyright => _copyright.Value;
-        
+
         /// <summary>
         /// Specifies whether the client must prompt the consumer to accept the package license before installing the package. The default is false.
         /// </summary>
@@ -154,7 +153,7 @@ namespace ByteDev.DotNet.Project
         /// An SPDX license identifier or expression. For example, Apache-2.0.
         /// </summary>
         public string PackageLicenseExpression => _packageLicenseExpression.Value;
-        
+
         /// <summary>
         /// Path to a license file within the package if you are using a license that hasn’t been assigned an SPDX identifier,
         /// or it is a custom license (Otherwise PackageLicenseExpression is preferred).
@@ -162,12 +161,12 @@ namespace ByteDev.DotNet.Project
         /// requires Visual Studio 15.9.4, .NET SDK 2.1.502 or 2.2.101, or newer.
         /// </summary>
         public string PackageLicenseFile => _packageLicenseFile.Value;
-        
+
         /// <summary>
         /// An URL to the license that is applicable to the package. (deprecated since Visual Studio 15.9.4, .NET SDK 2.1.502 and 2.2.101).
         /// </summary>
         public string PackageLicenseUrl => _packageLicenseUrl.Value;
-        
+
         /// <summary>
         /// A URL for a 64x64 image used as the icon for the package in UI display.
         /// </summary>
@@ -182,12 +181,12 @@ namespace ByteDev.DotNet.Project
         /// Collection of tags that designates the package.
         /// </summary>
         public IEnumerable<string> PackageTags => _packageTags.Value;
-        
+
         /// <summary>
         /// Determines the output path in which the packed package will be dropped. Default is $(OutputPath).
         /// </summary>
         public string PackageOutputPath => _packageOutputPath.Value;
-        
+
         /// <summary>
         /// Indicates whether the package should create an additional symbols package when the project is packed. The symbols package's format is controlled by the SymbolPackageFormat property.
         /// </summary>

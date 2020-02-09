@@ -1,7 +1,5 @@
 ﻿namespace DependencyFinder.Core.Models
 {
-
-
     public class AssemblyInfo
     {
         public string Company;

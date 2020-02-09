@@ -13,7 +13,8 @@ namespace DependencyFinder.Core
 
         IAsyncEnumerable<string> FindSolutionWithProject(string rootDirectory, string projectName);
 
-        Task<IEnumerable<ProjectDetails>> OpenSolution(string solutionPath);
+        Task<IEnumerable<ProjectDetails>> ReadSolution(string solutionPath);
+
         Task<IEnumerable<TypeDetails>> GetProjectTypes(string projectPath, string solutionPath);
     }
 }
