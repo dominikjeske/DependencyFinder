@@ -181,21 +181,29 @@ namespace DependencyFinder.UI.ViewModels
 
         public void GoToProjectClick()
         {
-            var referenced = SelectedSolutionItem as ReferencedViewModel;
+            if (SelectedSolutionItem is ReferencedViewModel referenced)
+            {
+                ShowProject(referenced.Solution, referenced.Name);
+            }
+            else if (SelectedSolutionItem is ProjectRefViewModel projectRef)
+            {
+                ShowProject(projectRef.Parent.Parent.Parent.FullName, projectRef.Name);
+            }
+        }
 
-            var solution = Solutions.Single(x => x.FullName == referenced.Solution);
-
+        private void ShowProject(string solutionPath, string projectName)
+        {
+            var solution = Solutions.Single(x => x.FullName == solutionPath);
             solution.IsExpanded = true;
 
-            var project = solution.Children.FirstOrDefault(x => x.Name == referenced.Name);
+            var project = solution.Children.FirstOrDefault(x => x.Name == projectName);
             project.IsExpanded = true;
             project.IsSelected = true;
 
-            SelectedSolutionItem = solution.Children.FirstOrDefault(x => x.Name == referenced.Name);
-
+            SelectedSolutionItem = solution.Children.FirstOrDefault(x => x.Name == projectName);
         }
 
-        public bool CanGoToProjectClick => SelectedSolutionItem is ReferencedViewModel;
+        public bool CanGoToProjectClick => SelectedSolutionItem is ReferencedViewModel || SelectedSolutionItem is ProjectRefViewModel;
 
         private DocumentViewModel OpenDocument(TreeViewItemViewModel model)
         {

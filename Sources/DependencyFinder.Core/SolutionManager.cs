@@ -169,7 +169,7 @@ namespace DependencyFinder.Core
                         foreach (var pr in projectInfo.ProjectReferences)
                         {
                             var projectAbsolutePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(project.AbsolutePath), pr.FilePath));
-                            project.ProjectReferences.Add(new Models.ProjectReference { FilePath = projectAbsolutePath, Name = Path.GetFileName(pr.FilePath) });
+                            project.ProjectReferences.Add(new Models.ProjectReference { FilePath = projectAbsolutePath, Name = Path.GetFileNameWithoutExtension(pr.FilePath) });
                         }
 
                         foreach (var targ in projectInfo.ProjectTargets)
