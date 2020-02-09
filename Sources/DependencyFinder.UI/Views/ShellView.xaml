@@ -323,6 +323,7 @@
                                           >
                                     <ListView.View>
                                         <GridView>
+                                            <GridViewColumn Header="Solution" Width="100" DisplayMemberBinding="{Binding SolutionName}" />
                                             <GridViewColumn Header="Project" Width="100" DisplayMemberBinding="{Binding ProjectName}" />
                                             <GridViewColumn Header="ClassName" Width="100" DisplayMemberBinding="{Binding ClassName}" />
                                             <GridViewColumn Header="FileName" Width="100" DisplayMemberBinding="{Binding FileName}" />

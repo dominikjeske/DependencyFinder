@@ -94,14 +94,18 @@ namespace DependencyFinder.Core
         public async IAsyncEnumerable<Reference> FindReferenceInSolutions(ProjectDetails project, ISymbol searchElement)
         {
             //TODO what if project that is using project form argument is used in many solutions
+            var resultCache = new List<Reference>();
 
             var projects = _projectUsedByCache[project.AbsolutePath];
-            foreach (var p in projects)
+            foreach (var solution in projects.Select(p => p.Solution).Distinct())
             {
-                var solutionWorkspace = await OpenSolution(p.Solution);
+                var solutionWorkspace = await OpenSolution(solution);
 
                 await foreach(var result in FindSymbol(searchElement, solutionWorkspace, project))
                 {
+                    if (resultCache.Contains(result)) continue;
+
+                    resultCache.Add(result);
                     yield return result;
                 }
             }
@@ -297,7 +301,6 @@ namespace DependencyFinder.Core
                 await foreach(var result in FindSymbol(searchedSymbol, solution, null))
                 {
                     yield return result;
-                         
                 }
             }
         }
@@ -352,6 +355,7 @@ namespace DependencyFinder.Core
                     {
                         FileName = doc.Name,
                         FilePath = doc.FilePath,
+                        SolutionName = Path.GetFileNameWithoutExtension(solution.FilePath),
                         ProjectName = doc.Project.Name,
                         ClassName = definitionClassName,
                         Namespace = @namespace,
