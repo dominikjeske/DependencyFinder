@@ -9,6 +9,9 @@ namespace ConsoleApp.Core
         {
             var xxx = new TestClass();
             xxx.Add();
+
+            var x = new Xxx();
+            x.Work();
         }
 
         public static void StaticAdd()

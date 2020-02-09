@@ -65,11 +65,20 @@
                 <templates:DocumentsTemplateSelector>
                     <templates:DocumentsTemplateSelector.ProjectTemplate>
                         <DataTemplate>
-                            <avalonEdit:TextEditor Document="{Binding Content}"
-                                                   SyntaxHighlighting="{Binding Syntax}"
-                                                   FontFamily="Consolas"
-                                                   ShowLineNumbers="True"
-                                                   FontSize="10pt" />
+                            <controls:CodeEditor Document="{Binding Content}"
+                                                 SyntaxHighlighting="{Binding Syntax}"
+                                                 FontFamily="Consolas"
+                                                 ShowLineNumbers="True"
+                                                 FontSize="10pt"
+                                                 SelectionLength="{Binding SelectionLength, 
+                                                                    Mode=TwoWay, 
+                                                                    NotifyOnSourceUpdated=True, 
+                                                                    NotifyOnTargetUpdated=True}" 
+                                                 SelectionStart="{Binding SelectionStart, 
+                                                                    Mode=TwoWay, 
+                                                                    NotifyOnSourceUpdated=True, 
+                                                                    NotifyOnTargetUpdated=True}"
+                                                   />
                         </DataTemplate>
                     </templates:DocumentsTemplateSelector.ProjectTemplate>
                 </templates:DocumentsTemplateSelector>
@@ -320,6 +329,8 @@
                                           ItemsSource="{Binding FindReferencesResult}"
                                           Background="#363636"
                                           Foreground="White"
+                                          SelectedItem="{Binding SelectedSearchResult}"
+                                          cal:Message.Attach="[Event MouseDoubleClick] = [Action SearchResultDoubleClick()]"
                                           >
                                     <ListView.View>
                                         <GridView>

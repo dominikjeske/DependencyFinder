@@ -5,8 +5,7 @@
     {
         public void Work()
         {
-            var x = new TestClass();
-            x.Add();
+
         }
     }
 }

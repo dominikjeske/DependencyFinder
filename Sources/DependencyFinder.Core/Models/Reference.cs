@@ -14,6 +14,10 @@ namespace DependencyFinder.Core
         public string Block { get; set; }
         public int LineNumber { get; set; }
 
+        public int SelectionStart { get; set; }
+
+        public int SelectionLenght { get; set; }
+
         protected override IEnumerable<object> GetEqualityComponents()
         {
             yield return FilePath;

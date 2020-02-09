@@ -8,7 +8,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.MSBuild;
-using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
 using Nito.AsyncEx;
 using System;
@@ -101,7 +100,7 @@ namespace DependencyFinder.Core
             {
                 var solutionWorkspace = await OpenSolution(solution);
 
-                await foreach(var result in FindSymbol(searchElement, solutionWorkspace, project))
+                await foreach (var result in FindSymbol(searchElement, solutionWorkspace, project))
                 {
                     if (resultCache.Contains(result)) continue;
 
@@ -298,7 +297,7 @@ namespace DependencyFinder.Core
                 var searchedSymbol = compilation.GetTypeByMetadataName(className.Trim());
 
                 //TODO fix
-                await foreach(var result in FindSymbol(searchedSymbol, solution, null))
+                await foreach (var result in FindSymbol(searchedSymbol, solution, null))
                 {
                     yield return result;
                 }
@@ -320,7 +319,7 @@ namespace DependencyFinder.Core
                 var containingTypeSymbol = compilation.GetTypeByMetadataName(symbol.ContainingType.ToString());
                 searchedSymbol = containingTypeSymbol.GetMembers().FirstOrDefault(x => x.Kind == symbol.Kind && x.Name == symbol.Name);
             }
-            
+
             var results = await SymbolFinder.FindReferencesAsync(searchedSymbol, solution);
 
             foreach (var reference in results)
@@ -360,14 +359,15 @@ namespace DependencyFinder.Core
                         ClassName = definitionClassName,
                         Namespace = @namespace,
                         Block = block,
-                        LineNumber = line.EndLinePosition.Line
+                        LineNumber = line.EndLinePosition.Line,
+                        SelectionStart = spanStart,
+                        SelectionLenght = location.Location.SourceSpan.Length
                     };
 
                     yield return objectReference;
                 }
             }
         }
-
 
         public void Dispose()
         {
@@ -378,5 +378,4 @@ namespace DependencyFinder.Core
             }
         }
     }
-
 }

@@ -26,6 +26,8 @@ namespace DependencyFinder.UI.ViewModels
         public TreeViewItemViewModel SelectedSolutionItem { get; set; }
         public DocumentViewModel ActiveDocument { get; set; }
 
+        public Reference SelectedSearchResult { get; set; }
+
         private readonly ISolutionManager _solutionManager;
 
         public ShellViewModel(ISolutionManager solutionManager)
@@ -53,14 +55,14 @@ namespace DependencyFinder.UI.ViewModels
                 }
             }
 
-            foreach(var solution in Solutions)
+            foreach (var solution in Solutions)
             {
-                foreach(ProjectViewModel project in solution.Children)
+                foreach (ProjectViewModel project in solution.Children)
                 {
-                    foreach(var reference in _solutionManager.GetReferencingProjects(project.Project))
+                    foreach (var reference in _solutionManager.GetReferencingProjects(project.Project))
                     {
                         project.References.AddReference(reference);
-                    }   
+                    }
                 }
             }
         }
@@ -136,7 +138,7 @@ namespace DependencyFinder.UI.ViewModels
             {
                 var project = (SelectedSolutionItem.Parent.Parent as ProjectViewModel)?.Project;
 
-                await foreach(var reference in _solutionManager.FindReferenceInSolutions(project, type.TypeDetails.Symbol))
+                await foreach (var reference in _solutionManager.FindReferenceInSolutions(project, type.TypeDetails.Symbol))
                 {
                     FindReferencesResult.Add(reference);
                 }
@@ -179,6 +181,17 @@ namespace DependencyFinder.UI.ViewModels
             }
         }
 
+        public void SearchResultDoubleClick()
+        {
+            var document = OpenFile(null, SelectedSearchResult.FilePath);
+
+            document.SelectionStart = SelectedSearchResult.SelectionStart;
+            document.SelectionLength = SelectedSearchResult.SelectionLenght;
+
+            OpenDocuments.Add(document);
+            ActiveDocument = document;
+        }
+
         public void GoToProjectClick()
         {
             if (SelectedSolutionItem is ReferencedViewModel referenced)
@@ -210,7 +223,11 @@ namespace DependencyFinder.UI.ViewModels
             if (model == null) return DocumentViewModel.Empty;
 
             var filePath = model.FullName;
+            return OpenFile(model, filePath);
+        }
 
+        private static DocumentViewModel OpenFile(TreeViewItemViewModel model, string filePath)
+        {
             if (string.IsNullOrWhiteSpace(filePath)) return DocumentViewModel.Empty;
             if (!File.Exists(filePath)) return DocumentViewModel.Empty;
 

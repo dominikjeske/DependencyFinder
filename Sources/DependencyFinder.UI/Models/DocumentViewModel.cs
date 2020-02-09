@@ -14,6 +14,10 @@ namespace DependencyFinder.UI.Models
         public string Title { get; set; }
         public bool IsTemporary { get; set; }
 
+        public int SelectionStart { get; set; }
+
+        public int SelectionLength { get; set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
     }
 }
