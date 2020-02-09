@@ -9,6 +9,7 @@ namespace DependencyFinder.UI.Models
         public NugetCollectionViewModel(IEnumerable<NugetPackage> nugets, TreeViewItemViewModel parent, bool lazyLoadChildren) : base(parent, lazyLoadChildren)
         {
             Name = $"Nugets [{nugets.Count()}]";
+            HasPreview = false;
 
             foreach (var nuget in nugets)
             {

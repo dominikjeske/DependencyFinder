@@ -136,8 +136,6 @@ namespace DependencyFinder.Core
                 {
                     _projectUsedByCache.AddOrUpdate(pr.FilePath, new List<ProjectDetails> { project }, (pKey, references) =>
                     {
-                        var ff = solutionPath;
-
                         references.Add(project);
                         return references;
                     });
@@ -145,6 +143,13 @@ namespace DependencyFinder.Core
             }
 
             return result;
+        }
+
+        public IEnumerable<ProjectDetails> GetReferencingProjects(ProjectDetails project)
+        {
+            if (!_projectUsedByCache.ContainsKey(project.AbsolutePath)) return Enumerable.Empty<ProjectDetails>();
+
+            return _projectUsedByCache[project.AbsolutePath];
         }
 
         private async Task<IEnumerable<ProjectDetails>> ReadProjectDetails(IEnumerable<ProjectDetails> projects)

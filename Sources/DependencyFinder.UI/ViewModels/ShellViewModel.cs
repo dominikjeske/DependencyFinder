@@ -52,6 +52,17 @@ namespace DependencyFinder.UI.ViewModels
                     solutionViewModel.AddProject(p);
                 }
             }
+
+            foreach(var solution in Solutions)
+            {
+                foreach(ProjectViewModel project in solution.Children)
+                {
+                    foreach(var reference in _solutionManager.GetReferencingProjects(project.Project))
+                    {
+                        project.References.AddReference(reference);
+                    }   
+                }
+            }
         }
 
         public async Task OnLoaded()
@@ -66,6 +77,8 @@ namespace DependencyFinder.UI.ViewModels
 
         public void OnSelectedSolutionItemChanged()
         {
+            if (!SelectedSolutionItem.HasPreview) return;
+
             var alreadyOpenDocument = OpenDocuments.FirstOrDefault(d => d.AssociatedModel == SelectedSolutionItem);
             if (alreadyOpenDocument != null)
             {
@@ -143,6 +156,8 @@ namespace DependencyFinder.UI.ViewModels
 
         public void ProjectDoubleClick()
         {
+            if (!SelectedSolutionItem.HasPreview) return;
+
             var alreadyOpenDocument = OpenDocuments.FirstOrDefault(d => d.AssociatedModel == SelectedSolutionItem);
 
             if (alreadyOpenDocument?.IsTemporary == true)
@@ -163,6 +178,24 @@ namespace DependencyFinder.UI.ViewModels
                 ActiveDocument = document;
             }
         }
+
+        public void GoToProjectClick()
+        {
+            var referenced = SelectedSolutionItem as ReferencedViewModel;
+
+            var solution = Solutions.Single(x => x.FullName == referenced.Solution);
+
+            solution.IsExpanded = true;
+
+            var project = solution.Children.FirstOrDefault(x => x.Name == referenced.Name);
+            project.IsExpanded = true;
+            project.IsSelected = true;
+
+            SelectedSolutionItem = solution.Children.FirstOrDefault(x => x.Name == referenced.Name);
+
+        }
+
+        public bool CanGoToProjectClick => SelectedSolutionItem is ReferencedViewModel;
 
         private DocumentViewModel OpenDocument(TreeViewItemViewModel model)
         {

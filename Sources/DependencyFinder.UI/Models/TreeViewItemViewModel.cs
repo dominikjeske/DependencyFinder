@@ -20,6 +20,8 @@ namespace DependencyFinder.UI.Models
         [Browsable(false)]
         public bool IsVisible { get; set; } = true;
 
+        public bool HasPreview { get; set; } = true;
+
         public string Name { get; set; }
         public string FullName { get; set; }
 

@@ -9,6 +9,7 @@ namespace DependencyFinder.UI.Models
         public ProjectCollectionViewModel(IEnumerable<ProjectReference> projects, TreeViewItemViewModel parent, bool lazyLoadChildren) : base(parent, lazyLoadChildren)
         {
             Name = $"Projects [{projects.Count()}]";
+            HasPreview = false;
 
             foreach (var project in projects)
             {

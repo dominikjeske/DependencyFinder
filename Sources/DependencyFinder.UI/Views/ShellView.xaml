@@ -46,6 +46,11 @@
                                    LargeIcon="{DynamicResource FindImage}"
                                    MinWidth="60"
                                    cal:Message.Attach="[Event Click] = [Action FindClick()]" />
+                    <Fluent:Button Header="Got to project"
+                                   Icon="{DynamicResource GoToProjectImage}"
+                                   LargeIcon="{DynamicResource GoToProjectImage}"
+                                   MinWidth="60"
+                                   cal:Message.Attach="[Event Click] = [Action GoToProjectClick()]" />
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
         </Fluent:Ribbon>
@@ -263,6 +268,22 @@
                                         <HierarchicalDataTemplate  DataType="{x:Type models:WaitingViewModel}"
                                                ItemsSource="{Binding Children}">
                                             <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+
+                                        <HierarchicalDataTemplate  DataType="{x:Type models:ReferencedCollectionViewModel}"
+                                               ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource ReferencedBrush}" />
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+
+                                        <HierarchicalDataTemplate  DataType="{x:Type models:ReferencedViewModel}"
+                                               ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource ProjectFileBrush}" />
                                                 <TextBlock Text="{Binding Name}"></TextBlock>
                                             </StackPanel>
                                         </HierarchicalDataTemplate>

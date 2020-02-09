@@ -1,6 +1,7 @@
 ﻿using DependencyFinder.Core;
 using DependencyFinder.Core.Models;
 using System.IO;
+using System.Linq;
 using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace DependencyFinder.UI.Models
@@ -11,6 +12,8 @@ namespace DependencyFinder.UI.Models
         public ProjectDetails Project { get; }
 
         public bool IsNetCore { get; set; }
+
+        public ReferencedCollectionViewModel References => Children.Single(x => x is ReferencedCollectionViewModel) as ReferencedCollectionViewModel;
 
         public ProjectViewModel(ProjectDetails project, TreeViewItemViewModel parent, bool lazyLoadChildren, ISolutionManager solutionManeger) : base(parent, lazyLoadChildren)
         {
@@ -24,6 +27,7 @@ namespace DependencyFinder.UI.Models
             Children.Add(new ProjectCollectionViewModel(Project.ProjectReferences, this, lazyLoadChildren));
             Children.Add(new ReferencesCollectionViewModel(Project.DirectReferences, this, lazyLoadChildren));
             Children.Add(new TypesCollectionViewModel(this, project.AbsolutePath, parent.FullName, solutionManeger));
+            Children.Add(new ReferencedCollectionViewModel(this));
         }
     }
 }

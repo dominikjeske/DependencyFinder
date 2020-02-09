@@ -12,10 +12,17 @@ namespace DependencyFinder.UI.Models
 
         public TypesCollectionViewModel(TreeViewItemViewModel parent, string projectName, string solutionPath, ISolutionManager solutionManager) : base(parent, true)
         {
-            Name = $"Types";
+            Name = $"Types [?]";
             _solutionManager = solutionManager;
             _projectPath = projectName;
             _solutionPath = solutionPath;
+
+            HasPreview = false;
+        }
+
+        private void RefreshName()
+        {
+            Name = $"Types [{Children.Count}]";
         }
 
         protected override void LoadChildren()
@@ -45,6 +52,9 @@ namespace DependencyFinder.UI.Models
                         Children.Add(new StructViewModel(sd, this));
                     }
                 }
+
+                RefreshName();
+
             }, TaskScheduler.FromCurrentSynchronizationContext());
 
             base.LoadChildren();
