@@ -22,6 +22,19 @@ namespace DependencyFinder.Core
     public class SolutionManager : ISolutionManager
     {
         private readonly ConcurrentDictionary<string, AsyncLazy<Solution>> _solutionCache = new ConcurrentDictionary<string, AsyncLazy<Solution>>();
+        private readonly ConcurrentDictionary<string, List<ProjectDetails>> _projectUsedByCache = new ConcurrentDictionary<string, List<ProjectDetails>>();
+
+        private readonly ILogger<SolutionManager> _logger;
+
+        static SolutionManager()
+        {
+            MSBuildLocator.RegisterDefaults();
+        }
+
+        public SolutionManager(ILogger<SolutionManager> logger)
+        {
+            _logger = logger;
+        }
 
         private Task<Solution> OpenSolution(string SolutionPath)
         {
@@ -60,33 +73,35 @@ namespace DependencyFinder.Core
                                     }
                                 )
                                 .SelectMany(pair => pair.Declarations.Select(declaration => pair.Model.GetDeclaredSymbol(declaration) as INamedTypeSymbol))
-                                .Where(t => t.DeclaredAccessibility == Accessibility.Public);
+                                .Where(t => t.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Public);
 
             typesList = types.Where(t => t.TypeKind == TypeKind.Interface)
-                             .Select(x => new InterfaceDetails(x.Name, x.GetMethodMembers()));
+                             .Select(x => new InterfaceDetails(x.Name, x.GetMethodMembers(), x));
 
             typesList = typesList.Union(types.Where(t => t.TypeKind == TypeKind.Class)
-                                 .Select(x => new ClassDetails(x.Name, x.GetClassMembers())));
+                                 .Select(x => new ClassDetails(x.Name, x.GetClassMembers(), x)));
 
             typesList = typesList.Union(types.Where(t => t.TypeKind == TypeKind.Enum)
-                                 .Select(x => new EnumDetails(x.Name, x.GetPropertyMembers())));
+                                 .Select(x => new EnumDetails(x.Name, x.GetPropertyMembers(), x)));
 
             typesList = typesList.Union(types.Where(t => t.TypeKind == TypeKind.Struct)
-                                 .Select(x => new StructDetails(x.Name, x.GetClassMembers())));
+                                 .Select(x => new StructDetails(x.Name, x.GetClassMembers(), x)));
 
             return typesList;
         }
 
-        static SolutionManager()
+        public async Task FindReferenceInSolutions(string project, ISymbol searchElement)
         {
-            MSBuildLocator.RegisterDefaults();
-        }
+            var projects = _projectUsedByCache[project];
+            foreach (var solution in projects.Select(s => s.Solution).Distinct())
+            {
+                var solutionWorkspace = await OpenSolution(solution);
 
-        private readonly ILogger<SolutionManager> _logger;
+                await foreach(var result in FindSymbol(searchElement, solutionWorkspace))
+                {
 
-        public SolutionManager(ILogger<SolutionManager> logger)
-        {
-            _logger = logger;
+                }
+            }
         }
 
         public IAsyncEnumerable<string> FindSolutions(string rootDirectory)
@@ -111,6 +126,21 @@ namespace DependencyFinder.Core
         {
             var projects = ReadProjectsFromSolution(solutionPath);
             var result = await ReadProjectDetails(projects);
+
+            foreach (var project in result)
+            {
+                foreach (var pr in project.ProjectReferences)
+                {
+                    _projectUsedByCache.AddOrUpdate(pr.FilePath, new List<ProjectDetails> { project }, (pKey, references) =>
+                    {
+                        var ff = solutionPath;
+
+                        references.Add(project);
+                        return references;
+                    });
+                }
+            }
+
             return result;
         }
 
@@ -130,7 +160,8 @@ namespace DependencyFinder.Core
 
                         foreach (var pr in projectInfo.ProjectReferences)
                         {
-                            project.ProjectReferences.Add(new Models.ProjectReference { FilePath = pr.FilePath, Name = Path.GetFileName(pr.FilePath) });
+                            var projectAbsolutePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(project.AbsolutePath), pr.FilePath));
+                            project.ProjectReferences.Add(new Models.ProjectReference { FilePath = projectAbsolutePath, Name = Path.GetFileName(pr.FilePath) });
                         }
 
                         foreach (var targ in projectInfo.ProjectTargets)
@@ -140,7 +171,8 @@ namespace DependencyFinder.Core
 
                         foreach (var pr in projectInfo.References.Where(x => !string.IsNullOrWhiteSpace(x.Path) && string.IsNullOrWhiteSpace(x.Version)))
                         {
-                            project.DirectReferences.Add(new Models.ProjectReference { FilePath = pr.Path, Name = pr.Name });
+                            var projectAbsolutePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(project.AbsolutePath), pr.Path));
+                            project.DirectReferences.Add(new Models.ProjectReference { FilePath = projectAbsolutePath, Name = pr.Name });
                         }
 
                         project.IsMultiTarget = projectInfo.IsMultiTarget;
@@ -155,7 +187,8 @@ namespace DependencyFinder.Core
                             NeutralLanguage = projectInfo.AssemblyInfo.NeutralLanguage,
                             Product = projectInfo.AssemblyInfo.Product,
                             AssemblyTitle = projectInfo.AssemblyInfo.Title,
-                            AssemblyVersion = projectInfo.AssemblyInfo.Version
+                            AssemblyVersion = projectInfo.AssemblyInfo.Version,
+                            AssemblyName = projectInfo.AssemblyInfo.AssemblyName
                         };
                     }
                 }
@@ -252,49 +285,58 @@ namespace DependencyFinder.Core
 
                 var searchedSymbol = compilation.GetTypeByMetadataName(className.Trim());
 
-                var results = await SymbolFinder.FindReferencesAsync(searchedSymbol, solution);
-
-                foreach (var reference in results)
+                await foreach(var result in FindSymbol(searchedSymbol, solution))
                 {
-                    foreach (ReferenceLocation location in reference.Locations)
-                    {
-                        int spanStart = location.Location.SourceSpan.Start;
-                        var doc = location.Document;
-                        var ss = location.Location.ToString();
+                    yield return result;
+                         
+                }
+            }
+        }
 
-                        var root = await doc.GetSyntaxRootAsync();
-                        var node = root.DescendantNodes()
-                                        .FirstOrDefault(node => node.GetLocation().SourceSpan.Start == spanStart);
+        private async IAsyncEnumerable<Reference> FindSymbol(ISymbol symbol, Solution solution)
+        {
+            var results = await SymbolFinder.FindReferencesAsync(symbol, solution);
 
-                        var line = node.SyntaxTree.GetLineSpan(location.Location.SourceSpan);
+            foreach (var reference in results)
+            {
+                foreach (ReferenceLocation location in reference.Locations)
+                {
+                    int spanStart = location.Location.SourceSpan.Start;
+                    var doc = location.Document;
+                    var ss = location.Location.ToString();
 
-                        var definitionClassName = node.Ancestors()
-                                            .OfType<ClassDeclarationSyntax>()
+                    var root = await doc.GetSyntaxRootAsync();
+                    var node = root.DescendantNodes()
+                                    .FirstOrDefault(node => node.GetLocation().SourceSpan.Start == spanStart);
+
+                    var line = node.SyntaxTree.GetLineSpan(location.Location.SourceSpan);
+
+                    var definitionClassName = node.Ancestors()
+                                        .OfType<ClassDeclarationSyntax>()
+                                        .FirstOrDefault()
+                                        ?.Identifier.Text ?? string.Empty;
+
+                    var @namespace = node.Ancestors()
+                                            .OfType<NamespaceDeclarationSyntax>()
                                             .FirstOrDefault()
-                                            ?.Identifier.Text ?? string.Empty;
+                                        ?.Name.ToString() ?? String.Empty;
 
-                        var @namespace = node.Ancestors()
-                                                .OfType<NamespaceDeclarationSyntax>()
-                                                .FirstOrDefault()
-                                            ?.Name.ToString() ?? String.Empty;
+                    var block = node.Ancestors()
+                                            .OfType<BlockSyntax>()
+                                            .FirstOrDefault()
+                                        ?.ToString() ?? String.Empty;
 
-                        var block = node.Ancestors()
-                                                .OfType<BlockSyntax>()
-                                                .FirstOrDefault()
-                                            ?.ToString() ?? String.Empty;
+                    var objectReference = new Reference
+                    {
+                        FileName = doc.Name,
+                        ProjectName = doc.Project.Name,
+                        ClassName = definitionClassName,
+                        Namespace = @namespace,
+                        Block = block,
+                        LineNumber = line.StartLinePosition.Line
+                    };
 
-                        var objectReference = new Reference
-                        {
-                            FileName = doc.Name,
-                            ProjectName = doc.Project.Name,
-                            ClassName = definitionClassName,
-                            Namespace = @namespace,
-                            Block = block,
-                            LineNumber = line.StartLinePosition.Line
-                        };
-
-                        yield return objectReference;
-                    }
+                    yield return objectReference;
                 }
             }
         }

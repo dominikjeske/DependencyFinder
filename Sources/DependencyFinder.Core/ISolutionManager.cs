@@ -1,4 +1,5 @@
 ﻿using DependencyFinder.Core.Models;
+using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -16,5 +17,7 @@ namespace DependencyFinder.Core
         Task<IEnumerable<ProjectDetails>> ReadSolution(string solutionPath);
 
         Task<IEnumerable<TypeDetails>> GetProjectTypes(string projectPath, string solutionPath);
+
+        Task FindReferenceInSolutions(string project, ISymbol searchElement);
     }
 }

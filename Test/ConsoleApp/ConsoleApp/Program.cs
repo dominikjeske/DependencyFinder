@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommonStandard;
+using System;
 
 namespace ConsoleApp
 {
@@ -7,6 +8,8 @@ namespace ConsoleApp
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
+
+            var x = new TestClass();
         }
     }
 }

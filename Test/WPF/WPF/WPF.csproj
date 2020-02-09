@@ -38,8 +38,8 @@
     <Reference Include="AutoMapper, Version=6.0.2.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
       <HintPath>..\packages\AutoMapper.6.0.2\lib\net45\AutoMapper.dll</HintPath>
     </Reference>
-    <Reference Include="CommonFullSecond">
-      <HintPath>..\..\Common\CommonFullSecond\CommonFullSecond\bin\Debug\CommonFullSecond.dll</HintPath>
+    <Reference Include="CommonFullSecondX">
+      <HintPath>..\..\Common\CommonFullSecond\CommonFullSecond\bin\Debug\CommonFullSecondX.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

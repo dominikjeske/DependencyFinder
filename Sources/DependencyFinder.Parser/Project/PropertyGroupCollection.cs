@@ -26,6 +26,14 @@ namespace ByteDev.DotNet.Project
                 .Value;
         }
 
+        public string GetElementValue2(string elementName)
+        {
+            if (string.IsNullOrEmpty(elementName))
+                throw new ArgumentException("Element name was null or empty.", nameof(elementName));
+
+            return PropertyGroupElements.Descendants().FirstOrDefault(x => x.Name.LocalName == elementName)?.Value;
+        }
+
         public bool GetElementBoolValue(string elementName, bool defaultValue = false)
         {
             var value = GetElementValue(elementName);

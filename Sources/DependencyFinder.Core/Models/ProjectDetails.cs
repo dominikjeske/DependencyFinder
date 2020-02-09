@@ -1,6 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace DependencyFinder.Core.Models
 {
@@ -14,6 +16,8 @@ namespace DependencyFinder.Core.Models
         public string Solution { get; set; }
         public bool IsNetCore { get; set; }
         public bool IsMultiTarget { get; set; }
+
+        [ExpandableObject]
         public AssemblyInfo AssemblyInfo { get; set; }
 
         public List<NugetPackage> Nugets { get; set; } = new List<NugetPackage>();

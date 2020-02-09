@@ -19,12 +19,12 @@ namespace ByteDev.DotNet.Project
         /// <param name="xDocument">XML document of the project file.</param>
         /// <exception cref="T:System.ArgumentNullException"><paramref name="xDocument" /> is null.</exception>
         /// <exception cref="T:ByteDev.DotNet.Project.InvalidDotNetProjectException">The project XML is not valid.</exception>
-        public DotNetProject(XDocument xDocument)
+        public DotNetProject(XDocument xDocument, string project)
         {
             if (xDocument == null)
                 throw new ArgumentNullException(nameof(xDocument));
 
-            SetPropertyGroupProperties(xDocument);
+            SetPropertyGroupProperties(xDocument, project);
             SetItemGroupProperties(xDocument);
         }
 
@@ -75,7 +75,7 @@ namespace ByteDev.DotNet.Project
         {
             var xDoc = XDocument.Load(projFilePath);
 
-            return new DotNetProject(xDoc);
+            return new DotNetProject(xDoc, projFilePath);
         }
 
         private void SetItemGroupProperties(XDocument xDocument)
@@ -87,7 +87,7 @@ namespace ByteDev.DotNet.Project
             References = itemGroups.GetReferences();
         }
 
-        private void SetPropertyGroupProperties(XDocument xDocument)
+        private void SetPropertyGroupProperties(XDocument xDocument, string project)
         {
             var propertyGroups = new PropertyGroupCollection(xDocument);
 

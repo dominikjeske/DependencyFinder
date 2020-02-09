@@ -17,22 +17,24 @@ namespace ByteDev.DotNet.Project
         private readonly Lazy<string> _assemblyTitle;
         private readonly Lazy<string> _assemblyVersion;
         private readonly Lazy<string> _neutralLanguage;
+        private readonly Lazy<string> _assemblyName;
 
         internal AssemblyInfoProperties(PropertyGroupCollection propertyGroupCollection)
         {
             if (propertyGroupCollection == null)
                 throw new ArgumentNullException(nameof(propertyGroupCollection));
 
-            _company = new Lazy<string>(() => propertyGroupCollection.GetElementValue("Company"));
-            _configuration = new Lazy<string>(() => propertyGroupCollection.GetElementValue("Configuration"));
-            _copyright = new Lazy<string>(() => propertyGroupCollection.GetElementValue("Copyright"));
-            _description = new Lazy<string>(() => propertyGroupCollection.GetElementValue("Description"));
-            _fileVersion = new Lazy<string>(() => propertyGroupCollection.GetElementValue("FileVersion"));
-            _informationalVersion = new Lazy<string>(() => propertyGroupCollection.GetElementValue("InformationalVersion"));
-            _product = new Lazy<string>(() => propertyGroupCollection.GetElementValue("Product"));
-            _assemblyTitle = new Lazy<string>(() => propertyGroupCollection.GetElementValue("AssemblyTitle"));
-            _assemblyVersion = new Lazy<string>(() => propertyGroupCollection.GetElementValue("AssemblyVersion"));
-            _neutralLanguage = new Lazy<string>(() => propertyGroupCollection.GetElementValue("NeutralLanguage"));
+            _company = new Lazy<string>(() => propertyGroupCollection.GetElementValue2("Company"));
+            _configuration = new Lazy<string>(() => propertyGroupCollection.GetElementValue2("Configuration"));
+            _copyright = new Lazy<string>(() => propertyGroupCollection.GetElementValue2("Copyright"));
+            _description = new Lazy<string>(() => propertyGroupCollection.GetElementValue2("Description"));
+            _fileVersion = new Lazy<string>(() => propertyGroupCollection.GetElementValue2("FileVersion"));
+            _informationalVersion = new Lazy<string>(() => propertyGroupCollection.GetElementValue2("InformationalVersion"));
+            _product = new Lazy<string>(() => propertyGroupCollection.GetElementValue2("Product"));
+            _assemblyTitle = new Lazy<string>(() => propertyGroupCollection.GetElementValue2("AssemblyTitle"));
+            _assemblyVersion = new Lazy<string>(() => propertyGroupCollection.GetElementValue2("AssemblyVersion"));
+            _neutralLanguage = new Lazy<string>(() => propertyGroupCollection.GetElementValue2("NeutralLanguage"));
+            _assemblyName = new Lazy<string>(() => propertyGroupCollection.GetElementValue2("AssemblyName"));
         }
 
         /// <summary>
@@ -85,5 +87,7 @@ namespace ByteDev.DotNet.Project
         /// Informs the resource manager of an app's default culture.
         /// </summary>
         public string NeutralLanguage => _neutralLanguage.Value;
+
+        public string AssemblyName => _assemblyName.Value;
     }
 }

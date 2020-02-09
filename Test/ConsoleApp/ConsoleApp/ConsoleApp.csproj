@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Common\CommonStandard\CommonStandard\CommonStandard.csproj" />
     <ProjectReference Include="..\ConsoleApp.Core\ConsoleApp.Core.csproj" />
   </ItemGroup>
 

@@ -4,10 +4,13 @@ namespace DependencyFinder.UI.Models
 {
     public abstract class TypeViewModel : TreeViewItemViewModel
     {
+        public TypeDetails TypeDetails { get; set; }
+
         public TypeViewModel(TypeDetails type, TreeViewItemViewModel parent) : base(parent, false)
         {
             Name = type.Name;
             FullName = type.Name;
+            TypeDetails = type;
 
             foreach (var member in type.Members)
             {

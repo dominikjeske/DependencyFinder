@@ -114,6 +114,12 @@ namespace DependencyFinder.UI.ViewModels
 
         public void FindClick()
         {
+            if (SelectedSolutionItem is TypeViewModel typeElement)
+            {
+                var project =  SelectedSolutionItem.Parent.Parent.FullName;
+
+                _solutionManager.FindReferenceInSolutions(project, typeElement.TypeDetails.Symbol);
+            }
         }
 
         public bool CanFindClick => SelectedSolutionItem is TypeViewModel || SelectedSolutionItem is MemberViewModel;
