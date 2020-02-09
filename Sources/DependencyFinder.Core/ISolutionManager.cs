@@ -18,6 +18,6 @@ namespace DependencyFinder.Core
 
         Task<IEnumerable<TypeDetails>> GetProjectTypes(string projectPath, string solutionPath);
 
-        Task FindReferenceInSolutions(string project, ISymbol searchElement);
+        IAsyncEnumerable<Reference> FindReferenceInSolutions(ProjectDetails project, ISymbol searchElement);
     }
 }

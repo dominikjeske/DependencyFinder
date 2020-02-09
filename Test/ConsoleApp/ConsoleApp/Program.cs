@@ -10,6 +10,7 @@ namespace ConsoleApp
             Console.WriteLine("Hello World!");
 
             var x = new TestClass();
+            x.Add();
         }
     }
 }

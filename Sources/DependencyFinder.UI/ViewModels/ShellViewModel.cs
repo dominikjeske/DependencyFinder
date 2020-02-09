@@ -20,6 +20,8 @@ namespace DependencyFinder.UI.ViewModels
         public string SolutionsRoot { get; set; }
         public ObservableCollection<SolutionViewModel> Solutions { get; set; } = new ObservableCollection<SolutionViewModel>();
         public ObservableCollection<DocumentViewModel> OpenDocuments { get; set; } = new ObservableCollection<DocumentViewModel>();
+
+        public ObservableCollection<Reference> FindReferencesResult { get; set; } = new ObservableCollection<Reference>();
         public string Filter { get; set; }
         public TreeViewItemViewModel SelectedSolutionItem { get; set; }
         public DocumentViewModel ActiveDocument { get; set; }
@@ -28,6 +30,7 @@ namespace DependencyFinder.UI.ViewModels
 
         public ShellViewModel(ISolutionManager solutionManager)
         {
+            //TODO fix after testing
             SolutionsRoot = Path.Combine((new DirectoryInfo(Directory.GetCurrentDirectory())).Parent.Parent.Parent.Parent.Parent.ToString(), "Test");
             //SolutionsRoot = @"E:\Projects\Dependency\DependencyFinder\Test\WPF2\WpfAppStandalone";
 
@@ -112,13 +115,27 @@ namespace DependencyFinder.UI.ViewModels
 
         public bool CanOpenClick => !string.IsNullOrWhiteSpace(SelectedSolutionItem?.FullName);
 
-        public void FindClick()
+        public async Task FindClick()
         {
-            if (SelectedSolutionItem is TypeViewModel typeElement)
-            {
-                var project =  SelectedSolutionItem.Parent.Parent.FullName;
+            FindReferencesResult.Clear();
 
-                _solutionManager.FindReferenceInSolutions(project, typeElement.TypeDetails.Symbol);
+            if (SelectedSolutionItem is TypeViewModel type)
+            {
+                var project = (SelectedSolutionItem.Parent.Parent as ProjectViewModel)?.Project;
+
+                await foreach(var reference in _solutionManager.FindReferenceInSolutions(project, type.TypeDetails.Symbol))
+                {
+                    FindReferencesResult.Add(reference);
+                }
+            }
+            else if (SelectedSolutionItem is MemberViewModel member)
+            {
+                var project = (SelectedSolutionItem.Parent.Parent.Parent as ProjectViewModel)?.Project;
+
+                await foreach (var reference in _solutionManager.FindReferenceInSolutions(project, member.Member.Symbol))
+                {
+                    FindReferencesResult.Add(reference);
+                }
             }
         }
 

@@ -1,12 +1,14 @@
-﻿using System;
+﻿using CommonStandard;
+using System;
 
 namespace ConsoleApp.Core
 {
     public class OtherClass
     {
-        public void Add()
+        public void Woow()
         {
-
+            var xxx = new TestClass();
+            xxx.Add();
         }
 
         public static void StaticAdd()

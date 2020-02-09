@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.MSBuild;
+using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
 using Nito.AsyncEx;
 using System;
@@ -90,16 +91,18 @@ namespace DependencyFinder.Core
             return typesList;
         }
 
-        public async Task FindReferenceInSolutions(string project, ISymbol searchElement)
+        public async IAsyncEnumerable<Reference> FindReferenceInSolutions(ProjectDetails project, ISymbol searchElement)
         {
-            var projects = _projectUsedByCache[project];
-            foreach (var solution in projects.Select(s => s.Solution).Distinct())
+            //TODO what if project that is using project form argument is used in many solutions
+
+            var projects = _projectUsedByCache[project.AbsolutePath];
+            foreach (var p in projects)
             {
-                var solutionWorkspace = await OpenSolution(solution);
+                var solutionWorkspace = await OpenSolution(p.Solution);
 
-                await foreach(var result in FindSymbol(searchElement, solutionWorkspace))
+                await foreach(var result in FindSymbol(searchElement, solutionWorkspace, project))
                 {
-
+                    yield return result;
                 }
             }
         }
@@ -285,7 +288,8 @@ namespace DependencyFinder.Core
 
                 var searchedSymbol = compilation.GetTypeByMetadataName(className.Trim());
 
-                await foreach(var result in FindSymbol(searchedSymbol, solution))
+                //TODO fix
+                await foreach(var result in FindSymbol(searchedSymbol, solution, null))
                 {
                     yield return result;
                          
@@ -293,9 +297,23 @@ namespace DependencyFinder.Core
             }
         }
 
-        private async IAsyncEnumerable<Reference> FindSymbol(ISymbol symbol, Solution solution)
+        private async IAsyncEnumerable<Reference> FindSymbol(ISymbol symbol, Solution solution, ProjectDetails pd)
         {
-            var results = await SymbolFinder.FindReferencesAsync(symbol, solution);
+            var project = solution.Projects.FirstOrDefault(p => p.Name == pd.Name);
+            var compilation = await project.GetCompilationAsync();
+            ISymbol searchedSymbol;
+
+            if (symbol.Kind == SymbolKind.NamedType)
+            {
+                searchedSymbol = compilation.GetTypeByMetadataName(symbol.ToString());
+            }
+            else
+            {
+                var containingTypeSymbol = compilation.GetTypeByMetadataName(symbol.ContainingType.ToString());
+                searchedSymbol = containingTypeSymbol.GetMembers().FirstOrDefault(x => x.Kind == symbol.Kind && x.Name == symbol.Name);
+            }
+            
+            var results = await SymbolFinder.FindReferencesAsync(searchedSymbol, solution);
 
             foreach (var reference in results)
             {
@@ -303,7 +321,6 @@ namespace DependencyFinder.Core
                 {
                     int spanStart = location.Location.SourceSpan.Start;
                     var doc = location.Document;
-                    var ss = location.Location.ToString();
 
                     var root = await doc.GetSyntaxRootAsync();
                     var node = root.DescendantNodes()
@@ -329,17 +346,19 @@ namespace DependencyFinder.Core
                     var objectReference = new Reference
                     {
                         FileName = doc.Name,
+                        FilePath = doc.FilePath,
                         ProjectName = doc.Project.Name,
                         ClassName = definitionClassName,
                         Namespace = @namespace,
                         Block = block,
-                        LineNumber = line.StartLinePosition.Line
+                        LineNumber = line.EndLinePosition.Line
                     };
 
                     yield return objectReference;
                 }
             }
         }
+
 
         public void Dispose()
         {
@@ -349,36 +368,6 @@ namespace DependencyFinder.Core
                 solution.Workspace.Dispose();
             }
         }
-
-        //TODO
-        //private static void CheckDiagnostics(MSBuildWorkspace workspace)
-        //{
-        //    foreach (var diagnostic in workspace.Diagnostics)
-        //    {
-        //        if (diagnostic.Kind == Microsoft.CodeAnalysis.WorkspaceDiagnosticKind.Failure)
-        //        {
-        //            ConsoleEx.WriteErrorLine(diagnostic.Message);
-        //        }
-        //        else if (diagnostic.Kind == Microsoft.CodeAnalysis.WorkspaceDiagnosticKind.Warning)
-        //        {
-        //            ConsoleEx.WriteWarningLine(diagnostic.Message);
-        //        }
-        //    }
-        //}
-
-        //public IAsyncEnumerable<R> Execute<T, R>(IEnumerable<T> tasks, Func<T, Task<R>> action)
-        //{
-        //    var channel = Channel.CreateUnbounded<R>(new UnboundedChannelOptions { SingleWriter = false, SingleReader = true });
-
-        //    var result = Parallel.ForEach(tasks, async (data) =>
-        //    {
-        //        var result = await action(data);
-        //        await channel.Writer.WriteAsync(result);
-        //    });
-
-        //    var xxxx = result.IsCompleted;
-
-        //    return channel.Reader.ReadAllAsync();
-        //}
     }
+
 }

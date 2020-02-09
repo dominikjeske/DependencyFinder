@@ -272,6 +272,7 @@
                         </xcad:LayoutAnchorable>
                     </xcad:LayoutAnchorablePane>
 
+                    <!--Content for open documents-->
                     <xcad:LayoutDocumentPaneGroup>
                         <xcad:LayoutDocumentPane>
                         </xcad:LayoutDocumentPane>
@@ -287,7 +288,46 @@
                         </xcad:LayoutAnchorablePane>
                     </xcad:LayoutAnchorablePaneGroup>
                 </xcad:LayoutPanel>
+
+                <xcad:LayoutRoot.BottomSide>
+                    <xcad:LayoutAnchorSide>
+                        <xcad:LayoutAnchorGroup>
+                            <xcad:LayoutAnchorable Title="Find All References results"
+                                                   ContentId="findResult"
+                                                   >
+                                <ListView Margin="5" 
+                                          ItemsSource="{Binding FindReferencesResult}"
+                                          Background="#363636"
+                                          Foreground="White"
+                                          >
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridViewColumn Header="Project" Width="100" DisplayMemberBinding="{Binding ProjectName}" />
+                                            <GridViewColumn Header="ClassName" Width="100" DisplayMemberBinding="{Binding ClassName}" />
+                                            <GridViewColumn Header="FileName" Width="100" DisplayMemberBinding="{Binding FileName}" />
+                                            <GridViewColumn Header="Namespace" Width="100" DisplayMemberBinding="{Binding Namespace}" />
+                                            <GridViewColumn Header="LineNumber" Width="50" DisplayMemberBinding="{Binding LineNumber}" />
+                                            <GridViewColumn Header="Block" Width="500" DisplayMemberBinding="{Binding Block}" />
+                                            <GridViewColumn Header="Path" Width="500" DisplayMemberBinding="{Binding FilePath}" />
+                                        </GridView>
+                                    </ListView.View>
+
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="{x:Type ListViewItem}">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="Black" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                </ListView>
+                            </xcad:LayoutAnchorable>
+                        </xcad:LayoutAnchorGroup>
+                    </xcad:LayoutAnchorSide>
+                </xcad:LayoutRoot.BottomSide>
             </xcad:LayoutRoot>
+
         </xcad:DockingManager>
     </Grid>
 </Fluent:RibbonWindow>
