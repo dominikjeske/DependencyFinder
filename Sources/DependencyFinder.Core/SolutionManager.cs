@@ -135,6 +135,12 @@ namespace DependencyFinder.Core
 
             foreach (var project in result)
             {
+                var projectDirectory = Path.GetDirectoryName(project.AbsolutePath);
+                var sourceFiles = Directory.GetFiles(projectDirectory, "*.cs", SearchOption.AllDirectories)
+                                           .Where(f => f.IndexOf("\\obj\\") == -1);
+
+                project.SourceCodes.AddRange(sourceFiles);
+
                 foreach (var pr in project.ProjectReferences)
                 {
                     _projectUsedByCache.AddOrUpdate(pr.FilePath, new List<ProjectDetails> { project }, (pKey, references) =>

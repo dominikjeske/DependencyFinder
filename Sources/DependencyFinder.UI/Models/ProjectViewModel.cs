@@ -28,6 +28,7 @@ namespace DependencyFinder.UI.Models
             Children.Add(new ReferencesCollectionViewModel(Project.DirectReferences, this, lazyLoadChildren));
             Children.Add(new TypesCollectionViewModel(this, project.AbsolutePath, parent.FullName, solutionManeger));
             Children.Add(new ReferencedCollectionViewModel(this));
+            Children.Add(new SourceCodesCollectionViewModel(this, project.SourceCodes));
         }
     }
 }

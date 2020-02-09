@@ -1,7 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace DependencyFinder.Core.Models
@@ -24,6 +23,7 @@ namespace DependencyFinder.Core.Models
         public List<ProjectReference> ProjectReferences { get; set; } = new List<ProjectReference>();
         public List<ProjectTarget> ProjectTargets { get; set; } = new List<ProjectTarget>();
         public List<ProjectReference> DirectReferences { get; set; } = new List<ProjectReference>();
+        public List<string> SourceCodes { get; set; } = new List<string>();
 
         protected override IEnumerable<object> GetEqualityComponents()
         {

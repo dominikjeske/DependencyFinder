@@ -274,6 +274,22 @@
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
 
+                                        <HierarchicalDataTemplate  DataType="{x:Type models:SourceCodesCollectionViewModel}"
+                                               ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource CsharpBrush}" />
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+
+                                        <HierarchicalDataTemplate  DataType="{x:Type models:SourceCodeViewModel}"
+                                               ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource CsharpBrush}" />
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+
                                         <HierarchicalDataTemplate  DataType="{x:Type models:WaitingViewModel}"
                                                ItemsSource="{Binding Children}">
                                             <StackPanel Orientation="Horizontal">
