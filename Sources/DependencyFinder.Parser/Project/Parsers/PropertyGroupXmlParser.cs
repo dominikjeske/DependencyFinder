@@ -17,11 +17,8 @@ namespace ByteDev.DotNet.Project.Parsers
 
         public static XElement GetNewStyleTargetElement(IEnumerable<XElement> propertyGroups)
         {
-            const string singleTargetName = "TargetFramework";
-            const string multiTargetName = "TargetFrameworks";
-
-            var singleTarget =  propertyGroups.SingleOrDefault(pg => pg.Element(singleTargetName) != null)?.Element(singleTargetName);
-            var multiTarget = propertyGroups.SingleOrDefault(pg => pg.Element(multiTargetName) != null)?.Element(multiTargetName);
+            var singleTarget = propertyGroups.Descendants().FirstOrDefault(node => node.Name.LocalName == "TargetFramework");
+            var multiTarget = propertyGroups.Descendants().FirstOrDefault(node => node.Name.LocalName == "TargetFrameworks");
 
             return singleTarget ?? multiTarget;
         }
