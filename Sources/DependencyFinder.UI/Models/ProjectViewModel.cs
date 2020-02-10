@@ -23,9 +23,9 @@ namespace DependencyFinder.UI.Models
 
             IsNetCore = project.IsNetCore;
 
-            Children.Add(new NugetCollectionViewModel(Project.Nugets, this, lazyLoadChildren));
-            Children.Add(new ProjectCollectionViewModel(Project.ProjectReferences, this, lazyLoadChildren));
-            Children.Add(new ReferencesCollectionViewModel(Project.DirectReferences, this, lazyLoadChildren));
+            Children.Add(new NugetCollectionViewModel(Project.Nugets, this, solutionManeger));
+            Children.Add(new ProjectCollectionViewModel(Project.ProjectReferences, this));
+            Children.Add(new ReferencesCollectionViewModel(Project.DirectReferences, this));
             Children.Add(new TypesCollectionViewModel(this, project.AbsolutePath, parent.FullName, solutionManeger));
             Children.Add(new ReferencedCollectionViewModel(this));
             Children.Add(new SourceCodesCollectionViewModel(this, project.SourceCodes));

@@ -96,7 +96,7 @@ namespace DependencyFinder.Core.Models
                 int hash = (int)2166136261;
                 // Suitable nullity checks etc, of course :)
                 hash = (hash * 16777619) ^ Value.GetHashCode();
-                hash = (hash * 16777619) ^ Beta.GetHashCode();
+                hash = (hash * 16777619) ^ Beta?.GetHashCode() ?? 0;
                 return hash;
             }
         }

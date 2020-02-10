@@ -202,6 +202,11 @@ namespace DependencyFinder.UI.ViewModels
             {
                 ShowProject(projectRef.Parent.Parent.Parent.FullName, projectRef.Name);
             }
+            else if(SelectedSolutionItem is NugetReferenceViewModel nugetRef)
+            {
+                ShowProject(nugetRef.Map.Project.Solution, nugetRef.Map.Project.Name);
+            }
+           
         }
 
         private void ShowProject(string solutionPath, string projectName)
@@ -216,7 +221,9 @@ namespace DependencyFinder.UI.ViewModels
             SelectedSolutionItem = solution.Children.FirstOrDefault(x => x.Name == projectName);
         }
 
-        public bool CanGoToProjectClick => SelectedSolutionItem is ReferencedViewModel || SelectedSolutionItem is ProjectRefViewModel;
+        public bool CanGoToProjectClick => SelectedSolutionItem is ReferencedViewModel
+                                        || SelectedSolutionItem is ProjectRefViewModel
+                                        || SelectedSolutionItem is NugetReferenceViewModel;
 
         private DocumentViewModel OpenDocument(TreeViewItemViewModel model)
         {

@@ -23,6 +23,7 @@ namespace DependencyFinder.Core
     {
         private readonly ConcurrentDictionary<string, AsyncLazy<Solution>> _solutionCache = new ConcurrentDictionary<string, AsyncLazy<Solution>>();
         private readonly ConcurrentDictionary<string, List<ProjectDetails>> _projectUsedByCache = new ConcurrentDictionary<string, List<ProjectDetails>>();
+        private readonly ConcurrentDictionary<string, List<NugetProjectMap>> _nugetCache = new ConcurrentDictionary<string, List<NugetProjectMap>>();
 
         private readonly ILogger<SolutionManager> _logger;
 
@@ -149,6 +150,21 @@ namespace DependencyFinder.Core
                         return references;
                     });
                 }
+
+                foreach (var nuget in project.Nugets)
+                {
+                    var nugetMap = new NugetProjectMap
+                    {
+                        Nuget = nuget,
+                        Project = project
+                    };
+
+                    _nugetCache.AddOrUpdate(nuget.Name, new List<NugetProjectMap> { nugetMap }, (pKey, nugets) =>
+                    {
+                        nugets.Add(nugetMap);
+                        return nugets;
+                    });
+                }
             }
 
             return result;
@@ -225,6 +241,8 @@ namespace DependencyFinder.Core
             return result;
         }
 
+        public IEnumerable<NugetProjectMap> GetNugetUsage(string nugetName) => _nugetCache[nugetName];
+        
         private async Task<IEnumerable<NugetPackage>> ReadNuget(string projectPath, DotNetProject project)
         {
             if (project.Format == ProjectFormat.Old)
