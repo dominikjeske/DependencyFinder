@@ -31,6 +31,10 @@ namespace ByteDev.DotNet.Solution
 
         public static readonly Guid Database = new Guid("A9ACE9BB-CECE-4E62-9AA4-C7E7C5BD2124");
         public static readonly Guid DatabaseOther = new Guid("4F174C21-8C12-11D0-8340-0000F80270F8");
+        public static readonly Guid SQLServerProject = new Guid("00D1A9C2-B5F0-4AF3-8072-F6C62B433612");
+
+        public static readonly Guid SandcastleBuilder = new Guid("7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4");
+        public static readonly Guid IntegrationServices = new Guid("D183A3D8-5FD8-494B-B014-37F57B35E655");
 
         public static readonly Guid DeploymentCab = new Guid("3EA9E505-35AC-4774-B492-AD1749C4943A");
         public static readonly Guid DeploymentMergeModule = new Guid("06A35CCD-C46D-44D5-987B-CF40FF872267");

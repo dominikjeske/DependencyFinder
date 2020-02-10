@@ -4,7 +4,7 @@ using System.Xml.Linq;
 
 namespace ByteDev.DotNet.Project.Parsers
 {
-    internal class PropertyGroupXmlParser
+    internal static class PropertyGroupXmlParser
     {
         public static XElement GetOldStyleTargetElement(IEnumerable<XElement> propertyGroups)
         {
@@ -17,10 +17,13 @@ namespace ByteDev.DotNet.Project.Parsers
 
         public static XElement GetNewStyleTargetElement(IEnumerable<XElement> propertyGroups)
         {
-            const string name = "TargetFramework";
+            const string singleTargetName = "TargetFramework";
+            const string multiTargetName = "TargetFrameworks";
 
-            return propertyGroups.SingleOrDefault(pg => pg.Element(name) != null)?
-                .Element(name);
+            var singleTarget =  propertyGroups.SingleOrDefault(pg => pg.Element(singleTargetName) != null)?.Element(singleTargetName);
+            var multiTarget = propertyGroups.SingleOrDefault(pg => pg.Element(multiTargetName) != null)?.Element(multiTargetName);
+
+            return singleTarget ?? multiTarget;
         }
     }
 }
