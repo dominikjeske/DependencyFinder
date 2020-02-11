@@ -261,18 +261,12 @@ namespace DependencyFinder.Core
             }
             else
             {
-                var xx = project.PackageReferences.Select(p => new NugetPackage
+                return project.PackageReferences.Where(x => !string.IsNullOrWhiteSpace(x.Name))
+                                                .Select(p => new NugetPackage
                 {
                     Name = p.Name,
                     Version = VersionEx.FromString(p.Version)
                 });
-
-                if(xx.Count(x => x.Name == null) > 0)
-                {
-
-                }
-
-                return xx;
             }
         }
 
