@@ -60,8 +60,11 @@ namespace ByteDev.DotNet.Solution.Factories
             {ProjectTypeIds.WindowsStoreAppsAndComponents, "Windows Store (Metro) Apps & Components"},
             {ProjectTypeIds.XnaWindows, "XNA (Windows)"},
             {ProjectTypeIds.XnaXBox, "XNA (XBox)"},
-            {ProjectTypeIds.XnaZune, "XNA (Zune)"}
-        };
+            {ProjectTypeIds.XnaZune, "XNA (Zune)"},
+            {ProjectTypeIds.SQLServerProject, "SQL Server project"},
+            {ProjectTypeIds.SandcastleBuilder, "Sandcastle"},
+            {ProjectTypeIds.IntegrationServices, "Integration Services"}
+    };
 
         public DotNetSolutionProjectType Create(Guid projectTypeId)
         {

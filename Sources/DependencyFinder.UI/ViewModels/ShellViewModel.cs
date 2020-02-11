@@ -33,8 +33,8 @@ namespace DependencyFinder.UI.ViewModels
         public ShellViewModel(ISolutionManager solutionManager)
         {
             //TODO fix after testing
-            SolutionsRoot = Path.Combine((new DirectoryInfo(Directory.GetCurrentDirectory())).Parent.Parent.Parent.Parent.Parent.ToString(), "Test");
-            //SolutionsRoot = @"E:\Projects\Dependency\DependencyFinder\Test\WPF2\WpfAppStandalone";
+            //SolutionsRoot = Path.Combine((new DirectoryInfo(Directory.GetCurrentDirectory())).Parent.Parent.Parent.Parent.Parent.ToString(), "Test");
+            SolutionsRoot = @"C:\Source\ArcheoFork\humbak_archeo";
 
             _solutionManager = solutionManager;
         }
