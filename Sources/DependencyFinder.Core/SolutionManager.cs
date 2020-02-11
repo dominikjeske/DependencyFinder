@@ -137,10 +137,18 @@ namespace DependencyFinder.Core
             foreach (var project in result)
             {
                 var projectDirectory = Path.GetDirectoryName(project.AbsolutePath);
-                var sourceFiles = Directory.GetFiles(projectDirectory, "*.cs", SearchOption.AllDirectories)
-                                           .Where(f => f.IndexOf("\\obj\\") == -1);
 
-                project.SourceCodes.AddRange(sourceFiles);
+                if (File.Exists(project.AbsolutePath))
+                {
+                    var sourceFiles = Directory.GetFiles(projectDirectory, "*.cs", SearchOption.AllDirectories)
+                                               .Where(f => f.IndexOf("\\obj\\") == -1);
+
+                    project.SourceCodes.AddRange(sourceFiles);
+                }
+                else
+                {
+
+                }
 
                 foreach (var pr in project.ProjectReferences)
                 {
@@ -189,6 +197,7 @@ namespace DependencyFinder.Core
                         project.IsNetCore = projectInfo.Format == ProjectFormat.New;
 
                         var nugets = await ReadNuget(project.AbsolutePath, projectInfo);
+
                         project.Nugets.AddRange(nugets);
 
                         foreach (var pr in projectInfo.ProjectReferences)
@@ -252,11 +261,18 @@ namespace DependencyFinder.Core
             }
             else
             {
-                return project.PackageReferences.Select(p => new NugetPackage
+                var xx = project.PackageReferences.Select(p => new NugetPackage
                 {
                     Name = p.Name,
                     Version = VersionEx.FromString(p.Version)
                 });
+
+                if(xx.Count(x => x.Name == null) > 0)
+                {
+
+                }
+
+                return xx;
             }
         }
 

@@ -91,13 +91,13 @@ namespace ByteDev.DotNet.Project
         {
             var propertyGroups = new PropertyGroupCollection(xDocument);
 
-            SetFormatAndProjectTargets(propertyGroups);
+            SetFormatAndProjectTargets(propertyGroups, project);
 
             AssemblyInfo = new AssemblyInfoProperties(propertyGroups);
             NugetMetaData = new NugetMetaDataProperties(propertyGroups);
         }
 
-        private void SetFormatAndProjectTargets(PropertyGroupCollection propertyGroups)
+        private void SetFormatAndProjectTargets(PropertyGroupCollection propertyGroups, string project)
         {
             var targetElement = PropertyGroupXmlParser.GetOldStyleTargetElement(propertyGroups.PropertyGroupElements);
 

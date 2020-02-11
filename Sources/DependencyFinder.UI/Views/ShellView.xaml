@@ -127,7 +127,10 @@
                                           Background="#363636"
                                           ItemContainerStyle="{StaticResource TreeviewItemStyle}"
                                           cal:Message.Attach="[Event MouseDoubleClick] = [Action ProjectDoubleClick()]"
-                                          Padding="0, 10, 0, 0">
+                                          Padding="0, 10, 0, 0"
+                                          VirtualizingStackPanel.IsVirtualizing="True"
+                                          VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                          >
                                     <e:Interaction.Behaviors>
                                         <behaviors:BindableSelectedItemBehavior SelectedItem="{Binding SelectedSolutionItem, Mode=TwoWay}" />
                                     </e:Interaction.Behaviors>

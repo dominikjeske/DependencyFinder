@@ -12,6 +12,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace DependencyFinder.UI.ViewModels
 {
@@ -41,39 +43,57 @@ namespace DependencyFinder.UI.ViewModels
 
         private async Task LoadSolutions()
         {
-            var solutions = _solutionManager.FindSolutions(SolutionsRoot);
-
-            await foreach (var s in solutions)
+            try
             {
-                var solutionViewModel = new SolutionViewModel(s, _solutionManager, false);
-                Solutions.Add(solutionViewModel);
+                var solutions = _solutionManager.FindSolutions(SolutionsRoot);
 
-                var projects = await _solutionManager.ReadSolution(s);
-                foreach (var p in projects)
+                await foreach (var s in solutions)
                 {
-                    solutionViewModel.AddProject(p);
-                }
-            }
+                    var projects = await _solutionManager.ReadSolution(s);
 
-            foreach (var solution in Solutions)
-            {
-                foreach (ProjectViewModel project in solution.Children)
-                {
-                    foreach (var reference in _solutionManager.GetReferencingProjects(project.Project))
+                    Application.Current.Dispatcher.BeginInvoke((System.Action)(() =>
                     {
-                        project.References.AddReference(reference);
-                    }
+                        var solutionViewModel = new SolutionViewModel(s, _solutionManager, false);
+                        Solutions.Add(solutionViewModel);
+
+                        foreach (var p in projects)
+                        {
+                            solutionViewModel.AddProject(p);
+                        }
+                    }));
                 }
+
+                Application.Current.Dispatcher.BeginInvoke((System.Action)(() =>
+                {
+                    foreach (var solution in Solutions)
+                    {
+                        foreach (ProjectViewModel project in solution.Children)
+                        {
+                            foreach (var reference in _solutionManager.GetReferencingProjects(project.Project))
+                            {
+                                project.References.AddReference(reference);
+                            }
+                        }
+                    }
+                }));
             }
+            catch (Exception  ee)
+            {
+
+            }
+          
+
         }
 
-        public async Task OnLoaded()
+        public void OnLoaded()
         {
-            await LoadSolutions();
+            Task.Run(() => LoadSolutions());
         }
 
         public void OnFilterChanged()
         {
+            if (Filter.Length < 3) return;
+
             ValidateList(Solutions);
         }
 
