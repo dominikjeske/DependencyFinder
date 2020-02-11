@@ -22,8 +22,9 @@ namespace DependencyFinder.Core
     public class SolutionManager : ISolutionManager
     {
         private readonly ConcurrentDictionary<string, AsyncLazy<Solution>> _solutionCache = new ConcurrentDictionary<string, AsyncLazy<Solution>>();
-        private readonly ConcurrentDictionary<string, List<ProjectDetails>> _projectUsedByCache = new ConcurrentDictionary<string, List<ProjectDetails>>();
-        private readonly ConcurrentDictionary<string, List<NugetProjectMap>> _nugetCache = new ConcurrentDictionary<string, List<NugetProjectMap>>();
+        private readonly ConcurrentDictionary<string, Dictionary<string, ProjectDetails>> _projectUsedByCache = new ConcurrentDictionary<string, Dictionary<string, ProjectDetails>>();
+        private readonly ConcurrentDictionary<string, Dictionary<string, NugetProjectMap>> _nugetCache = new ConcurrentDictionary<string, Dictionary<string, NugetProjectMap>>();
+        private readonly ConcurrentDictionary<string, AsyncLazy<ProjectDetails>> _projectsCache = new ConcurrentDictionary<string, AsyncLazy<ProjectDetails>>();
 
         private readonly ILogger<SolutionManager> _logger;
 
@@ -97,7 +98,7 @@ namespace DependencyFinder.Core
             var resultCache = new List<Reference>();
 
             var projects = _projectUsedByCache[project.AbsolutePath];
-            foreach (var solution in projects.Select(p => p.Solution).Distinct())
+            foreach (var solution in projects.Values.Select(p => p.Solution).Distinct())
             {
                 var solutionWorkspace = await OpenSolution(solution);
 
@@ -117,6 +118,8 @@ namespace DependencyFinder.Core
             return asyncFinder.Find(rootDirectory, "*.sln");
         }
 
+        public int GetNumberOfCachedProjects() => _projectsCache.Count;
+
         public async IAsyncEnumerable<string> FindSolutionWithProject(string rootDirectory, string projectName)
         {
             var solutions = new List<string>();
@@ -134,47 +137,6 @@ namespace DependencyFinder.Core
             var projects = ReadProjectsFromSolution(solutionPath);
             var result = await ReadProjectDetails(projects);
 
-            foreach (var project in result)
-            {
-                var projectDirectory = Path.GetDirectoryName(project.AbsolutePath);
-
-                if (File.Exists(project.AbsolutePath))
-                {
-                    var sourceFiles = Directory.GetFiles(projectDirectory, "*.cs", SearchOption.AllDirectories)
-                                               .Where(f => f.IndexOf("\\obj\\") == -1);
-
-                    project.SourceCodes.AddRange(sourceFiles);
-                }
-                else
-                {
-
-                }
-
-                foreach (var pr in project.ProjectReferences)
-                {
-                    _projectUsedByCache.AddOrUpdate(pr.FilePath, new List<ProjectDetails> { project }, (pKey, references) =>
-                    {
-                        references.Add(project);
-                        return references;
-                    });
-                }
-
-                foreach (var nuget in project.Nugets)
-                {
-                    var nugetMap = new NugetProjectMap
-                    {
-                        Nuget = nuget,
-                        Project = project
-                    };
-
-                    _nugetCache.AddOrUpdate(nuget.Name, new List<NugetProjectMap> { nugetMap }, (pKey, nugets) =>
-                    {
-                        nugets.Add(nugetMap);
-                        return nugets;
-                    });
-                }
-            }
-
             return result;
         }
 
@@ -182,56 +144,31 @@ namespace DependencyFinder.Core
         {
             if (!_projectUsedByCache.ContainsKey(project.AbsolutePath)) return Enumerable.Empty<ProjectDetails>();
 
-            return _projectUsedByCache[project.AbsolutePath];
+            return _projectUsedByCache[project.AbsolutePath].Values;
         }
 
         private async Task<IEnumerable<ProjectDetails>> ReadProjectDetails(IEnumerable<ProjectDetails> projects)
         {
-            var tasks = projects.AsParallel().Select(async project =>
+            var tasks = projects.AsParallel().Select(project =>
             {
                 try
                 {
                     if (File.Exists(project.AbsolutePath))
                     {
-                        var projectInfo = DotNetProject.Load(project.AbsolutePath);
-                        project.IsNetCore = projectInfo.Format == ProjectFormat.New;
-
-                        var nugets = await ReadNuget(project.AbsolutePath, projectInfo);
-
-                        project.Nugets.AddRange(nugets);
-
-                        foreach (var pr in projectInfo.ProjectReferences)
+                        return _projectsCache.GetOrAdd(project.AbsolutePath, key => new AsyncLazy<ProjectDetails>(async () =>
                         {
-                            var projectAbsolutePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(project.AbsolutePath), pr.FilePath));
-                            project.ProjectReferences.Add(new Models.ProjectReference { FilePath = projectAbsolutePath, Name = Path.GetFileNameWithoutExtension(pr.FilePath) });
-                        }
+                            var projectInfo = DotNetProject.Load(key);
+                            project.IsNetCore = projectInfo.Format == ProjectFormat.New;
+                            project.IsMultiTarget = projectInfo.IsMultiTarget;
+                            project.AssemblyInfo = projectInfo.GetAssemblyInfo();
+                            await ExtractNugetInfo(project, projectInfo);
+                            ExtractProjectReferences(project, projectInfo);
+                            ExtractTargets(project, projectInfo);
+                            ExtractDirectReferences(project, projectInfo);
+                            ExtractSourceCode(project);
 
-                        foreach (var targ in projectInfo.ProjectTargets)
-                        {
-                            project.ProjectTargets.Add(new ProjectTarget { Description = targ.Description, Type = targ.Type.ToString(), TargetValue = targ.TargetValue, Version = targ.Version });
-                        }
-
-                        foreach (var pr in projectInfo.References.Where(x => !string.IsNullOrWhiteSpace(x.Path) && string.IsNullOrWhiteSpace(x.Version)))
-                        {
-                            var projectAbsolutePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(project.AbsolutePath), pr.Path));
-                            project.DirectReferences.Add(new Models.ProjectReference { FilePath = projectAbsolutePath, Name = pr.Name });
-                        }
-
-                        project.IsMultiTarget = projectInfo.IsMultiTarget;
-                        project.AssemblyInfo = new AssemblyInfo
-                        {
-                            Company = projectInfo.AssemblyInfo.Company,
-                            Configuration = projectInfo.AssemblyInfo.Configuration,
-                            Copyright = projectInfo.AssemblyInfo.Copyright,
-                            Description = projectInfo.AssemblyInfo.Description,
-                            FileVersion = projectInfo.AssemblyInfo.FileVersion,
-                            InformationalVersion = projectInfo.AssemblyInfo.InformationalVersion,
-                            NeutralLanguage = projectInfo.AssemblyInfo.NeutralLanguage,
-                            Product = projectInfo.AssemblyInfo.Product,
-                            AssemblyTitle = projectInfo.AssemblyInfo.Title,
-                            AssemblyVersion = projectInfo.AssemblyInfo.Version,
-                            AssemblyName = projectInfo.AssemblyInfo.AssemblyName
-                        };
+                            return project;
+                        })).Task;
                     }
                 }
                 //TODO
@@ -242,7 +179,7 @@ namespace DependencyFinder.Core
                 {
                 }
 
-                return project;
+                return Task.FromResult(project);
             }).ToList();
 
             var result = await Task.WhenAll(tasks);
@@ -250,8 +187,89 @@ namespace DependencyFinder.Core
             return result;
         }
 
-        public IEnumerable<NugetProjectMap> GetNugetUsage(string nugetName) => _nugetCache[nugetName];
-        
+        private static void ExtractDirectReferences(ProjectDetails project, DotNetProject projectInfo)
+        {
+            foreach (var pr in projectInfo.References.Where(x => !string.IsNullOrWhiteSpace(x.Path) && string.IsNullOrWhiteSpace(x.Version)))
+            {
+                var projectAbsolutePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(project.AbsolutePath), pr.Path));
+                project.DirectReferences.Add(new Models.ProjectReference { FilePath = projectAbsolutePath, Name = pr.Name });
+            }
+        }
+
+        private static void ExtractTargets(ProjectDetails project, DotNetProject projectInfo)
+        {
+            foreach (var targ in projectInfo.ProjectTargets)
+            {
+                project.ProjectTargets.Add(new ProjectTarget { Description = targ.Description, Type = targ.Type.ToString(), TargetValue = targ.TargetValue, Version = targ.Version });
+            }
+        }
+
+        private static void ExtractSourceCode(ProjectDetails project)
+        {
+            var projectDirectory = Path.GetDirectoryName(project.AbsolutePath);
+
+            if (File.Exists(project.AbsolutePath))
+            {
+                var sourceFiles = Directory.GetFiles(projectDirectory, "*.cs", SearchOption.AllDirectories)
+                                           .Where(f => f.IndexOf("\\obj\\") == -1);
+
+                project.SourceCodes.AddRange(sourceFiles);
+            }
+            else
+            {
+                //TODO
+            }
+        }
+
+        private void ExtractProjectReferences(ProjectDetails project, DotNetProject projectInfo)
+        {
+            foreach (var pr in projectInfo.ProjectReferences)
+            {
+                var projectAbsolutePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(project.AbsolutePath), pr.FilePath));
+                project.ProjectReferences.Add(new Models.ProjectReference { FilePath = projectAbsolutePath, Name = Path.GetFileNameWithoutExtension(pr.FilePath) });
+            }
+
+            foreach (var pr in project.ProjectReferences)
+            {
+                _projectUsedByCache.AddOrUpdate(pr.FilePath, new Dictionary<string, ProjectDetails> { [project.AbsolutePath] = project }, (pKey, references) =>
+                {
+                    if (!references.ContainsKey(project.AbsolutePath))
+                    {
+                        references.Add(project.AbsolutePath, project);
+                    }
+                    return references;
+                });
+            }
+        }
+
+        private async Task ExtractNugetInfo(ProjectDetails project, DotNetProject projectInfo)
+        {
+            var nugets = await ReadNuget(project.AbsolutePath, projectInfo);
+
+            project.Nugets.AddRange(nugets);
+
+            foreach (var nuget in project.Nugets)
+            {
+                var nugetMap = new NugetProjectMap
+                {
+                    Nuget = nuget,
+                    Project = project
+                };
+
+                _nugetCache.AddOrUpdate(nuget.Name, new Dictionary<string, NugetProjectMap> { [nugetMap.Project.AbsolutePath] = nugetMap }, (pKey, nugets) =>
+                {
+                    if (!nugets.ContainsKey(nugetMap.Project.AbsolutePath))
+                    {
+                        nugets.Add(nugetMap.Project.AbsolutePath, nugetMap);
+                    }
+
+                    return nugets;
+                });
+            }
+        }
+
+        public IEnumerable<NugetProjectMap> GetNugetUsage(string nugetName) => _nugetCache[nugetName].Values;
+
         private async Task<IEnumerable<NugetPackage>> ReadNuget(string projectPath, DotNetProject project)
         {
             if (project.Format == ProjectFormat.Old)
@@ -263,10 +281,10 @@ namespace DependencyFinder.Core
             {
                 return project.PackageReferences.Where(x => !string.IsNullOrWhiteSpace(x.Name))
                                                 .Select(p => new NugetPackage
-                {
-                    Name = p.Name,
-                    Version = VersionEx.FromString(p.Version)
-                });
+                                                {
+                                                    Name = p.Name,
+                                                    Version = VersionEx.FromString(p.Version)
+                                                });
             }
         }
 
@@ -279,17 +297,17 @@ namespace DependencyFinder.Core
             var solutionDirectory = Path.GetDirectoryName(solutionPath);
 
             return solution.Value
-                            .Projects
-                            .Where(x => !x.Type.IsSolutionFolder) //x.Type.Description == "C#"
-                            .Select(p => new ProjectDetails
-                            {
-                                Id = p.Id,
-                                Name = p.Name,
-                                RelativePath = p.Path,
-                                AbsolutePath = Path.GetFullPath(Path.Combine(solutionDirectory, p.Path)),
-                                Type = p.Type?.Description,
-                                Solution = solutionPath
-                            });
+                           .Projects
+                           .Where(x => !x.Type.IsSolutionFolder)
+                           .Select(p => new ProjectDetails
+                           {
+                               Id = p.Id,
+                               Name = p.Name,
+                               RelativePath = p.Path,
+                               AbsolutePath = Path.GetFullPath(Path.Combine(solutionDirectory, p.Path)),
+                               Type = p.Type?.Description,
+                               Solution = solutionPath
+                           });
         }
 
         private Result<DotNetSolution> ReadSolutionFromDisk(string solutionPath)

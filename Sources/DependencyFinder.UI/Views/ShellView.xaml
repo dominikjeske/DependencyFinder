@@ -25,6 +25,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="22"/>
         </Grid.RowDefinitions>
 
         <Fluent:Ribbon Grid.Row="0">
@@ -398,5 +399,14 @@
             </xcad:LayoutRoot>
 
         </xcad:DockingManager>
+        <StatusBar Grid.Row="2"
+                   Background="#363636"
+                   >
+            <StatusBarItem>
+                <TextBlock Text="{Binding SolutionsStatus}" Foreground="White" />
+            </StatusBarItem>
+        </StatusBar>
+        
     </Grid>
+   
 </Fluent:RibbonWindow>

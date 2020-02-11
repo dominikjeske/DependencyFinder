@@ -21,5 +21,6 @@ namespace DependencyFinder.Core
         IAsyncEnumerable<Reference> FindReferenceInSolutions(ProjectDetails project, ISymbol searchElement);
         IEnumerable<ProjectDetails> GetReferencingProjects(ProjectDetails project);
         IEnumerable<NugetProjectMap> GetNugetUsage(string nugetName);
+        int GetNumberOfCachedProjects();
     }
 }

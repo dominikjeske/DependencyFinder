@@ -13,11 +13,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
+using ToastNotifications;
+using ToastNotifications.Lifetime;
+using ToastNotifications.Messages;
+using ToastNotifications.Position;
 
 namespace DependencyFinder.UI.ViewModels
 {
-    public class ShellViewModel : Screen
+    public class ShellViewModel : Screen, IDisposable
     {
         public string SolutionsRoot { get; set; }
         public ObservableCollection<SolutionViewModel> Solutions { get; set; } = new ObservableCollection<SolutionViewModel>();
@@ -28,17 +31,51 @@ namespace DependencyFinder.UI.ViewModels
         public TreeViewItemViewModel SelectedSolutionItem { get; set; }
         public DocumentViewModel ActiveDocument { get; set; }
 
+        public string SolutionsStatus { get; set; }
+
         public Reference SelectedSearchResult { get; set; }
 
         private readonly ISolutionManager _solutionManager;
 
+        private readonly Notifier _notifier;
+
         public ShellViewModel(ISolutionManager solutionManager)
         {
             //TODO fix after testing
-            //SolutionsRoot = Path.Combine((new DirectoryInfo(Directory.GetCurrentDirectory())).Parent.Parent.Parent.Parent.Parent.ToString(), "Test");
-            SolutionsRoot = @"C:\Source\ArcheoFork\humbak_archeo";
+            SolutionsRoot = Path.Combine((new DirectoryInfo(Directory.GetCurrentDirectory())).Parent.Parent.Parent.Parent.Parent.ToString(), "Test");
+            //SolutionsRoot = @"C:\Source\ArcheoFork\humbak_archeo";
 
             _solutionManager = solutionManager;
+
+            _notifier = new Notifier(cfg =>
+            {
+                cfg.PositionProvider = new WindowPositionProvider(
+                    parentWindow: Application.Current.MainWindow,
+                    corner: Corner.TopRight,
+                    offsetX: 10,
+                    offsetY: 50);
+
+                cfg.LifetimeSupervisor = new TimeAndCountBasedLifetimeSupervisor(
+                    notificationLifetime: TimeSpan.FromSeconds(3),
+                    maximumNotificationCount: MaximumNotificationCount.FromCount(5));
+
+                cfg.Dispatcher = Application.Current.Dispatcher;
+            });
+        }
+
+        public void OnLoaded()
+        {
+            _notifier.ShowInformation("Start loading solutions");
+            Solutions.Add(new SolutionViewModel("Loading...", _solutionManager));
+
+            Task.Run(() => LoadSolutions());
+        }
+
+        public override Task TryCloseAsync(bool? dialogResult = null)
+        {
+            Dispose();
+
+            return base.TryCloseAsync(dialogResult);
         }
 
         private async Task LoadSolutions()
@@ -46,48 +83,46 @@ namespace DependencyFinder.UI.ViewModels
             try
             {
                 var solutions = _solutionManager.FindSolutions(SolutionsRoot);
+                var list = new List<SolutionViewModel>();
 
                 await foreach (var s in solutions)
                 {
                     var projects = await _solutionManager.ReadSolution(s);
-
-                    Application.Current.Dispatcher.BeginInvoke((System.Action)(() =>
+                    var solutionViewModel = new SolutionViewModel(s, _solutionManager, false);
+                    foreach (var p in projects)
                     {
-                        var solutionViewModel = new SolutionViewModel(s, _solutionManager, false);
-                        Solutions.Add(solutionViewModel);
-
-                        foreach (var p in projects)
-                        {
-                            solutionViewModel.AddProject(p);
-                        }
-                    }));
+                        solutionViewModel.AddProject(p);
+                    }
+                    list.Add(solutionViewModel);
                 }
 
-                Application.Current.Dispatcher.BeginInvoke((System.Action)(() =>
+                foreach (var solution in list)
                 {
-                    foreach (var solution in Solutions)
+                    foreach (ProjectViewModel project in solution.Children)
                     {
-                        foreach (ProjectViewModel project in solution.Children)
+                        foreach (var reference in _solutionManager.GetReferencingProjects(project.Project))
                         {
-                            foreach (var reference in _solutionManager.GetReferencingProjects(project.Project))
-                            {
-                                project.References.AddReference(reference);
-                            }
+                            project.References.AddReference(reference);
                         }
                     }
+                }
+
+                await Application.Current.Dispatcher.BeginInvoke((System.Action)(() =>
+                {
+                    var solutions = new ObservableCollection<SolutionViewModel>(list.OrderBy(s => s.Name));
+                    Solutions = solutions;
+
+                    SolutionsStatus = $"Solutions loaded: {Solutions.Count} | Projects loaded: {_solutionManager.GetNumberOfCachedProjects()}";
+                    _notifier.ShowInformation("Solution loaded");
                 }));
             }
-            catch (Exception  ee)
+            catch (Exception ee)
             {
-
+                await Application.Current.Dispatcher.BeginInvoke((System.Action)(() =>
+                {
+                    _notifier.ShowError("Solution loading failed");
+                }));
             }
-          
-
-        }
-
-        public void OnLoaded()
-        {
-            Task.Run(() => LoadSolutions());
         }
 
         public void OnFilterChanged()
@@ -222,11 +257,10 @@ namespace DependencyFinder.UI.ViewModels
             {
                 ShowProject(projectRef.Parent.Parent.Parent.FullName, projectRef.Name);
             }
-            else if(SelectedSolutionItem is NugetReferenceViewModel nugetRef)
+            else if (SelectedSolutionItem is NugetReferenceViewModel nugetRef)
             {
                 ShowProject(nugetRef.Map.Project.Solution, nugetRef.Map.Project.Name);
             }
-           
         }
 
         private void ShowProject(string solutionPath, string projectName)
@@ -319,6 +353,11 @@ namespace DependencyFinder.UI.ViewModels
             }
 
             return item.IsVisible;
+        }
+
+        public void Dispose()
+        {
+            _notifier.Dispose();
         }
     }
 }

@@ -27,7 +27,7 @@ namespace DependencyFinder.Core.Models
 
         protected override IEnumerable<object> GetEqualityComponents()
         {
-            yield return Id;
+            yield return AbsolutePath;
         }
     }
 }
