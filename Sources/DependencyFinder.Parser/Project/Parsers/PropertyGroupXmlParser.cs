@@ -22,5 +22,7 @@ namespace ByteDev.DotNet.Project.Parsers
 
             return singleTarget ?? multiTarget;
         }
+
+
     }
 }
