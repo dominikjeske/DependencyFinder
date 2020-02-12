@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.MSBuild;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,7 +15,7 @@ namespace SourceFinder
             MSBuildLocator.RegisterDefaults();
 
             var workspace = MSBuildWorkspace.Create();
-            var solution = await workspace.OpenSolutionAsync(@"E:\Projects\Dependency\DependencyFinder\SymbolFinder\SourceFinder\SourceFinder.sln");
+            var solution = await workspace.OpenSolutionAsync(Path.Combine((new DirectoryInfo(Directory.GetCurrentDirectory())).Parent.Parent.Parent.Parent.ToString(), "SourceFinder.sln"));
 
             var project = solution.Projects.FirstOrDefault(p => p.Name == "Parent");
             var compilation = await project.GetCompilationAsync();
