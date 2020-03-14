@@ -23,20 +23,19 @@ namespace DependencyFinder.UI.ViewModels
     public class ShellViewModel : Screen, IDisposable
     {
         public string SolutionsRoot { get; set; }
-        public ObservableCollection<SolutionViewModel> Solutions { get; set; } = new ObservableCollection<SolutionViewModel>();
-        public ObservableCollection<DocumentViewModel> OpenDocuments { get; set; } = new ObservableCollection<DocumentViewModel>();
+        public List<SolutionViewModel> Solutions { get; set; } = new List<SolutionViewModel>();
+        public ObservableCollection<SolutionViewModel> FilteredSolutions { get; set; } = new ObservableCollection<SolutionViewModel>();
 
+        public ObservableCollection<DocumentViewModel> OpenDocuments { get; set; } = new ObservableCollection<DocumentViewModel>();
         public ObservableCollection<Reference> FindReferencesResult { get; set; } = new ObservableCollection<Reference>();
         public string Filter { get; set; }
         public TreeViewItemViewModel SelectedSolutionItem { get; set; }
         public DocumentViewModel ActiveDocument { get; set; }
-
         public string SolutionsStatus { get; set; }
-
         public Reference SelectedSearchResult { get; set; }
 
-        private readonly ISolutionManager _solutionManager;
 
+        private readonly ISolutionManager _solutionManager;
         private readonly Notifier _notifier;
 
         public ShellViewModel(ISolutionManager solutionManager)
@@ -109,8 +108,9 @@ namespace DependencyFinder.UI.ViewModels
 
                 await Application.Current.Dispatcher.BeginInvoke((System.Action)(() =>
                 {
-                    var solutions = new ObservableCollection<SolutionViewModel>(list.OrderBy(s => s.Name));
-                    Solutions = solutions;
+                    Solutions = list;
+
+                    FillSolutionByFilter();
 
                     SolutionsStatus = $"Solutions loaded: {Solutions.Count} | Projects loaded: {_solutionManager.GetNumberOfCachedProjects()}";
                     _notifier.ShowInformation("Solution loaded");
@@ -123,6 +123,11 @@ namespace DependencyFinder.UI.ViewModels
                     _notifier.ShowError("Solution loading failed");
                 }));
             }
+        }
+
+        private void FillSolutionByFilter()
+        {
+            
         }
 
         public void OnFilterChanged()

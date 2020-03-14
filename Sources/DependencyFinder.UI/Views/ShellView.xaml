@@ -14,6 +14,7 @@
                      xmlns:templates="clr-namespace:DependencyFinder.UI.TemplateSelectors"
                      xmlns:e="http://schemas.microsoft.com/xaml/behaviors"
                      xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+                     xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
                      cal:Message.Attach="[Event Loaded] = [Action OnLoaded()]"
                      mc:Ignorable="d"
                      Title="ShellView" Height="1000" Width="1500">
@@ -56,13 +57,13 @@
             </Fluent:RibbonTabItem>
         </Fluent:Ribbon>
 
-        <xcad:DockingManager Grid.Row="1"
+        <avalondock:DockingManager Grid.Row="1"
                              AllowMixedOrientation="True"
                              BorderBrush="Black"
                              BorderThickness="1"
                              DocumentsSource="{Binding Path=OpenDocuments, Mode=TwoWay}"
                              ActiveContent="{Binding Path=ActiveDocument, Mode=TwoWay, Converter={StaticResource ActiveDocumentConverter}}">
-            <xcad:DockingManager.LayoutItemTemplateSelector>
+            <avalondock:DockingManager.LayoutItemTemplateSelector>
                 <templates:DocumentsTemplateSelector>
                     <templates:DocumentsTemplateSelector.ProjectTemplate>
                         <DataTemplate>
@@ -83,18 +84,18 @@
                         </DataTemplate>
                     </templates:DocumentsTemplateSelector.ProjectTemplate>
                 </templates:DocumentsTemplateSelector>
-            </xcad:DockingManager.LayoutItemTemplateSelector>
+            </avalondock:DockingManager.LayoutItemTemplateSelector>
 
-            <xcad:DockingManager.DocumentHeaderTemplate>
+            <avalondock:DockingManager.DocumentHeaderTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Content.Title, Mode=TwoWay}" Margin="3" FontSize="10pt" FontWeight="Bold" />
                 </DataTemplate>
-            </xcad:DockingManager.DocumentHeaderTemplate>
+            </avalondock:DockingManager.DocumentHeaderTemplate>
 
-            <xcad:LayoutRoot x:Name="_layoutRoot">
-                <xcad:LayoutPanel Orientation="Horizontal">
-                    <xcad:LayoutAnchorablePane DockWidth="300">
-                        <xcad:LayoutAnchorable ContentId="solutionTree"
+            <avalondock:LayoutRoot x:Name="_layoutRoot">
+                <avalondock:LayoutPanel Orientation="Horizontal">
+                    <avalondock:LayoutAnchorablePane DockWidth="300">
+                        <avalondock:LayoutAnchorable ContentId="solutionTree"
                                                Title="Solution Tree"
                                                CanHide="False"
                                                CanClose="False"
@@ -124,7 +125,7 @@
 
                                 <TreeView Grid.Row="1"
                                           Grid.Column="0"
-                                          ItemsSource="{Binding Solutions}"
+                                          ItemsSource="{Binding FilteredSolutions}"
                                           Background="#363636"
                                           ItemContainerStyle="{StaticResource TreeviewItemStyle}"
                                           cal:Message.Attach="[Event MouseDoubleClick] = [Action ProjectDoubleClick()]"
@@ -336,30 +337,30 @@
                                     </TreeView.Resources>
                                 </TreeView>
                             </Grid>
-                        </xcad:LayoutAnchorable>
-                    </xcad:LayoutAnchorablePane>
+                        </avalondock:LayoutAnchorable>
+                    </avalondock:LayoutAnchorablePane>
 
                     <!--Content for open documents-->
-                    <xcad:LayoutDocumentPaneGroup>
-                        <xcad:LayoutDocumentPane>
-                        </xcad:LayoutDocumentPane>
-                    </xcad:LayoutDocumentPaneGroup>
+                    <avalondock:LayoutDocumentPaneGroup>
+                        <avalondock:LayoutDocumentPane>
+                        </avalondock:LayoutDocumentPane>
+                    </avalondock:LayoutDocumentPaneGroup>
 
-                    <xcad:LayoutAnchorablePaneGroup DockWidth="300">
-                        <xcad:LayoutAnchorablePane>
-                            <xcad:LayoutAnchorable ContentId="properties" Title="Properties">
+                    <avalondock:LayoutAnchorablePaneGroup DockWidth="300">
+                        <avalondock:LayoutAnchorablePane>
+                            <avalondock:LayoutAnchorable ContentId="properties" Title="Properties">
                                 <xctk:PropertyGrid SelectedObject="{Binding SelectedSolutionItem}"
                                                    Foreground="Black"
                                                    IsReadOnly="True" />
-                            </xcad:LayoutAnchorable>
-                        </xcad:LayoutAnchorablePane>
-                    </xcad:LayoutAnchorablePaneGroup>
-                </xcad:LayoutPanel>
+                            </avalondock:LayoutAnchorable>
+                        </avalondock:LayoutAnchorablePane>
+                    </avalondock:LayoutAnchorablePaneGroup>
+                </avalondock:LayoutPanel>
 
-                <xcad:LayoutRoot.BottomSide>
-                    <xcad:LayoutAnchorSide>
-                        <xcad:LayoutAnchorGroup>
-                            <xcad:LayoutAnchorable Title="Find All References results"
+                <avalondock:LayoutRoot.BottomSide>
+                    <avalondock:LayoutAnchorSide>
+                        <avalondock:LayoutAnchorGroup>
+                            <avalondock:LayoutAnchorable Title="Find All References results"
                                                    ContentId="findResult"
                                                    >
                                 <ListView Margin="5" 
@@ -392,13 +393,13 @@
                                         </Style>
                                     </ListView.ItemContainerStyle>
                                 </ListView>
-                            </xcad:LayoutAnchorable>
-                        </xcad:LayoutAnchorGroup>
-                    </xcad:LayoutAnchorSide>
-                </xcad:LayoutRoot.BottomSide>
-            </xcad:LayoutRoot>
+                            </avalondock:LayoutAnchorable>
+                        </avalondock:LayoutAnchorGroup>
+                    </avalondock:LayoutAnchorSide>
+                </avalondock:LayoutRoot.BottomSide>
+            </avalondock:LayoutRoot>
 
-        </xcad:DockingManager>
+        </avalondock:DockingManager>
         <StatusBar Grid.Row="2"
                    Background="#363636"
                    >
