@@ -21,6 +21,7 @@
     <Fluent:RibbonWindow.Resources>
         <converters:BooleanToVisiblityConverter x:Key="boolToVisibilityConverter" />
         <converters:ActiveDocumentConverter x:Key="ActiveDocumentConverter" />
+        <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
     </Fluent:RibbonWindow.Resources>
     <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
@@ -115,6 +116,7 @@
                                        Grid.Row="0"
                                        HorizontalAlignment="Stretch"
                                        Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       IsEnabled="{Binding IsSearching, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InverseBooleanConverter}}"
                                        x:Name="FilterBox" />
                                     <Button Grid.Column="1"
                                             Background="#363636"
@@ -125,7 +127,7 @@
 
                                 <TreeView Grid.Row="1"
                                           Grid.Column="0"
-                                          ItemsSource="{Binding FilteredSolutions}"
+                                          ItemsSource="{Binding Solutions}"
                                           Background="#363636"
                                           ItemContainerStyle="{StaticResource TreeviewItemStyle}"
                                           cal:Message.Attach="[Event MouseDoubleClick] = [Action ProjectDoubleClick()]"

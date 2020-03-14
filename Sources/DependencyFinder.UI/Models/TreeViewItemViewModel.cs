@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 
 namespace DependencyFinder.UI.Models
 {
@@ -10,10 +11,7 @@ namespace DependencyFinder.UI.Models
     public class TreeViewItemViewModel : INotifyPropertyChanged
     {
         private static readonly TreeViewItemViewModel DummyChild = new TreeViewItemViewModel();
-
-        private readonly ObservableCollection<TreeViewItemViewModel> _children;
-        private readonly TreeViewItemViewModel _parent;
-
+        
         private bool _isExpanded;
         private bool _isSelected;
 
@@ -27,29 +25,32 @@ namespace DependencyFinder.UI.Models
 
         protected TreeViewItemViewModel(TreeViewItemViewModel parent, bool lazyLoadChildren)
         {
-            _parent = parent;
+            Parent = parent;
 
-            _children = new ObservableCollection<TreeViewItemViewModel>();
+            Children = new ObservableCollection<TreeViewItemViewModel>();
 
             if (lazyLoadChildren)
-                _children.Add(DummyChild);
+                Children.Add(DummyChild);
         }
 
         private TreeViewItemViewModel()
         {
         }
 
-        [Browsable(false)]
-        public ObservableCollection<TreeViewItemViewModel> Children
+        protected virtual void LoadChildren()
         {
-            get { return _children; }
         }
 
         [Browsable(false)]
-        public bool HasDummyChild
-        {
-            get { return this.Children.Count == 1 && this.Children[0] == DummyChild; }
-        }
+        public ObservableCollection<TreeViewItemViewModel> Children { get; }
+
+        [Browsable(false)]
+        public bool HasDummyChild => Children.Count == 1 && Children[0] == DummyChild;
+
+        [Browsable(false)]
+        public TreeViewItemViewModel Parent { get; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         [Browsable(false)]
         public bool IsExpanded
@@ -60,18 +61,18 @@ namespace DependencyFinder.UI.Models
                 if (value != _isExpanded)
                 {
                     _isExpanded = value;
-                    this.OnPropertyChanged("IsExpanded");
+                    OnPropertyChanged(nameof(IsExpanded));
                 }
 
                 // Expand all the way up to the root.
-                if (_isExpanded && _parent != null)
-                    _parent.IsExpanded = true;
+                if (_isExpanded && Parent != null)
+                    Parent.IsExpanded = true;
 
                 // Lazy load the child items, if necessary.
-                if (this.HasDummyChild)
+                if (HasDummyChild)
                 {
-                    this.Children.Remove(DummyChild);
-                    this.LoadChildren();
+                    Children.Remove(DummyChild);
+                    LoadChildren();
                 }
             }
         }
@@ -85,27 +86,18 @@ namespace DependencyFinder.UI.Models
                 if (value != _isSelected)
                 {
                     _isSelected = value;
-                    this.OnPropertyChanged("IsSelected");
+                    OnPropertyChanged(nameof(IsSelected));
                 }
             }
         }
 
-        protected virtual void LoadChildren()
-        {
-        }
+        //public TreeViewItemViewModel Filter(string filter)
+        //{
+        //    var children = Children.Select(child => child.Filter(filter));
 
-        [Browsable(false)]
-        public TreeViewItemViewModel Parent
-        {
-            get { return _parent; }
-        }
+        //    if(children != null || children.Count() > 0)
+        //}
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            if (this.PropertyChanged != null)
-                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        }
+        protected virtual void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

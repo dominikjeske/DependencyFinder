@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using ToastNotifications;
 using ToastNotifications.Lifetime;
 using ToastNotifications.Messages;
@@ -23,8 +24,9 @@ namespace DependencyFinder.UI.ViewModels
     public class ShellViewModel : Screen, IDisposable
     {
         public string SolutionsRoot { get; set; }
-        public List<SolutionViewModel> Solutions { get; set; } = new List<SolutionViewModel>();
-        public ObservableCollection<SolutionViewModel> FilteredSolutions { get; set; } = new ObservableCollection<SolutionViewModel>();
+        public ObservableCollection<SolutionViewModel> Solutions { get; set; } = new ObservableCollection<SolutionViewModel>();
+
+        public List<SolutionViewModel> SolutionsCache { get; set; } = new List<SolutionViewModel>();
 
         public ObservableCollection<DocumentViewModel> OpenDocuments { get; set; } = new ObservableCollection<DocumentViewModel>();
         public ObservableCollection<Reference> FindReferencesResult { get; set; } = new ObservableCollection<Reference>();
@@ -38,6 +40,9 @@ namespace DependencyFinder.UI.ViewModels
         private readonly ISolutionManager _solutionManager;
         private readonly Notifier _notifier;
 
+        public bool IsSearching { get; set; }
+        private DispatcherTimer _searchTimer = new DispatcherTimer();
+
         public ShellViewModel(ISolutionManager solutionManager)
         {
             //TODO fix after testing
@@ -45,6 +50,8 @@ namespace DependencyFinder.UI.ViewModels
             //SolutionsRoot = @"C:\Source\ArcheoFork\humbak_archeo";
 
             _solutionManager = solutionManager;
+            _searchTimer.Interval = TimeSpan.FromMilliseconds(500);
+            _searchTimer.Tick += SearchTimer_Tick;
 
             _notifier = new Notifier(cfg =>
             {
@@ -61,6 +68,8 @@ namespace DependencyFinder.UI.ViewModels
                 cfg.Dispatcher = Application.Current.Dispatcher;
             });
         }
+
+      
 
         public void OnLoaded()
         {
@@ -108,9 +117,9 @@ namespace DependencyFinder.UI.ViewModels
 
                 await Application.Current.Dispatcher.BeginInvoke((System.Action)(() =>
                 {
-                    Solutions = list;
+                    SolutionsCache = list;
 
-                    FillSolutionByFilter();
+                    Solutions = new ObservableCollection<SolutionViewModel>(SolutionsCache);
 
                     SolutionsStatus = $"Solutions loaded: {Solutions.Count} | Projects loaded: {_solutionManager.GetNumberOfCachedProjects()}";
                     _notifier.ShowInformation("Solution loaded");
@@ -125,16 +134,29 @@ namespace DependencyFinder.UI.ViewModels
             }
         }
 
-        private void FillSolutionByFilter()
-        {
-            
-        }
-
         public void OnFilterChanged()
         {
             if (Filter.Length < 3) return;
 
-            ValidateList(Solutions);
+            _searchTimer.Stop();
+            _searchTimer.Start();
+        }
+
+        private void SearchTimer_Tick(object sender, EventArgs e)
+        {
+            IsSearching = true;
+            _searchTimer.Stop();
+            _notifier.ShowInformation("Searching..");
+
+            Solutions = new ObservableCollection<SolutionViewModel>();
+
+            Task.Run(() => ValidateList(SolutionsCache)).ContinueWith(_ =>
+            {
+                Solutions = new ObservableCollection<SolutionViewModel>(SolutionsCache);
+
+                _notifier.ShowInformation("Search done");
+                IsSearching = false;
+            });
         }
 
         public void OnSelectedSolutionItemChanged()
