@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
+using System.Windows.Data;
 
 namespace DependencyFinder.UI.Models
 {
@@ -11,7 +11,7 @@ namespace DependencyFinder.UI.Models
     public class TreeViewItemViewModel : INotifyPropertyChanged
     {
         private static readonly TreeViewItemViewModel DummyChild = new TreeViewItemViewModel();
-        
+
         private bool _isExpanded;
         private bool _isSelected;
 
@@ -23,11 +23,19 @@ namespace DependencyFinder.UI.Models
         public string Name { get; set; }
         public string FullName { get; set; }
 
+        [Browsable(false)]
+        public ObservableCollection<TreeViewItemViewModel> Children { get; }
+
+        [Browsable(false)]
+        public ICollectionView ChildrenView { get; }
+
         protected TreeViewItemViewModel(TreeViewItemViewModel parent, bool lazyLoadChildren)
         {
             Parent = parent;
 
             Children = new ObservableCollection<TreeViewItemViewModel>();
+            ChildrenView = CollectionViewSource.GetDefaultView(Children);
+            ChildrenView.Filter = item => ((TreeViewItemViewModel)item).IsVisible;
 
             if (lazyLoadChildren)
                 Children.Add(DummyChild);
@@ -40,9 +48,6 @@ namespace DependencyFinder.UI.Models
         protected virtual void LoadChildren()
         {
         }
-
-        [Browsable(false)]
-        public ObservableCollection<TreeViewItemViewModel> Children { get; }
 
         [Browsable(false)]
         public bool HasDummyChild => Children.Count == 1 && Children[0] == DummyChild;
@@ -90,13 +95,6 @@ namespace DependencyFinder.UI.Models
                 }
             }
         }
-
-        //public TreeViewItemViewModel Filter(string filter)
-        //{
-        //    var children = Children.Select(child => child.Filter(filter));
-
-        //    if(children != null || children.Count() > 0)
-        //}
 
         protected virtual void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

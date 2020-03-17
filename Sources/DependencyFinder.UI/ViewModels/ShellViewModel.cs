@@ -48,8 +48,8 @@ namespace DependencyFinder.UI.ViewModels
         public ShellViewModel(ISolutionManager solutionManager)
         {
             //TODO fix after testing
-            //SolutionsRoot = Path.Combine((new DirectoryInfo(Directory.GetCurrentDirectory())).Parent.Parent.Parent.Parent.Parent.ToString(), "Test");
-            SolutionsRoot = @"C:\Source\ArcheoFork\humbak_archeo";
+            SolutionsRoot = Path.Combine((new DirectoryInfo(Directory.GetCurrentDirectory())).Parent.Parent.Parent.Parent.Parent.ToString(), "Test");
+            //SolutionsRoot = @"C:\Source\ArcheoFork\humbak_archeo";
 
             _solutionManager = solutionManager;
             _searchTimer.Interval = TimeSpan.FromMilliseconds(500);
@@ -78,7 +78,8 @@ namespace DependencyFinder.UI.ViewModels
             _notifier.ShowInformation("Start loading solutions");
             Solutions = GetLoadingView();
 
-            Task.Run(() => LoadSolutions());
+            LoadSolutions();
+            //Task.Run(() => LoadSolutions());
         }
 
         public override Task TryCloseAsync(bool? dialogResult = null)
@@ -149,23 +150,36 @@ namespace DependencyFinder.UI.ViewModels
             _searchTimer.Stop();
             _notifier.ShowInformation("Searching..");
 
-            Solutions = GetLoadingView();
+            //Solutions = GetLoadingView();
 
-            Task.Run(() => ValidateList(SolutionsCache)).ContinueWith(_ =>
-            {
-                GetFinalView();
 
-                _notifier.ShowInformation("Search done");
-                IsSearching = false;
-            });
+            ValidateList(SolutionsCache);
+            _notifier.ShowInformation("Search done");
+             IsSearching = false;
+             Solutions.Refresh();
+
+
+            //Task.Run(() => ValidateList(SolutionsCache)).ContinueWith(_ =>
+            //{
+            //    _notifier.ShowInformation("Search done");
+            //    IsSearching = false;
+            //    Solutions.Refresh();
+            //}, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void GetFinalView()
         {
             var source = CollectionViewSource.GetDefaultView(SolutionsCache);
-            source.Filter = item => ((TreeViewItemViewModel)item).IsVisible;
+            source.Filter = FilterItem;
             source.Refresh();
             Solutions = source;
+        }
+
+        private bool FilterItem(object item)
+        {
+            var treeViewItem = ((TreeViewItemViewModel)item);
+
+            return treeViewItem.IsVisible;
         }
 
         private ICollectionView GetLoadingView()
@@ -256,7 +270,7 @@ namespace DependencyFinder.UI.ViewModels
 
         public void ProjectDoubleClick()
         {
-            if (!SelectedSolutionItem.HasPreview) return;
+            if (SelectedSolutionItem == null || !SelectedSolutionItem.HasPreview) return;
 
             var alreadyOpenDocument = OpenDocuments.FirstOrDefault(d => d.AssociatedModel == SelectedSolutionItem);
 
@@ -395,6 +409,8 @@ namespace DependencyFinder.UI.ViewModels
             {
                 item.Parent.IsExpanded = true;
             }
+
+            item.ChildrenView?.Refresh();
 
             return item.IsVisible;
         }
