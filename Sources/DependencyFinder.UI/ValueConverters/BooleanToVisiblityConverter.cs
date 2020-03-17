@@ -9,7 +9,17 @@ namespace DependencyFinder.UI.ValueConverters
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            return (bool)value ? Visibility.Visible : Visibility.Collapsed;
+            try
+            {
+                return (bool)value ? Visibility.Visible : Visibility.Collapsed;
+            }
+            catch (Exception ee)
+            {
+
+                throw;
+            }
+
+            
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

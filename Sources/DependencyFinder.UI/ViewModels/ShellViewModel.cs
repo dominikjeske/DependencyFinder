@@ -7,12 +7,14 @@ using ICSharpCode.AvalonEdit.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Threading;
 using ToastNotifications;
 using ToastNotifications.Lifetime;
@@ -24,7 +26,7 @@ namespace DependencyFinder.UI.ViewModels
     public class ShellViewModel : Screen, IDisposable
     {
         public string SolutionsRoot { get; set; }
-        public ObservableCollection<SolutionViewModel> Solutions { get; set; } = new ObservableCollection<SolutionViewModel>();
+        public ICollectionView Solutions { get; set; }
 
         public List<SolutionViewModel> SolutionsCache { get; set; } = new List<SolutionViewModel>();
 
@@ -46,8 +48,8 @@ namespace DependencyFinder.UI.ViewModels
         public ShellViewModel(ISolutionManager solutionManager)
         {
             //TODO fix after testing
-            SolutionsRoot = Path.Combine((new DirectoryInfo(Directory.GetCurrentDirectory())).Parent.Parent.Parent.Parent.Parent.ToString(), "Test");
-            //SolutionsRoot = @"C:\Source\ArcheoFork\humbak_archeo";
+            //SolutionsRoot = Path.Combine((new DirectoryInfo(Directory.GetCurrentDirectory())).Parent.Parent.Parent.Parent.Parent.ToString(), "Test");
+            SolutionsRoot = @"C:\Source\ArcheoFork\humbak_archeo";
 
             _solutionManager = solutionManager;
             _searchTimer.Interval = TimeSpan.FromMilliseconds(500);
@@ -74,7 +76,7 @@ namespace DependencyFinder.UI.ViewModels
         public void OnLoaded()
         {
             _notifier.ShowInformation("Start loading solutions");
-            Solutions.Add(new SolutionViewModel("Loading...", _solutionManager));
+            Solutions = GetLoadingView();
 
             Task.Run(() => LoadSolutions());
         }
@@ -118,10 +120,9 @@ namespace DependencyFinder.UI.ViewModels
                 await Application.Current.Dispatcher.BeginInvoke((System.Action)(() =>
                 {
                     SolutionsCache = list;
-
-                    Solutions = new ObservableCollection<SolutionViewModel>(SolutionsCache);
-
-                    SolutionsStatus = $"Solutions loaded: {Solutions.Count} | Projects loaded: {_solutionManager.GetNumberOfCachedProjects()}";
+                    GetFinalView();
+                    
+                    SolutionsStatus = $"Solutions loaded: {SolutionsCache.Count} | Projects loaded: {_solutionManager.GetNumberOfCachedProjects()}";
                     _notifier.ShowInformation("Solution loaded");
                 }));
             }
@@ -148,20 +149,33 @@ namespace DependencyFinder.UI.ViewModels
             _searchTimer.Stop();
             _notifier.ShowInformation("Searching..");
 
-            Solutions = new ObservableCollection<SolutionViewModel>();
+            Solutions = GetLoadingView();
 
             Task.Run(() => ValidateList(SolutionsCache)).ContinueWith(_ =>
             {
-                Solutions = new ObservableCollection<SolutionViewModel>(SolutionsCache);
+                GetFinalView();
 
                 _notifier.ShowInformation("Search done");
                 IsSearching = false;
             });
         }
 
+        private void GetFinalView()
+        {
+            var source = CollectionViewSource.GetDefaultView(SolutionsCache);
+            source.Filter = item => ((TreeViewItemViewModel)item).IsVisible;
+            source.Refresh();
+            Solutions = source;
+        }
+
+        private ICollectionView GetLoadingView()
+        {
+            return CollectionViewSource.GetDefaultView(new List<TreeViewItemViewModel> { new SolutionViewModel("Loading...", _solutionManager) });
+        }
+
         public void OnSelectedSolutionItemChanged()
         {
-            if (!SelectedSolutionItem.HasPreview) return;
+            if (!(SelectedSolutionItem?.HasPreview ?? false)) return;
 
             var alreadyOpenDocument = OpenDocuments.FirstOrDefault(d => d.AssociatedModel == SelectedSolutionItem);
             if (alreadyOpenDocument != null)
@@ -194,7 +208,9 @@ namespace DependencyFinder.UI.ViewModels
 
         public void FilterClearClick()
         {
-            Filter = "";
+            //TODO
+            //Filter = "";
+            SearchTimer_Tick(null, null);
         }
 
         public void ExploreClick()
@@ -292,7 +308,8 @@ namespace DependencyFinder.UI.ViewModels
 
         private void ShowProject(string solutionPath, string projectName)
         {
-            var solution = Solutions.Single(x => x.FullName == solutionPath);
+            //TODO check if this is actual after changing to collectionView
+            var solution = SolutionsCache.Single(x => x.FullName == solutionPath);
             solution.IsExpanded = true;
 
             var project = solution.Children.FirstOrDefault(x => x.Name == projectName);

@@ -151,40 +151,39 @@ namespace DependencyFinder.Core
         {
             var tasks = projects.AsParallel().Select(project =>
             {
-                try
+                if (File.Exists(project.AbsolutePath))
                 {
-                    if (File.Exists(project.AbsolutePath))
+                    return _projectsCache.GetOrAdd(project.AbsolutePath, key => new AsyncLazy<ProjectDetails>(async () =>
                     {
-                        return _projectsCache.GetOrAdd(project.AbsolutePath, key => new AsyncLazy<ProjectDetails>(async () =>
-                        {
-                            var projectInfo = DotNetProject.Load(key);
-                            project.IsNetCore = projectInfo.Format == ProjectFormat.New;
-                            project.IsMultiTarget = projectInfo.IsMultiTarget;
-                            project.AssemblyInfo = projectInfo.GetAssemblyInfo();
-                            await ExtractNugetInfo(project, projectInfo);
-                            ExtractProjectReferences(project, projectInfo);
-                            ExtractTargets(project, projectInfo);
-                            ExtractDirectReferences(project, projectInfo);
-                            ExtractSourceCode(project);
+                        var projectInfo = DotNetProject.Load(key);
+                        project.IsNetCore = projectInfo.Format == ProjectFormat.New;
+                        project.IsMultiTarget = projectInfo.IsMultiTarget;
+                        project.AssemblyInfo = projectInfo.GetAssemblyInfo();
+                        await ExtractNugetInfo(project, projectInfo);
+                        ExtractProjectReferences(project, projectInfo);
+                        ExtractTargets(project, projectInfo);
+                        ExtractDirectReferences(project, projectInfo);
+                        ExtractSourceCode(project);
 
-                            return project;
-                        })).Task;
-                    }
-                }
-                //TODO
-                catch (InvalidDotNetProjectException ex)
-                {
-                }
-                catch (Exception ee)
-                {
+                        return project;
+                    })).Task;
                 }
 
                 return Task.FromResult(project);
             }).ToList();
 
-            var result = await Task.WhenAll(tasks);
+            try
+            {
+                var result = await Task.WhenAll(tasks);
+                return result;
+            }
+            catch (Exception ee)
+            {
 
-            return result;
+            }
+
+            return Enumerable.Empty<ProjectDetails>();
+
         }
 
         private static void ExtractDirectReferences(ProjectDetails project, DotNetProject projectInfo)

@@ -3,6 +3,7 @@ using DependencyFinder.Core;
 using DependencyFinder.UI.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -60,6 +61,12 @@ namespace DependencyFinder.UI
         protected override void OnStartup(object sender, StartupEventArgs e)
         {
             DisplayRootViewFor<ShellViewModel>();
+
+           // System.Diagnostics.PresentationTraceSources.DataBindingSource.Switch.Level = System.Diagnostics.SourceLevels.Critical;
+            //PresentationTraceSources.Refresh();
+            //PresentationTraceSources.DataBindingSource.Listeners.Add(new ConsoleTraceListener());
+            //PresentationTraceSources.DataBindingSource.Listeners.Add(new DebugTraceListener());
+            //PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Warning | SourceLevels.Error;
         }
 
         protected override object GetInstance(Type service, string key)
@@ -75,6 +82,18 @@ namespace DependencyFinder.UI
         protected override void BuildUp(object instance)
         {
             container.BuildUp(instance);
+        }
+    }
+
+    public class DebugTraceListener : TraceListener
+    {
+        public override void Write(string message)
+        {
+        }
+
+        public override void WriteLine(string message)
+        {
+            //Debugger.Break();
         }
     }
 }
