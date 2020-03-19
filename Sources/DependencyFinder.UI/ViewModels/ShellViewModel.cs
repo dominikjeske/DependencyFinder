@@ -7,14 +7,12 @@ using ICSharpCode.AvalonEdit.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Threading;
 using ToastNotifications;
 using ToastNotifications.Lifetime;
@@ -26,7 +24,7 @@ namespace DependencyFinder.UI.ViewModels
     public class ShellViewModel : Screen, IDisposable
     {
         public string SolutionsRoot { get; set; }
-        public ICollectionView Solutions { get; set; }
+        public IEnumerable<TreeViewItemViewModel> Solutions { get; set; } = new List<SolutionViewModel>();
 
         public List<SolutionViewModel> SolutionsCache { get; set; } = new List<SolutionViewModel>();
 
@@ -37,7 +35,6 @@ namespace DependencyFinder.UI.ViewModels
         public DocumentViewModel ActiveDocument { get; set; }
         public string SolutionsStatus { get; set; }
         public Reference SelectedSearchResult { get; set; }
-
 
         private readonly ISolutionManager _solutionManager;
         private readonly Notifier _notifier;
@@ -71,15 +68,11 @@ namespace DependencyFinder.UI.ViewModels
             });
         }
 
-      
-
         public void OnLoaded()
         {
             _notifier.ShowInformation("Start loading solutions");
-            Solutions = GetLoadingView();
 
-            LoadSolutions();
-            //Task.Run(() => LoadSolutions());
+            Task.Run(() => LoadSolutions());
         }
 
         public override Task TryCloseAsync(bool? dialogResult = null)
@@ -121,8 +114,8 @@ namespace DependencyFinder.UI.ViewModels
                 await Application.Current.Dispatcher.BeginInvoke((System.Action)(() =>
                 {
                     SolutionsCache = list;
-                    GetFinalView();
-                    
+                    Solutions = list;
+
                     SolutionsStatus = $"Solutions loaded: {SolutionsCache.Count} | Projects loaded: {_solutionManager.GetNumberOfCachedProjects()}";
                     _notifier.ShowInformation("Solution loaded");
                 }));
@@ -150,41 +143,12 @@ namespace DependencyFinder.UI.ViewModels
             _searchTimer.Stop();
             _notifier.ShowInformation("Searching..");
 
-            //Solutions = GetLoadingView();
-
-
-            ValidateList(SolutionsCache);
-            _notifier.ShowInformation("Search done");
-             IsSearching = false;
-             Solutions.Refresh();
-
-
-            //Task.Run(() => ValidateList(SolutionsCache)).ContinueWith(_ =>
-            //{
-            //    _notifier.ShowInformation("Search done");
-            //    IsSearching = false;
-            //    Solutions.Refresh();
-            //}, TaskScheduler.FromCurrentSynchronizationContext());
-        }
-
-        private void GetFinalView()
-        {
-            var source = CollectionViewSource.GetDefaultView(SolutionsCache);
-            source.Filter = FilterItem;
-            source.Refresh();
-            Solutions = source;
-        }
-
-        private bool FilterItem(object item)
-        {
-            var treeViewItem = ((TreeViewItemViewModel)item);
-
-            return treeViewItem.IsVisible;
-        }
-
-        private ICollectionView GetLoadingView()
-        {
-            return CollectionViewSource.GetDefaultView(new List<TreeViewItemViewModel> { new SolutionViewModel("Loading...", _solutionManager) });
+            Task.Run(() => ValidateList(SolutionsCache)).ContinueWith(solutions =>
+            {
+                _notifier.ShowInformation("Search done");
+                IsSearching = false;
+                Solutions = solutions.Result;
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         public void OnSelectedSolutionItemChanged()
@@ -222,9 +186,7 @@ namespace DependencyFinder.UI.ViewModels
 
         public void FilterClearClick()
         {
-            //TODO
-            //Filter = "";
-            SearchTimer_Tick(null, null);
+            Solutions = SolutionsCache;
         }
 
         public void ExploreClick()
@@ -379,40 +341,9 @@ namespace DependencyFinder.UI.ViewModels
             }
         }
 
-        private bool ValidateList(IEnumerable<TreeViewItemViewModel> list)
+        private IEnumerable<TreeViewItemViewModel> ValidateList(IEnumerable<TreeViewItemViewModel> list)
         {
-            //TODO check this
-            if (list == null) return false;
-
-            bool anyChildVisible = false;
-
-            foreach (var item in list)
-            {
-                if (ValidateItem(item))
-                {
-                    anyChildVisible = true;
-                }
-            }
-
-            return anyChildVisible;
-        }
-
-        private bool ValidateItem(TreeViewItemViewModel item)
-        {
-            var anyChildVisible = ValidateList(item.Children);
-
-            var shouldBeVisible = item.Name?.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) > -1;
-
-            item.IsVisible = shouldBeVisible || anyChildVisible;
-
-            if (item.IsVisible && item.Parent != null)
-            {
-                item.Parent.IsExpanded = true;
-            }
-
-            item.ChildrenView?.Refresh();
-
-            return item.IsVisible;
+            return list.Select(l => l.Filter(Filter)).Where(x => x != null);
         }
 
         public void Dispose()

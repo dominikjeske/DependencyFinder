@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows.Data;
+using System.Linq;
 
 namespace DependencyFinder.UI.Models
 {
@@ -15,27 +15,19 @@ namespace DependencyFinder.UI.Models
         private bool _isExpanded;
         private bool _isSelected;
 
-        [Browsable(false)]
-        public bool IsVisible { get; set; } = true;
-
         public bool HasPreview { get; set; } = true;
 
         public string Name { get; set; }
         public string FullName { get; set; }
 
         [Browsable(false)]
-        public ObservableCollection<TreeViewItemViewModel> Children { get; }
-
-        [Browsable(false)]
-        public ICollectionView ChildrenView { get; }
+        public ObservableCollection<TreeViewItemViewModel> Children { get; set; }
 
         protected TreeViewItemViewModel(TreeViewItemViewModel parent, bool lazyLoadChildren)
         {
             Parent = parent;
 
             Children = new ObservableCollection<TreeViewItemViewModel>();
-            ChildrenView = CollectionViewSource.GetDefaultView(Children);
-            ChildrenView.Filter = item => ((TreeViewItemViewModel)item).IsVisible;
 
             if (lazyLoadChildren)
                 Children.Add(DummyChild);
@@ -47,6 +39,26 @@ namespace DependencyFinder.UI.Models
 
         protected virtual void LoadChildren()
         {
+        }
+
+        public TreeViewItemViewModel Filter(string text)
+        {
+            var visible = Name?.IndexOf(text, System.StringComparison.InvariantCultureIgnoreCase) > -1;
+
+            var childrens = Children?.Select(x => x.Filter(text))
+                                    ?.Where(y => y != null)
+                                    ?.ToList();
+
+            if (visible || childrens?.Count > 0)
+            {
+                var clone = this.MemberwiseClone() as TreeViewItemViewModel;
+                clone.Children = new ObservableCollection<TreeViewItemViewModel>(childrens);
+                clone.IsExpanded = true;
+
+                return clone;
+            }
+
+            return null;
         }
 
         [Browsable(false)]

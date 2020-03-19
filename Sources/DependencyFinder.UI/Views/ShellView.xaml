@@ -161,7 +161,7 @@
                                         </HierarchicalDataTemplate>
 
                                         <HierarchicalDataTemplate  DataType="{x:Type models:ProjectViewModel}"
-                                               ItemsSource="{Binding ChildrenView}">
+                                               ItemsSource="{Binding Children}">
                                             <StackPanel Orientation="Horizontal" ToolTip="{Binding FullName}">
                                                 <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource ProjectIconBrush}" />
                                                 <controls:HighlightingTextBlock>
@@ -195,7 +195,6 @@
                                             <StackPanel Orientation="Horizontal" ToolTip="{Binding FullName}">
                                                 <Rectangle Width="16" Height="16" Margin="3,0" Fill="{StaticResource NugetIconBrush}" />
                                                 <controls:HighlightingTextBlock Style="{StaticResource SearchTextBlockStyle}" />
-                                                <CheckBox IsChecked="{Binding IsVisible, Mode=TwoWay}"></CheckBox>
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
 
