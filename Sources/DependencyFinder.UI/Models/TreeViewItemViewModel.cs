@@ -17,6 +17,7 @@ namespace DependencyFinder.UI.Models
 
         public bool HasPreview { get; set; } = true;
 
+        public bool CanBeFiltered { get; set; } = true;
         public string Name { get; set; }
         public string FullName { get; set; }
 
@@ -43,7 +44,7 @@ namespace DependencyFinder.UI.Models
 
         public TreeViewItemViewModel Filter(string text)
         {
-            var visible = Name?.IndexOf(text, System.StringComparison.InvariantCultureIgnoreCase) > -1;
+            var visible = Name?.IndexOf(text, System.StringComparison.InvariantCultureIgnoreCase) > -1 && CanBeFiltered;
 
             var childrens = Children?.Select(x => x.Filter(text))
                                     ?.Where(y => y != null)

@@ -1,6 +1,4 @@
 ﻿using DependencyFinder.Core.Models;
-using System.Collections.Generic;
-using System.IO;
 
 namespace DependencyFinder.UI.Models
 {
@@ -10,6 +8,7 @@ namespace DependencyFinder.UI.Models
         {
             RefreshName();
             HasPreview = false;
+            CanBeFiltered = false;
         }
 
         public void AddReference(ProjectDetails referencedProject)

@@ -9,6 +9,7 @@ namespace DependencyFinder.UI.Models
 
         public ReferencedViewModel(TreeViewItemViewModel parent, ProjectDetails referencedProject) : base(parent, false)
         {
+            CanBeFiltered = false;
             Name = $"{referencedProject.Name}";
             FullName = $"{referencedProject.AbsolutePath}";
             ReferencedProject = referencedProject;

@@ -57,12 +57,12 @@ namespace DependencyFinder.Core
         public async Task<IEnumerable<TypeDetails>> GetProjectTypes(string projectPath, string solutionPath)
         {
             IEnumerable<TypeDetails> typesList;
-            var projectName = Path.GetFileNameWithoutExtension(projectPath);
+            //var projectName = Path.GetFileNameWithoutExtension(projectPath);
 
             var solution = await OpenSolution(solutionPath);
 
             var types = solution.Projects
-                                .Where(x => x.Name == projectName)
+                                .Where(x => x.FilePath == projectPath)
                                 .SelectMany(project => project.Documents)
                                 .Select(document =>
                                     new
@@ -357,7 +357,7 @@ namespace DependencyFinder.Core
 
         private async IAsyncEnumerable<Reference> FindSymbol(ISymbol symbol, Solution solution, ProjectDetails pd)
         {
-            var project = solution.Projects.FirstOrDefault(p => p.Name == pd.Name);
+            var project = solution.Projects.FirstOrDefault(p => p.FilePath == pd.AbsolutePath);
             var compilation = await project.GetCompilationAsync();
             ISymbol searchedSymbol;
 
