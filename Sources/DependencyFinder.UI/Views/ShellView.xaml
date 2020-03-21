@@ -16,19 +16,26 @@
                      xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
                      xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
                      cal:Message.Attach="[Event Loaded] = [Action OnLoaded()]"
+                     xmlns:notyfications="clr-namespace:Notifications.Wpf.Core.Controls;assembly=Notifications.Wpf.Core"
                      mc:Ignorable="d"
-                     Title="ShellView" Height="1000" Width="1500">
+                     Title="ShellView" 
+                     Height="1000" 
+                     Width="1500">
     <Fluent:RibbonWindow.Resources>
         <converters:BooleanToVisiblityConverter x:Key="boolToVisibilityConverter" />
         <converters:ActiveDocumentConverter x:Key="ActiveDocumentConverter" />
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
     </Fluent:RibbonWindow.Resources>
+   
     <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="22"/>
         </Grid.RowDefinitions>
+
+        
+
 
         <Fluent:Ribbon Grid.Row="0" SelectedTabIndex="{Binding RibbonSelectedTabIndex, Mode=TwoWay}">
             <Fluent:Ribbon.ContextualGroups>
@@ -469,6 +476,7 @@
             </avalondock:LayoutRoot>
 
         </avalondock:DockingManager>
+        
         <StatusBar Grid.Row="2"
                    Background="#363636"
                    >
@@ -476,7 +484,15 @@
                 <TextBlock Text="{Binding SolutionsStatus}" Foreground="White" />
             </StatusBarItem>
         </StatusBar>
-        
+
+        <notyfications:NotificationArea x:Name="WindowArea" 
+                                        Position="TopRight"  
+                                        MaxItems="3" 
+                                        Grid.Row="0" 
+                                        Grid.RowSpan="3"
+                                        Margin="10, 120, 10, 10"
+                                        />
+
     </Grid>
    
 </Fluent:RibbonWindow>

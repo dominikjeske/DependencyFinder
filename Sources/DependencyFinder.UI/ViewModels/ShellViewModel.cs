@@ -4,6 +4,7 @@ using DependencyFinder.UI.Models;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Utils;
+using Notifications.Wpf.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,17 +15,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using ToastNotifications;
-using ToastNotifications.Lifetime;
-using ToastNotifications.Messages;
-using ToastNotifications.Position;
 
 namespace DependencyFinder.UI.ViewModels
 {
-    public class ShellViewModel : Screen, IDisposable
+    public class ShellViewModel : Screen
     {
         private readonly ISolutionManager _solutionManager;
-        private readonly Notifier _notifier;
+        private readonly NotificationManager _notificationManager = new NotificationManager();
         private readonly DispatcherTimer _searchTimer = new DispatcherTimer();
 
         public string SolutionsRoot { get; set; }
@@ -53,43 +50,28 @@ namespace DependencyFinder.UI.ViewModels
             _solutionManager = solutionManager;
             _searchTimer.Interval = TimeSpan.FromMilliseconds(500);
             _searchTimer.Tick += SearchTimer_Tick;
-
-            _notifier = new Notifier(cfg =>
-            {
-                cfg.PositionProvider = new WindowPositionProvider(
-                    parentWindow: Application.Current.MainWindow,
-                    corner: Corner.TopRight,
-                    offsetX: 10,
-                    offsetY: 50);
-
-                cfg.LifetimeSupervisor = new TimeAndCountBasedLifetimeSupervisor(
-                    notificationLifetime: TimeSpan.FromSeconds(3),
-                    maximumNotificationCount: MaximumNotificationCount.FromCount(5));
-
-                cfg.Dispatcher = Application.Current.Dispatcher;
-            });
         }
 
         public void OnLoaded()
         {
-            _notifier.ShowInformation("Start loading solutions");
+            ShowToastInfo("Start loading solutions");
             SolutionTreeFilter.FilterChanged += SolutionTreeFilter_FilterChanged;
 
-            Task.Run(() => LoadSolutions());
+            Task.Run(LoadSolutions);
         }
 
-       
-
-        public override Task TryCloseAsync(bool? dialogResult = null)
+        private async void ShowToastInfo(string text)
         {
-            Dispose();
+            var content = new NotificationContent { Title = "", Message = text, Type = NotificationType.Information };
 
-            return base.TryCloseAsync(dialogResult);
+            await _notificationManager.ShowAsync(content, "WindowArea");
         }
 
-        public void Dispose()
+        private async void ShowToastError(string text)
         {
-            _notifier.Dispose();
+            var content = new NotificationContent { Title = "", Message = text, Type = NotificationType.Error };
+
+            await _notificationManager.ShowAsync(content, "WindowArea");
         }
 
         private async Task LoadSolutions()
@@ -127,19 +109,16 @@ namespace DependencyFinder.UI.ViewModels
                     Solutions = SolutionsCache;
 
                     SolutionsStatus = $"Solutions loaded: {SolutionsCache.Count} | Projects loaded: {_solutionManager.GetNumberOfCachedProjects()}";
-                    _notifier.ShowInformation("Solution loaded");
+                    ShowToastInfo("Solution loaded");
                 }));
             }
             catch (Exception ee)
             {
-                await Application.Current.Dispatcher.BeginInvoke((System.Action)(() =>
-                {
-                    _notifier.ShowError("Solution loading failed");
-                }));
+                await Application.Current.Dispatcher.BeginInvoke((System.Action)(() => ShowToastError("Solution loading failed")));
             }
         }
 
-        #endregion
+        #endregion Init
 
         #region Ribbon
 
@@ -213,8 +192,6 @@ namespace DependencyFinder.UI.ViewModels
             SelectedSolutionItem = solution.Children.FirstOrDefault(x => x.Name == projectName);
         }
 
-
-
         public bool CanGoToProjectClick => SelectedSolutionItem is ReferencedViewModel
                                        || SelectedSolutionItem is ProjectRefViewModel
                                        || SelectedSolutionItem is NugetReferenceViewModel;
@@ -222,6 +199,7 @@ namespace DependencyFinder.UI.ViewModels
         #endregion Ribbon
 
         #region Search
+
         private void SolutionTreeFilter_FilterChanged()
         {
             StartSearch();
@@ -237,7 +215,7 @@ namespace DependencyFinder.UI.ViewModels
             Filter = "";
             Solutions = SolutionsCache;
 
-            foreach(var solution in Solutions)
+            foreach (var solution in Solutions)
             {
                 solution.CollapseAll();
             }
@@ -260,11 +238,11 @@ namespace DependencyFinder.UI.ViewModels
         {
             IsSearching = true;
             _searchTimer.Stop();
-            _notifier.ShowInformation("Searching..");
+            ShowToastInfo("Searching..");
 
             Task.Run(() => ValidateList(SolutionsCache)).ContinueWith(solutions =>
             {
-                _notifier.ShowInformation("Search done");
+                ShowToastInfo("Search done");
                 IsSearching = false;
                 Solutions = solutions.Result;
             }, TaskScheduler.FromCurrentSynchronizationContext());
@@ -277,7 +255,6 @@ namespace DependencyFinder.UI.ViewModels
 
             return list.Select(l => l.Filter(Filter, SolutionTreeFilter)).Where(x => x != null);
         }
-
 
         #endregion Search
 
@@ -386,6 +363,7 @@ namespace DependencyFinder.UI.ViewModels
         #endregion Solution Tree
 
         #region Find References
+
         public void SearchResultDoubleClick()
         {
             var document = OpenFile(null, SelectedSearchResult.FilePath);
@@ -396,6 +374,7 @@ namespace DependencyFinder.UI.ViewModels
             OpenDocuments.Add(document);
             ActiveDocument = document;
         }
+
         #endregion Find References
     }
 }
