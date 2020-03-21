@@ -16,20 +16,20 @@
                      cal:Message.Attach="[Event Loaded] = [Action OnLoaded()]"
                      xmlns:notyfications="clr-namespace:Notifications.Wpf.Core.Controls;assembly=Notifications.Wpf.Core"
                      mc:Ignorable="d"
-                     Title="ShellView" 
-                     Height="1000" 
+                     Title="ShellView"
+                     Height="1000"
                      Width="1500">
     <Fluent:RibbonWindow.Resources>
         <converters:BooleanToVisiblityConverter x:Key="boolToVisibilityConverter" />
         <converters:ActiveDocumentConverter x:Key="ActiveDocumentConverter" />
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
     </Fluent:RibbonWindow.Resources>
-   
+
     <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="22"/>
+            <RowDefinition Height="22" />
         </Grid.RowDefinitions>
 
         <Fluent:Ribbon Grid.Row="0" SelectedTabIndex="{Binding RibbonSelectedTabIndex, Mode=TwoWay}">
@@ -42,9 +42,8 @@
                                                  Header="Context"
                                                  Focusable="False"
                                                  Visibility="{Binding ElementName=FilterBox, Path=IsFocused, Converter={StaticResource boolToVisibilityConverter}}" />
-              
             </Fluent:Ribbon.ContextualGroups>
-            
+
             <Fluent:RibbonTabItem Header="Home">
                 <Fluent:RibbonGroupBox Header="Main">
                     <Fluent:Button Header="Solutions location"
@@ -77,14 +76,13 @@
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
 
-            <Fluent:RibbonTabItem Header="Search Settings" 
+            <Fluent:RibbonTabItem Header="Search Settings"
                                   Group="{Binding ElementName=searchContextTab, Mode=OneWay}"
                                   BorderBrush="#FF9D00"
                                   Background="#FF9D00"
                                   Foreground="#C45300"
                                   Focusable="False"
-                                  FocusManager.IsFocusScope="True"
-                                  >
+                                  FocusManager.IsFocusScope="True">
                 <Fluent:RibbonGroupBox Header="Filter by"
                                        IsLauncherVisible="False"
                                        IsSeparatorVisible="False">
@@ -106,6 +104,10 @@
                              BorderThickness="1"
                              DocumentsSource="{Binding Path=OpenDocuments, Mode=TwoWay}"
                              ActiveContent="{Binding Path=ActiveDocument, Mode=TwoWay, Converter={StaticResource ActiveDocumentConverter}}">
+            <e:Interaction.Behaviors>
+                <behaviors:LayoutAnchorableBehavior IsPanelActive="{Binding IsFindAllReferencesVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    Panel="{Binding ElementName=BottomPanel}"/>
+            </e:Interaction.Behaviors>
             <avalondock:DockingManager.LayoutItemTemplateSelector>
                 <templates:DocumentsTemplateSelector>
                     <templates:DocumentsTemplateSelector.ProjectTemplate>
@@ -115,15 +117,14 @@
                                                  FontFamily="Consolas"
                                                  ShowLineNumbers="True"
                                                  FontSize="10pt"
-                                                 SelectionLength="{Binding SelectionLength, 
-                                                                    Mode=TwoWay, 
-                                                                    NotifyOnSourceUpdated=True, 
-                                                                    NotifyOnTargetUpdated=True}" 
-                                                 SelectionStart="{Binding SelectionStart, 
-                                                                    Mode=TwoWay, 
-                                                                    NotifyOnSourceUpdated=True, 
+                                                 SelectionLength="{Binding SelectionLength,
+                                                                    Mode=TwoWay,
+                                                                    NotifyOnSourceUpdated=True,
                                                                     NotifyOnTargetUpdated=True}"
-                                                   />
+                                                 SelectionStart="{Binding SelectionStart,
+                                                                    Mode=TwoWay,
+                                                                    NotifyOnSourceUpdated=True,
+                                                                    NotifyOnTargetUpdated=True}" />
                         </DataTemplate>
                     </templates:DocumentsTemplateSelector.ProjectTemplate>
                 </templates:DocumentsTemplateSelector>
@@ -160,26 +161,24 @@
                                        Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                        IsEnabled="{Binding IsSearching, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InverseBooleanConverter}}"
                                        cal:Message.Attach="[Event GotFocus] = [Action SearchFilterGetFocus()]"
-                                       x:Name="FilterBox"
-                                                           />
+                                       x:Name="FilterBox" />
                                     <Button Grid.Column="1"
                                             Background="#363636"
                                             Foreground="White"
                                             Content="X"
                                             cal:Message.Attach="[Event Click] = [Action FilterClearClick()]" />
                                 </Grid>
-  
+
                                 <TreeView Grid.Row="1"
                                           Grid.Column="0"
                                           ItemsSource="{Binding Solutions}"
                                           Background="#363636"
-                                          
+
                                           cal:Message.Attach="[Event MouseDoubleClick] = [Action ProjectDoubleClick()]"
                                           Padding="0, 10, 0, 0"
                                           VirtualizingStackPanel.IsVirtualizing="True"
                                           VirtualizingStackPanel.VirtualizationMode="Recycling"
-                                          ScrollViewer.IsDeferredScrollingEnabled="False"
-                                          >
+                                          ScrollViewer.IsDeferredScrollingEnabled="False">
                                     <e:Interaction.Behaviors>
                                         <behaviors:BindableSelectedItemBehavior SelectedItem="{Binding SelectedSolutionItem, Mode=TwoWay}" />
                                     </e:Interaction.Behaviors>
@@ -241,7 +240,6 @@
                                                 <controls:HighlightingTextBlock Style="{StaticResource SearchTextBlockStyle}" />
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
-                                        
 
                                         <HierarchicalDataTemplate  DataType="{x:Type models:NugetViewModel}"
                                                ItemsSource="{Binding Children}">
@@ -415,6 +413,7 @@
 
                     <avalondock:LayoutAnchorablePaneGroup DockWidth="300">
                         <avalondock:LayoutAnchorablePane>
+
                             <avalondock:LayoutAnchorable ContentId="properties" Title="Properties">
                                 <xctk:PropertyGrid SelectedObject="{Binding SelectedSolutionItem}"
                                                    Foreground="Black"
@@ -428,15 +427,20 @@
                     <avalondock:LayoutAnchorSide>
                         <avalondock:LayoutAnchorGroup>
                             <avalondock:LayoutAnchorable Title="Find All References results"
-                                                   ContentId="findResult"
-                                                   >
-                                <ListView Margin="5" 
+                                                         ContentId="findResult"
+                                                         CanClose="False"
+                                                         CanHide="False"
+                                                         AutoHideHeight="300"
+                                                         AutoHideMinHeight="200"
+                                                         FloatingHeight="300"
+                                                         x:Name="BottomPanel"
+                                                         >
+                                <ListView Margin="5"
                                           ItemsSource="{Binding FindReferencesResult}"
                                           Background="#363636"
                                           Foreground="White"
                                           SelectedItem="{Binding SelectedSearchResult}"
-                                          cal:Message.Attach="[Event MouseDoubleClick] = [Action SearchResultDoubleClick()]"
-                                          >
+                                          cal:Message.Attach="[Event MouseDoubleClick] = [Action SearchResultDoubleClick()]">
                                     <ListView.View>
                                         <GridView>
                                             <GridViewColumn Header="Solution" Width="100" DisplayMemberBinding="{Binding SolutionName}" />
@@ -465,25 +469,20 @@
                     </avalondock:LayoutAnchorSide>
                 </avalondock:LayoutRoot.BottomSide>
             </avalondock:LayoutRoot>
-
         </avalondock:DockingManager>
-        
+
         <StatusBar Grid.Row="2"
-                   Background="#363636"
-                   >
+                   Background="#363636">
             <StatusBarItem>
                 <TextBlock Text="{Binding SolutionsStatus}" Foreground="White" />
             </StatusBarItem>
         </StatusBar>
 
-        <notyfications:NotificationArea x:Name="WindowArea" 
-                                        Position="TopRight"  
-                                        MaxItems="3" 
-                                        Grid.Row="0" 
+        <notyfications:NotificationArea x:Name="WindowArea"
+                                        Position="TopRight"
+                                        MaxItems="3"
+                                        Grid.Row="0"
                                         Grid.RowSpan="3"
-                                        Margin="10, 120, 10, 10"
-                                        />
-
+                                        Margin="10, 120, 10, 10" />
     </Grid>
-   
 </Fluent:RibbonWindow>

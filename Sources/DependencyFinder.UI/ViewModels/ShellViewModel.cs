@@ -1,5 +1,4 @@
-﻿using Caliburn.Micro;
-using DependencyFinder.Core;
+﻿using DependencyFinder.Core;
 using DependencyFinder.UI.Models;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Highlighting;
@@ -13,8 +12,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Threading;
 
 namespace DependencyFinder.UI.ViewModels
@@ -24,7 +21,6 @@ namespace DependencyFinder.UI.ViewModels
         private readonly ISolutionManager _solutionManager;
         private readonly NotificationManager _notificationManager = new NotificationManager();
         private readonly DispatcherTimer _searchTimer = new DispatcherTimer();
-        private readonly AppSettings _appSettings;
 
         public string SolutionsRoot { get; set; }
         public string Filter { get; set; }
@@ -33,6 +29,7 @@ namespace DependencyFinder.UI.ViewModels
         public string SolutionsStatus { get; set; }
         public Reference SelectedSearchResult { get; set; }
         public bool IsSearching { get; set; }
+        public bool IsFindAllReferencesVisible { get; set; }
         public int RibbonSelectedTabIndex { get; set; }
         public SolutionFilterModel SolutionTreeFilter { get; set; } = new SolutionFilterModel();
 
@@ -65,7 +62,6 @@ namespace DependencyFinder.UI.ViewModels
             _searchTimer.Interval = TimeSpan.FromMilliseconds(500);
             _searchTimer.Tick += SearchTimer_Tick;
             SolutionTreeFilter.FilterChanged += SolutionTreeFilter_FilterChanged;
-            _appSettings = appSettings;
         }
 
         public void OnLoaded()
@@ -175,6 +171,8 @@ namespace DependencyFinder.UI.ViewModels
 
         public async Task FindClick()
         {
+            ShowToastInfo("Searching for references");
+
             FindReferencesResult.Clear();
 
             if (SelectedSolutionItem is TypeViewModel type)
@@ -195,6 +193,9 @@ namespace DependencyFinder.UI.ViewModels
                     FindReferencesResult.Add(reference);
                 }
             }
+
+            ShowToastInfo("Searching finish");
+            IsFindAllReferencesVisible = true;
         }
 
         public bool CanFindClick => SelectedSolutionItem is TypeViewModel || SelectedSolutionItem is MemberViewModel;
@@ -286,10 +287,7 @@ namespace DependencyFinder.UI.ViewModels
 
         private IEnumerable<TreeViewItemViewModel> ValidateList(IEnumerable<TreeViewItemViewModel> list)
         {
-            //TODO change after tests
-            //return list.AsParallel().Select(l => l.Filter(Filter, SolutionTreeFilter)).Where(x => x != null);
-
-            return list.Select(l => l.Filter(Filter, SolutionTreeFilter)).Where(x => x != null);
+            return list.AsParallel().Select(l => l.Filter(Filter, SolutionTreeFilter)).Where(x => x != null);
         }
 
         #endregion Search
