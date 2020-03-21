@@ -14,15 +14,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Threading;
 
 namespace DependencyFinder.UI.ViewModels
 {
-    public class ShellViewModel : Screen
+    public class ShellViewModel : Caliburn.Micro.Screen
     {
         private readonly ISolutionManager _solutionManager;
         private readonly NotificationManager _notificationManager = new NotificationManager();
         private readonly DispatcherTimer _searchTimer = new DispatcherTimer();
+        private readonly AppSettings _appSettings;
 
         public string SolutionsRoot { get; set; }
         public string Filter { get; set; }
@@ -41,21 +43,39 @@ namespace DependencyFinder.UI.ViewModels
 
         #region Init
 
-        public ShellViewModel(ISolutionManager solutionManager)
+        public ShellViewModel(ISolutionManager solutionManager, AppSettings appSettings)
         {
-            //TODO fix after testing
-            SolutionsRoot = Path.Combine((new DirectoryInfo(Directory.GetCurrentDirectory())).Parent.Parent.Parent.Parent.Parent.ToString(), "Test");
-            //SolutionsRoot = @"C:\Source\ArcheoFork\humbak_archeo";
+            if (Debugger.IsAttached)
+            {
+                SolutionsRoot = Path.Combine((new DirectoryInfo(Directory.GetCurrentDirectory())).Parent.Parent.Parent.Parent.Parent.ToString(), "Test");
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(appSettings.SolutionsLocation) && Directory.Exists(appSettings.SolutionsLocation))
+                {
+                    SolutionsRoot = appSettings.SolutionsLocation;
+                }
+                else
+                {
+                    OpenSolutionFolderPicker();
+                }
+            }
 
             _solutionManager = solutionManager;
             _searchTimer.Interval = TimeSpan.FromMilliseconds(500);
             _searchTimer.Tick += SearchTimer_Tick;
+            SolutionTreeFilter.FilterChanged += SolutionTreeFilter_FilterChanged;
+            _appSettings = appSettings;
         }
 
         public void OnLoaded()
         {
+            StartLoadingSolutions();
+        }
+
+        private void StartLoadingSolutions()
+        {
             ShowToastInfo("Start loading solutions");
-            SolutionTreeFilter.FilterChanged += SolutionTreeFilter_FilterChanged;
 
             Task.Run(LoadSolutions);
         }
@@ -103,24 +123,40 @@ namespace DependencyFinder.UI.ViewModels
                     }
                 }
 
-                await Application.Current.Dispatcher.BeginInvoke((System.Action)(() =>
+                await System.Windows.Application.Current.Dispatcher.BeginInvoke((System.Action)(() =>
                 {
                     SolutionsCache = list.OrderBy(x => x.Name).ToList();
                     Solutions = SolutionsCache;
 
-                    SolutionsStatus = $"Solutions loaded: {SolutionsCache.Count} | Projects loaded: {_solutionManager.GetNumberOfCachedProjects()}";
+                    SolutionsStatus = $"Solutions: {SolutionsCache.Count} | Projects: {_solutionManager.GetNumberOfCachedProjects()} | Location: {SolutionsRoot}";
                     ShowToastInfo("Solution loaded");
                 }));
             }
             catch (Exception ee)
             {
-                await Application.Current.Dispatcher.BeginInvoke((System.Action)(() => ShowToastError("Solution loading failed")));
+                await System.Windows.Application.Current.Dispatcher.BeginInvoke((System.Action)(() => ShowToastError("Solution loading failed")));
             }
         }
 
         #endregion Init
 
         #region Ribbon
+
+        public void LocationClick()
+        {
+            OpenSolutionFolderPicker();
+        }
+
+        private void OpenSolutionFolderPicker()
+        {
+            using var fbd = new System.Windows.Forms.FolderBrowserDialog();
+            var result = fbd.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+            {
+                SolutionsRoot = fbd.SelectedPath;
+                StartLoadingSolutions();
+            }
+        }
 
         public void ExploreClick()
         {

@@ -10,10 +10,8 @@
                      xmlns:behaviors="clr-namespace:DependencyFinder.UI.Behaviors"
                      xmlns:cal="http://www.caliburnproject.org"
                      xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-                     xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
                      xmlns:templates="clr-namespace:DependencyFinder.UI.TemplateSelectors"
                      xmlns:e="http://schemas.microsoft.com/xaml/behaviors"
-                     xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
                      xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
                      cal:Message.Attach="[Event Loaded] = [Action OnLoaded()]"
                      xmlns:notyfications="clr-namespace:Notifications.Wpf.Core.Controls;assembly=Notifications.Wpf.Core"
@@ -34,20 +32,8 @@
             <RowDefinition Height="22"/>
         </Grid.RowDefinitions>
 
-        
-
-
         <Fluent:Ribbon Grid.Row="0" SelectedTabIndex="{Binding RibbonSelectedTabIndex, Mode=TwoWay}">
             <Fluent:Ribbon.ContextualGroups>
-                <!--<Fluent:RibbonContextualTabGroup x:Name="tabGroup1"
-                                                 BorderBrush="{DynamicResource Fluent.Ribbon.Brushes.AccentBaseColorBrush}"
-                                                 Background="{DynamicResource Fluent.Ribbon.Brushes.AccentBaseColorBrush}"
-                                                 Foreground="{DynamicResource BlackBrush}"
-                                                 TabItemSelectedForeground="{DynamicResource Fluent.Ribbon.Brushes.RibbonTabItem.Foreground}"
-                                                 TabItemMouseOverForeground="Red"
-                                                 TabItemSelectedMouseOverForeground="OrangeRed"
-                                                 Header="FIRST"
-                                                 Visibility="Visible" />-->
 
                 <Fluent:RibbonContextualTabGroup x:Name="searchContextTab"
                                                  BorderBrush="#FF9D00"
@@ -56,13 +42,18 @@
                                                  Header="Context"
                                                  Focusable="False"
                                                  Visibility="{Binding ElementName=FilterBox, Path=IsFocused, Converter={StaticResource boolToVisibilityConverter}}" />
-
               
             </Fluent:Ribbon.ContextualGroups>
             
-            
             <Fluent:RibbonTabItem Header="Home">
                 <Fluent:RibbonGroupBox Header="Main">
+                    <Fluent:Button Header="Solutions location"
+                                   Icon="{DynamicResource FolderImage}"
+                                   LargeIcon="{DynamicResource FolderImage}"
+                                   MinWidth="60"
+                                   cal:Message.Attach="[Event Click] = [Action LocationClick()]" />
+                </Fluent:RibbonGroupBox>
+                <Fluent:RibbonGroupBox Header="Actions">
                     <Fluent:Button Header="Explore"
                                    Icon="{DynamicResource FolderImage}"
                                    LargeIcon="{DynamicResource FolderImage}"

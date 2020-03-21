@@ -1,9 +1,10 @@
 ﻿using Caliburn.Micro;
 using DependencyFinder.Core;
 using DependencyFinder.UI.ViewModels;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -29,6 +30,11 @@ namespace DependencyFinder.UI
             container.Singleton<ISolutionManager, SolutionManager>();
 
             container.PerRequest<ShellViewModel>();
+
+            var configuration = GetConfiguration();
+            var appSettings = new AppSettings();
+            configuration.GetSection("AppSettings").Bind(appSettings);
+            container.RegisterInstance(typeof(AppSettings), "", appSettings);
         }
 
         private static IEnumerable<DependencyObject> FluentRibbonChildResolver(Fluent.Ribbon ribbon)
@@ -46,7 +52,6 @@ namespace DependencyFinder.UI
         protected override void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             MessageBox.Show(e.ToString());
-
             e.Handled = true;
         }
 
@@ -58,15 +63,18 @@ namespace DependencyFinder.UI
             base.OnExit(sender, e);
         }
 
+        private static IConfigurationRoot GetConfiguration()
+        {
+            var builder = new ConfigurationBuilder()
+                            .SetBasePath(Directory.GetCurrentDirectory())
+                            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            return builder.Build();
+        }
+
         protected override void OnStartup(object sender, StartupEventArgs e)
         {
             DisplayRootViewFor<ShellViewModel>();
-
-           // System.Diagnostics.PresentationTraceSources.DataBindingSource.Switch.Level = System.Diagnostics.SourceLevels.Critical;
-            //PresentationTraceSources.Refresh();
-            //PresentationTraceSources.DataBindingSource.Listeners.Add(new ConsoleTraceListener());
-            //PresentationTraceSources.DataBindingSource.Listeners.Add(new DebugTraceListener());
-            //PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Warning | SourceLevels.Error;
         }
 
         protected override object GetInstance(Type service, string key)
@@ -85,15 +93,8 @@ namespace DependencyFinder.UI
         }
     }
 
-    public class DebugTraceListener : TraceListener
+    public class AppSettings
     {
-        public override void Write(string message)
-        {
-        }
-
-        public override void WriteLine(string message)
-        {
-            //Debugger.Break();
-        }
+        public string SolutionsLocation { get; set; }
     }
 }
