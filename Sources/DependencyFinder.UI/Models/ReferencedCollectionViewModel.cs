@@ -8,7 +8,6 @@ namespace DependencyFinder.UI.Models
         {
             RefreshName();
             HasPreview = false;
-            CanBeFiltered = false;
         }
 
         public void AddReference(ProjectDetails referencedProject)

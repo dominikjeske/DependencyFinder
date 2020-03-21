@@ -13,7 +13,7 @@ namespace DependencyFinder.UI.Models
 
             foreach (var project in projects)
             {
-                var pvm = new ProjectRefViewModel(project, this, false);
+                var pvm = new ProjectDirectRefViewModel(project, this, false);
 
                 Children.Add(pvm);
             }

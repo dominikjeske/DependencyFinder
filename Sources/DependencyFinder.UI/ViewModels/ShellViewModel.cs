@@ -23,24 +23,26 @@ namespace DependencyFinder.UI.ViewModels
 {
     public class ShellViewModel : Screen, IDisposable
     {
+        private readonly ISolutionManager _solutionManager;
+        private readonly Notifier _notifier;
+        private readonly DispatcherTimer _searchTimer = new DispatcherTimer();
+
         public string SolutionsRoot { get; set; }
-        public IEnumerable<TreeViewItemViewModel> Solutions { get; set; } = new List<SolutionViewModel>();
-
-        public List<SolutionViewModel> SolutionsCache { get; set; } = new List<SolutionViewModel>();
-
-        public ObservableCollection<DocumentViewModel> OpenDocuments { get; set; } = new ObservableCollection<DocumentViewModel>();
-        public ObservableCollection<Reference> FindReferencesResult { get; set; } = new ObservableCollection<Reference>();
         public string Filter { get; set; }
         public TreeViewItemViewModel SelectedSolutionItem { get; set; }
         public DocumentViewModel ActiveDocument { get; set; }
         public string SolutionsStatus { get; set; }
         public Reference SelectedSearchResult { get; set; }
-
-        private readonly ISolutionManager _solutionManager;
-        private readonly Notifier _notifier;
-
         public bool IsSearching { get; set; }
-        private DispatcherTimer _searchTimer = new DispatcherTimer();
+        public int RibbonSelectedTabIndex { get; set; }
+        public SolutionFilterModel SolutionTreeFilter { get; set; } = new SolutionFilterModel();
+
+        public IEnumerable<TreeViewItemViewModel> Solutions { get; set; } = new List<SolutionViewModel>();
+        public List<SolutionViewModel> SolutionsCache { get; set; } = new List<SolutionViewModel>();
+        public ObservableCollection<DocumentViewModel> OpenDocuments { get; set; } = new ObservableCollection<DocumentViewModel>();
+        public ObservableCollection<Reference> FindReferencesResult { get; set; } = new ObservableCollection<Reference>();
+
+        #region Init
 
         public ShellViewModel(ISolutionManager solutionManager)
         {
@@ -71,15 +73,23 @@ namespace DependencyFinder.UI.ViewModels
         public void OnLoaded()
         {
             _notifier.ShowInformation("Start loading solutions");
+            SolutionTreeFilter.FilterChanged += SolutionTreeFilter_FilterChanged;
 
             Task.Run(() => LoadSolutions());
         }
+
+       
 
         public override Task TryCloseAsync(bool? dialogResult = null)
         {
             Dispose();
 
             return base.TryCloseAsync(dialogResult);
+        }
+
+        public void Dispose()
+        {
+            _notifier.Dispose();
         }
 
         private async Task LoadSolutions()
@@ -113,8 +123,8 @@ namespace DependencyFinder.UI.ViewModels
 
                 await Application.Current.Dispatcher.BeginInvoke((System.Action)(() =>
                 {
-                    SolutionsCache = list;
-                    Solutions = list;
+                    SolutionsCache = list.OrderBy(x => x.Name).ToList();
+                    Solutions = SolutionsCache;
 
                     SolutionsStatus = $"Solutions loaded: {SolutionsCache.Count} | Projects loaded: {_solutionManager.GetNumberOfCachedProjects()}";
                     _notifier.ShowInformation("Solution loaded");
@@ -129,65 +139,9 @@ namespace DependencyFinder.UI.ViewModels
             }
         }
 
-        public void OnFilterChanged()
-        {
-            if (Filter.Length < 3) return;
+        #endregion
 
-            _searchTimer.Stop();
-            _searchTimer.Start();
-        }
-
-        private void SearchTimer_Tick(object sender, EventArgs e)
-        {
-            IsSearching = true;
-            _searchTimer.Stop();
-            _notifier.ShowInformation("Searching..");
-
-            Task.Run(() => ValidateList(SolutionsCache)).ContinueWith(solutions =>
-            {
-                _notifier.ShowInformation("Search done");
-                IsSearching = false;
-                Solutions = solutions.Result;
-            }, TaskScheduler.FromCurrentSynchronizationContext());
-        }
-
-        public void OnSelectedSolutionItemChanged()
-        {
-            if (!(SelectedSolutionItem?.HasPreview ?? false)) return;
-
-            var alreadyOpenDocument = OpenDocuments.FirstOrDefault(d => d.AssociatedModel == SelectedSolutionItem);
-            if (alreadyOpenDocument != null)
-            {
-                ActiveDocument = alreadyOpenDocument;
-                return;
-            }
-
-            var currentTemporary = OpenDocuments.FirstOrDefault(d => d.IsTemporary);
-
-            var document = OpenDocument(SelectedSolutionItem);
-
-            if (currentTemporary == null)
-            {
-                currentTemporary = new DocumentViewModel
-                {
-                    IsTemporary = true
-                };
-
-                OpenDocuments.Add(currentTemporary);
-            }
-
-            currentTemporary.AssociatedModel = document.AssociatedModel;
-            currentTemporary.Content = document.Content;
-            currentTemporary.Syntax = document.Syntax;
-            currentTemporary.Title = $"*{document.Title}";
-
-            ActiveDocument = currentTemporary;
-        }
-
-        public void FilterClearClick()
-        {
-            Solutions = SolutionsCache;
-        }
+        #region Ribbon
 
         public void ExploreClick()
         {
@@ -230,42 +184,6 @@ namespace DependencyFinder.UI.ViewModels
 
         public bool CanFindClick => SelectedSolutionItem is TypeViewModel || SelectedSolutionItem is MemberViewModel;
 
-        public void ProjectDoubleClick()
-        {
-            if (SelectedSolutionItem == null || !SelectedSolutionItem.HasPreview) return;
-
-            var alreadyOpenDocument = OpenDocuments.FirstOrDefault(d => d.AssociatedModel == SelectedSolutionItem);
-
-            if (alreadyOpenDocument?.IsTemporary == true)
-            {
-                OpenDocuments.Remove(alreadyOpenDocument);
-                alreadyOpenDocument = null;
-            }
-
-            if (alreadyOpenDocument != null)
-            {
-                ActiveDocument = alreadyOpenDocument;
-            }
-            else
-            {
-                var document = OpenDocument(SelectedSolutionItem);
-
-                OpenDocuments.Add(document);
-                ActiveDocument = document;
-            }
-        }
-
-        public void SearchResultDoubleClick()
-        {
-            var document = OpenFile(null, SelectedSearchResult.FilePath);
-
-            document.SelectionStart = SelectedSearchResult.SelectionStart;
-            document.SelectionLength = SelectedSearchResult.SelectionLenght;
-
-            OpenDocuments.Add(document);
-            ActiveDocument = document;
-        }
-
         public void GoToProjectClick()
         {
             if (SelectedSolutionItem is ReferencedViewModel referenced)
@@ -295,9 +213,133 @@ namespace DependencyFinder.UI.ViewModels
             SelectedSolutionItem = solution.Children.FirstOrDefault(x => x.Name == projectName);
         }
 
+
+
         public bool CanGoToProjectClick => SelectedSolutionItem is ReferencedViewModel
-                                        || SelectedSolutionItem is ProjectRefViewModel
-                                        || SelectedSolutionItem is NugetReferenceViewModel;
+                                       || SelectedSolutionItem is ProjectRefViewModel
+                                       || SelectedSolutionItem is NugetReferenceViewModel;
+
+        #endregion Ribbon
+
+        #region Search
+        private void SolutionTreeFilter_FilterChanged()
+        {
+            StartSearch();
+        }
+
+        public void SearchFilterGetFocus()
+        {
+            RibbonSelectedTabIndex = 1;
+        }
+
+        public void FilterClearClick()
+        {
+            Filter = "";
+            Solutions = SolutionsCache;
+
+            foreach(var solution in Solutions)
+            {
+                solution.CollapseAll();
+            }
+        }
+
+        public void OnFilterChanged()
+        {
+            if (Filter.Length < 3) return;
+
+            _searchTimer.Stop();
+            _searchTimer.Start();
+        }
+
+        private void SearchTimer_Tick(object sender, EventArgs e)
+        {
+            StartSearch();
+        }
+
+        private void StartSearch()
+        {
+            IsSearching = true;
+            _searchTimer.Stop();
+            _notifier.ShowInformation("Searching..");
+
+            Task.Run(() => ValidateList(SolutionsCache)).ContinueWith(solutions =>
+            {
+                _notifier.ShowInformation("Search done");
+                IsSearching = false;
+                Solutions = solutions.Result;
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        private IEnumerable<TreeViewItemViewModel> ValidateList(IEnumerable<TreeViewItemViewModel> list)
+        {
+            //TODO change after tests
+            //return list.AsParallel().Select(l => l.Filter(Filter, SolutionTreeFilter)).Where(x => x != null);
+
+            return list.Select(l => l.Filter(Filter, SolutionTreeFilter)).Where(x => x != null);
+        }
+
+
+        #endregion Search
+
+        #region Solution Tree
+
+        public void OnSelectedSolutionItemChanged()
+        {
+            if (!(SelectedSolutionItem?.HasPreview ?? false)) return;
+
+            var alreadyOpenDocument = OpenDocuments.FirstOrDefault(d => d.AssociatedModel == SelectedSolutionItem);
+            if (alreadyOpenDocument != null)
+            {
+                ActiveDocument = alreadyOpenDocument;
+                return;
+            }
+
+            var currentTemporary = OpenDocuments.FirstOrDefault(d => d.IsTemporary);
+
+            var document = OpenDocument(SelectedSolutionItem);
+
+            if (currentTemporary == null)
+            {
+                currentTemporary = new DocumentViewModel
+                {
+                    IsTemporary = true
+                };
+
+                OpenDocuments.Add(currentTemporary);
+            }
+
+            currentTemporary.AssociatedModel = document.AssociatedModel;
+            currentTemporary.Content = document.Content;
+            currentTemporary.Syntax = document.Syntax;
+            currentTemporary.Title = $"*{document.Title}";
+
+            ActiveDocument = currentTemporary;
+        }
+
+        public void ProjectDoubleClick()
+        {
+            if (SelectedSolutionItem == null || !SelectedSolutionItem.HasPreview) return;
+
+            var alreadyOpenDocument = OpenDocuments.FirstOrDefault(d => d.AssociatedModel == SelectedSolutionItem);
+
+            if (alreadyOpenDocument?.IsTemporary == true)
+            {
+                OpenDocuments.Remove(alreadyOpenDocument);
+                alreadyOpenDocument = null;
+            }
+
+            if (alreadyOpenDocument != null)
+            {
+                ActiveDocument = alreadyOpenDocument;
+            }
+            else
+            {
+                var document = OpenDocument(SelectedSolutionItem);
+
+                OpenDocuments.Add(document);
+                ActiveDocument = document;
+            }
+        }
 
         private DocumentViewModel OpenDocument(TreeViewItemViewModel model)
         {
@@ -341,14 +383,19 @@ namespace DependencyFinder.UI.ViewModels
             }
         }
 
-        private IEnumerable<TreeViewItemViewModel> ValidateList(IEnumerable<TreeViewItemViewModel> list)
-        {
-            return list.Select(l => l.Filter(Filter)).Where(x => x != null);
-        }
+        #endregion Solution Tree
 
-        public void Dispose()
+        #region Find References
+        public void SearchResultDoubleClick()
         {
-            _notifier.Dispose();
+            var document = OpenFile(null, SelectedSearchResult.FilePath);
+
+            document.SelectionStart = SelectedSearchResult.SelectionStart;
+            document.SelectionLength = SelectedSearchResult.SelectionLenght;
+
+            OpenDocuments.Add(document);
+            ActiveDocument = document;
         }
+        #endregion Find References
     }
 }

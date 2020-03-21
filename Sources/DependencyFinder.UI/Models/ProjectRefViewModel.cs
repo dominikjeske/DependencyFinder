@@ -15,4 +15,17 @@ namespace DependencyFinder.UI.Models
             FullName = ProjectReference.FilePath;
         }
     }
+
+    public class ProjectDirectRefViewModel : TreeViewItemViewModel
+    {
+        [ExpandableObject]
+        public ProjectReference ProjectReference { get; }
+
+        public ProjectDirectRefViewModel(ProjectReference projectRef, TreeViewItemViewModel parent, bool lazyLoadChildren) : base(parent, lazyLoadChildren)
+        {
+            ProjectReference = projectRef;
+            Name = ProjectReference.Name;
+            FullName = ProjectReference.FilePath;
+        }
+    }
 }
