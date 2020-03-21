@@ -3,7 +3,7 @@ using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace DependencyFinder.UI.Models
 {
-    public class ReferencedViewModel : TreeViewItemViewModel
+    public class ReferencedViewModel : TreeViewItemViewModel, IProjectInfo
     {
         public string Solution { get; set; }
 
@@ -11,11 +11,11 @@ namespace DependencyFinder.UI.Models
         {
             Name = $"{referencedProject.Name}";
             FullName = $"{referencedProject.AbsolutePath}";
-            ReferencedProject = referencedProject;
+            Project = referencedProject;
             Solution = $"{referencedProject.Solution}";
         }
 
         [ExpandableObject]
-        public ProjectDetails ReferencedProject { get; }
+        public ProjectDetails Project { get; }
     }
 }

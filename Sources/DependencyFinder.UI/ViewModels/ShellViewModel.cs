@@ -40,6 +40,7 @@ namespace DependencyFinder.UI.ViewModels
         public ObservableCollection<Reference> FindReferencesResult { get; set; } = new ObservableCollection<Reference>();
 
         public ObservableCollection<ErrorViewModel> Errors { get; set; } = new ObservableCollection<ErrorViewModel>();
+        public ObservableCollection<IProjectInfo> SelectedProjects { get; set; } = new ObservableCollection<IProjectInfo>();
 
         #region Init
 
@@ -93,6 +94,13 @@ namespace DependencyFinder.UI.ViewModels
             await _notificationManager.ShowAsync(content, "WindowArea");
         }
 
+        private async void ShowToastWarrning(string text)
+        {
+            var content = new NotificationContent { Title = "", Message = text, Type = NotificationType.Warning };
+
+            await _notificationManager.ShowAsync(content, "WindowArea");
+        }
+
         private async void ShowToastError(string text)
         {
             var content = new NotificationContent { Title = "", Message = text, Type = NotificationType.Error };
@@ -140,7 +148,9 @@ namespace DependencyFinder.UI.ViewModels
             }
             catch (Exception ee)
             {
-                await System.Windows.Application.Current.Dispatcher.BeginInvoke((System.Action)(() => ShowToastError("Solution loading failed")));
+                _logger.LogError(ee);
+
+                await System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)(() => ShowToastError("Solution loading failed")));
             }
         }
 
@@ -242,6 +252,29 @@ namespace DependencyFinder.UI.ViewModels
         public bool CanGoToProjectClick => SelectedSolutionItem is ReferencedViewModel
                                        || SelectedSolutionItem is ProjectRefViewModel
                                        || SelectedSolutionItem is NugetReferenceViewModel;
+
+        public bool CanAddProjectClick => SelectedSolutionItem is IProjectInfo;
+
+        public void AddProjectClick()
+        {
+            if(SelectedProjects.Any(x => x.FullName == SelectedSolutionItem.FullName))
+            {
+                ShowToastWarrning($"Project {SelectedSolutionItem.Name} already on list");
+                return;
+            }
+
+            SelectedProjects.Add(SelectedSolutionItem as IProjectInfo);
+        }
+
+        public void ClearProjectsClick()
+        {
+            SelectedProjects.Clear();
+        }
+
+        public void TestClick()
+        {
+            
+        }
 
         #endregion Ribbon
 

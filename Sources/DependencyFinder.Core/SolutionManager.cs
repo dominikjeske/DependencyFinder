@@ -426,5 +426,10 @@ namespace DependencyFinder.Core
                 solution.Workspace.Dispose();
             }
         }
+
+        public void Test(ProjectDetails project, IEnumerable<ProjectDetails> destinationProjects)
+        {
+            //_projectsCache.
+        }
     }
 }

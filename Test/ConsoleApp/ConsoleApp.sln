@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp.Core", "ConsoleA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonStandard", "..\Common\CommonStandard\CommonStandard\CommonStandard.csproj", "{3C6379B3-ACE8-4C7A-8BEE-2041F05B698B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{EE3CC28A-24F6-4293-87C6-4B2BC70C40A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +32,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3C6379B3-ACE8-4C7A-8BEE-2041F05B698B} = {EE3CC28A-24F6-4293-87C6-4B2BC70C40A9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A6574C48-57EA-4F12-A7F2-85F9C4472BB0}

@@ -6,7 +6,7 @@ using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace DependencyFinder.UI.Models
 {
-    public class ProjectViewModel : TreeViewItemViewModel
+    public class ProjectViewModel : TreeViewItemViewModel, IProjectInfo
     {
         [ExpandableObject]
         public ProjectDetails Project { get; }

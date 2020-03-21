@@ -52,7 +52,7 @@
                                    MinWidth="60"
                                    cal:Message.Attach="[Event Click] = [Action LocationClick()]" />
                 </Fluent:RibbonGroupBox>
-                <Fluent:RibbonGroupBox Header="Actions">
+                <Fluent:RibbonGroupBox Header="Navigation">
                     <Fluent:Button Header="Explore"
                                    Icon="{DynamicResource FolderImage}"
                                    LargeIcon="{DynamicResource FolderImage}"
@@ -63,17 +63,42 @@
                                    LargeIcon="{DynamicResource SolutionImage}"
                                    MinWidth="60"
                                    cal:Message.Attach="[Event Click] = [Action OpenClick()]" />
-                    <Fluent:Button Header="Find All References"
-                                   Icon="{DynamicResource FindImage}"
-                                   LargeIcon="{DynamicResource FindImage}"
-                                   MinWidth="60"
-                                   cal:Message.Attach="[Event Click] = [Action FindClick()]" />
                     <Fluent:Button Header="Got to project"
                                    Icon="{DynamicResource GoToProjectImage}"
                                    LargeIcon="{DynamicResource GoToProjectImage}"
                                    MinWidth="60"
                                    cal:Message.Attach="[Event Click] = [Action GoToProjectClick()]" />
+                    
                 </Fluent:RibbonGroupBox>
+                <Fluent:RibbonGroupBox Header="Search">
+                    <Fluent:Button Header="Find All References"
+                                   Icon="{DynamicResource FindImage}"
+                                   LargeIcon="{DynamicResource FindImage}"
+                                   MinWidth="60"
+                                   cal:Message.Attach="[Event Click] = [Action FindClick()]" />
+                </Fluent:RibbonGroupBox>
+                <Fluent:RibbonGroupBox Header="Selection">
+                    <Fluent:Button Header="Add project"
+                                   Icon="{DynamicResource AddProject}"
+                                   LargeIcon="{DynamicResource AddProject}"
+                                   MinWidth="60"
+                                   cal:Message.Attach="[Event Click] = [Action AddProjectClick()]" />
+                    <Fluent:Button Header="Clear selection"
+                                   Icon="{DynamicResource Empty}"
+                                   LargeIcon="{DynamicResource Empty}"
+                                   MinWidth="60"
+                                   cal:Message.Attach="[Event Click] = [Action ClearProjectsClick()]" />
+                </Fluent:RibbonGroupBox>
+
+                <Fluent:RibbonGroupBox Header="Actions">
+                    <Fluent:Button Header="Test"
+                                   Icon="{DynamicResource AddProject}"
+                                   LargeIcon="{DynamicResource AddProject}"
+                                   MinWidth="60"
+                                   cal:Message.Attach="[Event Click] = [Action TestClick()]" />
+                    
+                </Fluent:RibbonGroupBox>
+
             </Fluent:RibbonTabItem>
 
             <Fluent:RibbonTabItem Header="Search Settings"
@@ -419,6 +444,29 @@
                                                    Foreground="Black"
                                                    IsReadOnly="True" />
                             </avalondock:LayoutAnchorable>
+
+                            <avalondock:LayoutAnchorable ContentId="selectedProjects" Title="Projects">
+                                <ListView ItemsSource="{Binding SelectedProjects}"
+                                          Style="{StaticResource ListViewStyle}"
+                                          >
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridViewColumn Header="Name" Width="100" DisplayMemberBinding="{Binding Name}" />
+                                            <GridViewColumn Header="FullName" Width="100" DisplayMemberBinding="{Binding FullName}" />
+                                        </GridView>
+                                    </ListView.View>
+
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="{x:Type ListViewItem}">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="Black" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                </ListView>
+                            </avalondock:LayoutAnchorable>
                         </avalondock:LayoutAnchorablePane>
                     </avalondock:LayoutAnchorablePaneGroup>
                 </avalondock:LayoutPanel>
@@ -435,10 +483,8 @@
                                                          FloatingHeight="300"
                                                          x:Name="BottomPanel"
                                                          >
-                                <ListView Margin="5"
+                                <ListView Style="{StaticResource ListViewStyle}"
                                           ItemsSource="{Binding FindReferencesResult}"
-                                          Background="#363636"
-                                          Foreground="White"
                                           SelectedItem="{Binding SelectedSearchResult}"
                                           cal:Message.Attach="[Event MouseDoubleClick] = [Action SearchResultDoubleClick()]">
                                     <ListView.View>
@@ -473,7 +519,8 @@
                                                          AutoHideMinHeight="200"
                                                          FloatingHeight="300"
                                                          >
-                                <ListView ItemsSource="{Binding Errors}">
+                                <ListView ItemsSource="{Binding Errors}" 
+                                          Style="{StaticResource ListViewStyle}">
                                     <ListView.View>
                                         <GridView>
                                             <GridViewColumn Header="Message" Width="800" DisplayMemberBinding="{Binding Message}" />
