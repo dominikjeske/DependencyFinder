@@ -21,6 +21,7 @@ namespace DependencyFinder.UI.ViewModels
         private readonly ISolutionManager _solutionManager;
         private readonly NotificationManager _notificationManager = new NotificationManager();
         private readonly DispatcherTimer _searchTimer = new DispatcherTimer();
+        private readonly ILogger _logger;
 
         public string SolutionsRoot { get; set; }
         public string Filter { get; set; }
@@ -38,9 +39,11 @@ namespace DependencyFinder.UI.ViewModels
         public ObservableCollection<DocumentViewModel> OpenDocuments { get; set; } = new ObservableCollection<DocumentViewModel>();
         public ObservableCollection<Reference> FindReferencesResult { get; set; } = new ObservableCollection<Reference>();
 
+        public ObservableCollection<ErrorViewModel> Errors { get; set; } = new ObservableCollection<ErrorViewModel>();
+
         #region Init
 
-        public ShellViewModel(ISolutionManager solutionManager, AppSettings appSettings)
+        public ShellViewModel(ISolutionManager solutionManager, AppSettings appSettings, ILogger logger)
         {
             if (Debugger.IsAttached)
             {
@@ -62,6 +65,13 @@ namespace DependencyFinder.UI.ViewModels
             _searchTimer.Interval = TimeSpan.FromMilliseconds(500);
             _searchTimer.Tick += SearchTimer_Tick;
             SolutionTreeFilter.FilterChanged += SolutionTreeFilter_FilterChanged;
+            _logger = logger;
+            _logger.Error += _logger_Error;
+        }
+
+        private void _logger_Error(Exception obj)
+        {
+            Errors.Add(new ErrorViewModel { Message = obj.Message, StackTrace = obj.StackTrace });
         }
 
         public void OnLoaded()

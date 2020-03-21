@@ -3,12 +3,13 @@ using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace DependencyFinder.UI.Models
 {
-    public class ProjectRefViewModel : TreeViewItemViewModel
+
+    public class ProjectDirectRefViewModel : TreeViewItemViewModel
     {
         [ExpandableObject]
         public ProjectReference ProjectReference { get; }
 
-        public ProjectRefViewModel(ProjectReference projectRef, TreeViewItemViewModel parent, bool lazyLoadChildren) : base(parent, lazyLoadChildren)
+        public ProjectDirectRefViewModel(ProjectReference projectRef, TreeViewItemViewModel parent, bool lazyLoadChildren) : base(parent, lazyLoadChildren)
         {
             ProjectReference = projectRef;
             Name = ProjectReference.Name;

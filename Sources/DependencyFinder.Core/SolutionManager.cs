@@ -8,7 +8,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.MSBuild;
-using Microsoft.Extensions.Logging;
 using Nito.AsyncEx;
 using System;
 using System.Collections.Concurrent;
@@ -25,15 +24,14 @@ namespace DependencyFinder.Core
         private readonly ConcurrentDictionary<string, Dictionary<string, ProjectDetails>> _projectUsedByCache = new ConcurrentDictionary<string, Dictionary<string, ProjectDetails>>();
         private readonly ConcurrentDictionary<string, Dictionary<string, NugetProjectMap>> _nugetCache = new ConcurrentDictionary<string, Dictionary<string, NugetProjectMap>>();
         private readonly ConcurrentDictionary<string, AsyncLazy<ProjectDetails>> _projectsCache = new ConcurrentDictionary<string, AsyncLazy<ProjectDetails>>();
-
-        private readonly ILogger<SolutionManager> _logger;
+        private readonly ILogger _logger;
 
         static SolutionManager()
         {
             MSBuildLocator.RegisterDefaults();
         }
 
-        public SolutionManager(ILogger<SolutionManager> logger)
+        public SolutionManager(ILogger logger)
         {
             _logger = logger;
         }
@@ -179,7 +177,7 @@ namespace DependencyFinder.Core
             }
             catch (Exception ee)
             {
-
+                _logger.LogError(ee);
             }
 
             return Enumerable.Empty<ProjectDetails>();
@@ -318,7 +316,7 @@ namespace DependencyFinder.Core
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, $"Cannot load solution {solutionPath}");
+                _logger.LogError(e);
                 return Result.Failure<DotNetSolution>("");
             }
         }

@@ -465,6 +465,23 @@
                                     </ListView.ItemContainerStyle>
                                 </ListView>
                             </avalondock:LayoutAnchorable>
+                            <avalondock:LayoutAnchorable Title="Errors"
+                                                         ContentId="errors"
+                                                         CanClose="False"
+                                                         CanHide="False"
+                                                         AutoHideHeight="300"
+                                                         AutoHideMinHeight="200"
+                                                         FloatingHeight="300"
+                                                         >
+                                <ListView ItemsSource="{Binding Errors}">
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridViewColumn Header="Message" Width="800" DisplayMemberBinding="{Binding Message}" />
+                                            <GridViewColumn Header="StackTrace" Width="500" DisplayMemberBinding="{Binding StackTrace}" />
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
+                            </avalondock:LayoutAnchorable>
                         </avalondock:LayoutAnchorGroup>
                     </avalondock:LayoutAnchorSide>
                 </avalondock:LayoutRoot.BottomSide>

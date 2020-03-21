@@ -28,7 +28,7 @@ namespace DependencyFinder.UI
 
             container.Singleton<IWindowManager, WindowManager>();
             container.Singleton<ISolutionManager, SolutionManager>();
-
+            container.Singleton<ILogger, SimpleLogger>();
             container.PerRequest<ShellViewModel>();
 
             var configuration = GetConfiguration();
