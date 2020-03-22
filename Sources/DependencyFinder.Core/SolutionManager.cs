@@ -427,9 +427,28 @@ namespace DependencyFinder.Core
             }
         }
 
-        public void Test(ProjectDetails project, IEnumerable<ProjectDetails> destinationProjects)
+        public async Task Test(ProjectDetails project, IEnumerable<ProjectDetails> destinationProjects)
         {
+            var srcProject = await OpenProject(project);
+
+            if (srcProject != null)
+            {
+                foreach (var dst in destinationProjects)
+                {
+                    var dstSolution = await OpenSolution(dst.Solution);
+                    dstSolution = dstSolution.AddProjectReference(srcProject.Id, new Microsoft.CodeAnalysis.ProjectReference(srcProject.Id));
+                }
+            }
+
+
             //_projectsCache.
+        }
+
+        private async Task<Project> OpenProject(ProjectDetails project)
+        {
+            var solution = await OpenSolution(project.Solution);
+            var srcProject = solution.Projects.FirstOrDefault(p => p.FilePath == project.AbsolutePath);
+            return srcProject;
         }
     }
 }

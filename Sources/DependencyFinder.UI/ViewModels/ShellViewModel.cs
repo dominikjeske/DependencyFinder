@@ -257,7 +257,7 @@ namespace DependencyFinder.UI.ViewModels
 
         public void AddProjectClick()
         {
-            if(SelectedProjects.Any(x => x.FullName == SelectedSolutionItem.FullName))
+            if (SelectedProjects.Any(x => x.FullName == SelectedSolutionItem.FullName))
             {
                 ShowToastWarrning($"Project {SelectedSolutionItem.Name} already on list");
                 return;
@@ -271,9 +271,21 @@ namespace DependencyFinder.UI.ViewModels
             SelectedProjects.Clear();
         }
 
-        public void TestClick()
+        public async void TestClick()
         {
-            
+            try
+            {
+                var pi = SelectedSolutionItem as IProjectInfo;
+                if (pi != null)
+                {
+                    await _solutionManager.Test(pi.Project, SelectedProjects.Select(x => x.Project));
+                }
+            }
+            catch (Exception ee)
+            {
+
+            }
+           
         }
 
         #endregion Ribbon
