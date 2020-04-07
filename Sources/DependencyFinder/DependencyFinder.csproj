@@ -8,7 +8,7 @@
   <ItemGroup>
     <PackageReference Include="Alba.CsConsoleFormat" Version="1.0.0" />
     <PackageReference Include="CommandLineParser" Version="2.7.82" />
-    <PackageReference Include="System.Linq.Async" Version="4.0.0" />
+    <PackageReference Include="System.Linq.Async" Version="4.1.1" />
   </ItemGroup>
 
   <ItemGroup>
