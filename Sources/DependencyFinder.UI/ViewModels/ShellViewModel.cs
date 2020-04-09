@@ -72,7 +72,7 @@ namespace DependencyFinder.UI.ViewModels
 
         private void _logger_Error(Exception obj)
         {
-            Errors.Add(new ErrorViewModel { Message = obj.Message, StackTrace = obj.StackTrace });
+            System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)(() => Errors.Add(new ErrorViewModel { Message = obj.Message, StackTrace = obj.StackTrace })));
         }
 
         public void OnLoaded()
@@ -283,9 +283,7 @@ namespace DependencyFinder.UI.ViewModels
             }
             catch (Exception ee)
             {
-
             }
-           
         }
 
         #endregion Ribbon
