@@ -52,6 +52,15 @@ namespace DependencyFinder.Core
             return solution.Task;
         }
 
+        public Task<ProjectDetails> GetProject(string projectFullPath)
+        {
+            if(_projectsCache.TryGetValue(projectFullPath, out AsyncLazy<ProjectDetails> pd))
+            {
+                return pd.Task;
+            }
+            return Task.FromResult(ProjectDetails.Empty);
+        }
+
         public async Task<IEnumerable<TypeDetails>> GetProjectTypes(string projectPath, string solutionPath)
         {
             IEnumerable<TypeDetails> typesList;

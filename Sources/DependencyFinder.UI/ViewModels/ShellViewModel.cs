@@ -1,4 +1,5 @@
 ﻿using DependencyFinder.Core;
+using DependencyFinder.Core.Models;
 using DependencyFinder.UI.Models;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Highlighting;
@@ -188,6 +189,45 @@ namespace DependencyFinder.UI.ViewModels
         }
 
         public bool CanOpenClick => !string.IsNullOrWhiteSpace(SelectedSolutionItem?.FullName);
+
+        public async void OpenSolutionClick()
+        {
+            var solution = string.Empty;
+            if (SelectedSolutionItem is ProjectViewModel pvm)
+            {
+                solution = pvm.Project.Solution;
+            }
+            else if (SelectedSolutionItem is ProjectDirectRefViewModel pdr)
+            {
+                var pd = await _solutionManager.GetProject(pdr.ProjectReference.FilePath);
+                if (pd != ProjectDetails.Empty)
+                {
+                    solution = pd.Solution;
+                }
+            }
+            else if (SelectedSolutionItem is ProjectRefViewModel prv)
+            {
+                var pd = await _solutionManager.GetProject(prv.ProjectReference.FilePath);
+                if (pd != ProjectDetails.Empty)
+                {
+                    solution = pd.Solution;
+                }
+            }
+            else if (SelectedSolutionItem is ReferencedViewModel rvm)
+            {
+                solution = rvm.Solution;
+            }
+
+            if (solution != string.Empty)
+            {
+                Process.Start(Environment.GetEnvironmentVariable("WINDIR") + @"\explorer.exe", solution);
+            }
+        }
+
+        public bool CanOpenSolutionClick => SelectedSolutionItem is ProjectDirectRefViewModel ||
+            SelectedSolutionItem is ProjectRefViewModel ||
+            SelectedSolutionItem is ProjectViewModel ||
+            SelectedSolutionItem is ReferencedViewModel;
 
         public async Task FindClick()
         {

@@ -7,6 +7,8 @@ namespace DependencyFinder.Core.Models
 {
     public class ProjectDetails : ValueObject
     {
+        public static readonly ProjectDetails Empty = new ProjectDetails();
+
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string RelativePath { get; set; }

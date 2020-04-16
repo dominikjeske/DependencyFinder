@@ -63,6 +63,11 @@
                                    LargeIcon="{DynamicResource SolutionImage}"
                                    MinWidth="60"
                                    cal:Message.Attach="[Event Click] = [Action OpenClick()]" />
+                    <Fluent:Button Header="Open Solution"
+                                   Icon="{DynamicResource SolutionImage}"
+                                   LargeIcon="{DynamicResource SolutionImage}"
+                                   MinWidth="60"
+                                   cal:Message.Attach="[Event Click] = [Action OpenSolutionClick()]" />
                     <Fluent:Button Header="Got to project"
                                    Icon="{DynamicResource GoToProjectImage}"
                                    LargeIcon="{DynamicResource GoToProjectImage}"

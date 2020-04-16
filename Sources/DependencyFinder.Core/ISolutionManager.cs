@@ -23,5 +23,6 @@ namespace DependencyFinder.Core
         IEnumerable<NugetProjectMap> GetNugetUsage(string nugetName);
         int GetNumberOfCachedProjects();
         Task Test(ProjectDetails project, IEnumerable<ProjectDetails> destinationProjects);
+        Task<ProjectDetails> GetProject(string projectFullPath);
     }
 }
