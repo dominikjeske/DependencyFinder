@@ -11,7 +11,7 @@ namespace DependencyFinder.UI.Models
             Name = $"Projects [{projects.Count()}]";
             HasPreview = false;
 
-            foreach (var project in projects)
+            foreach (var project in projects.OrderBy(x => x.Name))
             {
                 var pvm = new ProjectRefViewModel(project, this, false);
 

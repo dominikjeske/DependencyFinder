@@ -1,5 +1,6 @@
 ﻿using DependencyFinder.Core;
 using DependencyFinder.Core.Models;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DependencyFinder.UI.Models
@@ -33,7 +34,7 @@ namespace DependencyFinder.UI.Models
             {
                 Children.Clear();
 
-                foreach (var type in result.Result)
+                foreach (var type in result.Result.OrderBy(x => x.Name))
                 {
                     if (type is InterfaceDetails id)
                     {

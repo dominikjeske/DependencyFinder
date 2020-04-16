@@ -119,7 +119,7 @@ namespace DependencyFinder.UI.ViewModels
                 {
                     var projects = await _solutionManager.ReadSolution(s);
                     var solutionViewModel = new SolutionViewModel(s, _solutionManager, false);
-                    foreach (var p in projects)
+                    foreach (var p in projects.OrderBy(x => x.Name))
                     {
                         solutionViewModel.AddProject(p);
                     }
@@ -130,7 +130,7 @@ namespace DependencyFinder.UI.ViewModels
                 {
                     foreach (ProjectViewModel project in solution.Children)
                     {
-                        foreach (var reference in _solutionManager.GetReferencingProjects(project.Project))
+                        foreach (var reference in _solutionManager.GetReferencingProjects(project.Project).OrderBy(x => x.Name))
                         {
                             project.References.AddReference(reference);
                         }

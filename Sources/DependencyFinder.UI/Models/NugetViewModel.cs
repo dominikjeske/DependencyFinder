@@ -33,30 +33,4 @@ namespace DependencyFinder.UI.Models
             base.LoadChildren();
         }
     }
-
-    public class NugetVersionGroupViewModel : TreeViewItemViewModel
-    {
-        public NugetVersionGroupViewModel(string name, TreeViewItemViewModel parent, IEnumerable<NugetProjectMap> projects) : base(parent, false)
-        {
-            Name = $"{name} [{projects.Count()}]";
-            FullName = name;
-
-            foreach (var project in projects.OrderBy(x => x.Project.Name))
-            {
-                Children.Add(new NugetReferenceViewModel(project, this));
-            }
-        }
-    }
-
-    public class NugetReferenceViewModel : TreeViewItemViewModel
-    {
-        public NugetReferenceViewModel(NugetProjectMap map, TreeViewItemViewModel parent) : base(parent, false)
-        {
-            Name = map.Project.Name;
-            FullName = map.Project.AbsolutePath;
-            Map = map;
-        }
-
-        public NugetProjectMap Map { get; }
-    }
 }

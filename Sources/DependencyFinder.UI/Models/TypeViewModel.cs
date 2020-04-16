@@ -1,4 +1,5 @@
 ﻿using DependencyFinder.Core.Models;
+using System.Linq;
 
 namespace DependencyFinder.UI.Models
 {
@@ -12,7 +13,7 @@ namespace DependencyFinder.UI.Models
             FullName = type.Name;
             TypeDetails = type;
 
-            foreach (var member in type.Members)
+            foreach (var member in type.Members.OrderBy(x => x.Name))
             {
                 if (member is PropertyMember pm)
                 {
