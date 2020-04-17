@@ -99,14 +99,19 @@ namespace DependencyFinder.Core
             return typesList;
         }
 
-        public async IAsyncEnumerable<Reference> FindReferenceInSolutions(ProjectDetails project, ISymbol searchElement)
+        public async IAsyncEnumerable<Reference> FindReferenceInSolutions(ProjectDetails project, ISymbol searchElement, IProgress<string> progress)
         {
             //TODO what if project that is using project form argument is used in many solutions
             var resultCache = new List<Reference>();
 
             var projects = _projectUsedByCache[project.AbsolutePath];
+            int current = 0;
+
             foreach (var solution in projects.Values.Select(p => p.Solution).Distinct())
             {
+                current++;
+                progress.Report($"Searching for {searchElement.Name} in {solution} [{current}/{projects.Count}]");
+                
                 var solutionWorkspace = await OpenSolution(solution);
 
                 await foreach (var result in FindSymbol(searchElement, solutionWorkspace, project))

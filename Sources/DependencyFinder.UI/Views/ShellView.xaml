@@ -494,19 +494,25 @@
                                           cal:Message.Attach="[Event MouseDoubleClick] = [Action SearchResultDoubleClick()]">
                                     <ListView.View>
                                         <GridView>
-                                            <GridViewColumn Header="Solution" Width="100" DisplayMemberBinding="{Binding SolutionName}" />
-                                            <GridViewColumn Header="Project" Width="100" DisplayMemberBinding="{Binding ProjectName}" />
-                                            <GridViewColumn Header="ClassName" Width="100" DisplayMemberBinding="{Binding ClassName}" />
-                                            <GridViewColumn Header="FileName" Width="100" DisplayMemberBinding="{Binding FileName}" />
-                                            <GridViewColumn Header="Namespace" Width="100" DisplayMemberBinding="{Binding Namespace}" />
-                                            <GridViewColumn Header="LineNumber" Width="50" DisplayMemberBinding="{Binding LineNumber}" />
-                                            <GridViewColumn Header="Block" Width="500" DisplayMemberBinding="{Binding Block}" />
+                                            <GridViewColumn Header="Solution" Width="150" DisplayMemberBinding="{Binding SolutionName}" />
+                                            <GridViewColumn Header="Project" Width="150" DisplayMemberBinding="{Binding ProjectName}" />
+                                            <GridViewColumn Header="ClassName" Width="150" DisplayMemberBinding="{Binding ClassName}" />
+                                            <GridViewColumn Header="FileName" Width="150" DisplayMemberBinding="{Binding FileName}" />
+                                            <GridViewColumn Header="Namespace" Width="150" DisplayMemberBinding="{Binding Namespace}" />
+                                            <GridViewColumn Header="Line" Width="50" DisplayMemberBinding="{Binding LineNumber}" />
                                             <GridViewColumn Header="Path" Width="500" DisplayMemberBinding="{Binding FilePath}" />
                                         </GridView>
                                     </ListView.View>
 
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="{x:Type ListViewItem}">
+                                            <Setter Property="ToolTip">
+                                                <Setter.Value>
+                                                    <UniformGrid Columns="1">
+                                                        <TextBlock Text="{Binding Block}"/>
+                                                    </UniformGrid>
+                                                </Setter.Value>
+                                            </Setter>
                                             <Style.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter Property="Background" Value="Black" />
@@ -544,6 +550,12 @@
                    Background="#363636">
             <StatusBarItem>
                 <TextBlock Text="{Binding SolutionsStatus}" Foreground="White" />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text=" | " Foreground="White" />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding OperationsStatus}" Foreground="White" />
             </StatusBarItem>
         </StatusBar>
 

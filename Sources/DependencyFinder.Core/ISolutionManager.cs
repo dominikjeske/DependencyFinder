@@ -18,7 +18,7 @@ namespace DependencyFinder.Core
 
         Task<IEnumerable<TypeDetails>> GetProjectTypes(string projectPath, string solutionPath);
 
-        IAsyncEnumerable<Reference> FindReferenceInSolutions(ProjectDetails project, ISymbol searchElement);
+        IAsyncEnumerable<Reference> FindReferenceInSolutions(ProjectDetails project, ISymbol searchElement, IProgress<string> progress);
         IEnumerable<ProjectDetails> GetReferencingProjects(ProjectDetails project);
         IEnumerable<NugetProjectMap> GetNugetUsage(string nugetName);
         int GetNumberOfCachedProjects();

@@ -24,12 +24,15 @@ namespace DependencyFinder.UI.ViewModels
         private readonly DispatcherTimer _searchTimer = new DispatcherTimer();
         private readonly ILogger _logger;
         private readonly AppSettings _appSettings;
+        private readonly Progress<string> _progress = new Progress<string>();
+        public readonly IProgress<string> _progressReport;
 
         public string SolutionsRoot { get; set; }
         public string Filter { get; set; }
         public TreeViewItemViewModel SelectedSolutionItem { get; set; }
         public DocumentViewModel ActiveDocument { get; set; }
         public string SolutionsStatus { get; set; }
+        public string OperationsStatus { get; set; }
         public Reference SelectedSearchResult { get; set; }
         public bool IsSearching { get; set; }
         public bool IsFindAllReferencesVisible { get; set; }
@@ -51,6 +54,7 @@ namespace DependencyFinder.UI.ViewModels
             if (Debugger.IsAttached)
             {
                 SolutionsRoot = Path.Combine((new DirectoryInfo(Directory.GetCurrentDirectory())).Parent.Parent.Parent.Parent.Parent.ToString(), "Test");
+                SolutionsRoot = @"c:\Source\ArcheoFork\humbak_archeo\";
             }
             else
             {
@@ -63,7 +67,7 @@ namespace DependencyFinder.UI.ViewModels
                     OpenSolutionFolderPicker();
                 }
             }
-
+            _progressReport = (IProgress<string>)_progress;
             _solutionManager = solutionManager;
             _searchTimer.Interval = TimeSpan.FromMilliseconds(500);
             _searchTimer.Tick += SearchTimer_Tick;
@@ -71,11 +75,17 @@ namespace DependencyFinder.UI.ViewModels
             _logger = logger;
             _logger.Error += _logger_Error;
             _appSettings = appSettings;
+            _progress.ProgressChanged += OnProgress;
         }
 
         private void _logger_Error(Exception obj)
         {
             System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)(() => Errors.Add(new ErrorViewModel { Message = obj.Message, StackTrace = obj.StackTrace })));
+        }
+
+        public void OnProgress(object sender, string message)
+        {
+            System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)(() => OperationsStatus = message));
         }
 
         public void OnLoaded()
@@ -115,6 +125,7 @@ namespace DependencyFinder.UI.ViewModels
         {
             try
             {
+                SolutionsStatus = "Loading...";
                 var solutions = _solutionManager.FindSolutions(SolutionsRoot);
                 var list = new List<SolutionViewModel>();
 
@@ -133,12 +144,16 @@ namespace DependencyFinder.UI.ViewModels
                         solutionViewModel.AddProject(p);
                     }
                     list.Add(solutionViewModel);
+
+                   _progressReport.Report($"Loading {solutionViewModel.Name}");
                 }
 
                 foreach (var solution in list)
                 {
                     foreach (ProjectViewModel project in solution.Children)
                     {
+                        _progressReport.Report($"Adding project references: {project.Name}");
+
                         foreach (var reference in _solutionManager.GetReferencingProjects(project.Project).OrderBy(x => x.Name))
                         {
                             project.References.AddReference(reference);
@@ -153,6 +168,7 @@ namespace DependencyFinder.UI.ViewModels
 
                     SolutionsStatus = $"Solutions: {SolutionsCache.Count} | Projects: {_solutionManager.GetNumberOfCachedProjects()} | Location: {SolutionsRoot}";
                     ShowToastInfo("Solution loaded");
+                    ReportReady();
                 }));
             }
             catch (Exception ee)
@@ -161,6 +177,11 @@ namespace DependencyFinder.UI.ViewModels
 
                 await System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)(() => ShowToastError("Solution loading failed")));
             }
+        }
+
+        private void ReportReady()
+        {
+            _progressReport.Report($"Ready");
         }
 
         #endregion Init
@@ -247,7 +268,7 @@ namespace DependencyFinder.UI.ViewModels
             {
                 var project = (SelectedSolutionItem.Parent.Parent as ProjectViewModel)?.Project;
 
-                await foreach (var reference in _solutionManager.FindReferenceInSolutions(project, type.TypeDetails.Symbol))
+                await foreach (var reference in _solutionManager.FindReferenceInSolutions(project, type.TypeDetails.Symbol, _progress))
                 {
                     FindReferencesResult.Add(reference);
                 }
@@ -256,13 +277,14 @@ namespace DependencyFinder.UI.ViewModels
             {
                 var project = (SelectedSolutionItem.Parent.Parent.Parent as ProjectViewModel)?.Project;
 
-                await foreach (var reference in _solutionManager.FindReferenceInSolutions(project, member.Member.Symbol))
+                await foreach (var reference in _solutionManager.FindReferenceInSolutions(project, member.Member.Symbol, _progress))
                 {
                     FindReferencesResult.Add(reference);
                 }
             }
 
             ShowToastInfo("Searching finish");
+            ReportReady();
             IsFindAllReferencesVisible = true;
         }
 
