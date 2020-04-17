@@ -92,9 +92,4 @@ namespace DependencyFinder.UI
             container.BuildUp(instance);
         }
     }
-
-    public class AppSettings
-    {
-        public string SolutionsLocation { get; set; }
-    }
 }

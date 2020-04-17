@@ -23,6 +23,7 @@ namespace DependencyFinder.UI.ViewModels
         private readonly NotificationManager _notificationManager = new NotificationManager();
         private readonly DispatcherTimer _searchTimer = new DispatcherTimer();
         private readonly ILogger _logger;
+        private readonly AppSettings _appSettings;
 
         public string SolutionsRoot { get; set; }
         public string Filter { get; set; }
@@ -69,6 +70,7 @@ namespace DependencyFinder.UI.ViewModels
             SolutionTreeFilter.FilterChanged += SolutionTreeFilter_FilterChanged;
             _logger = logger;
             _logger.Error += _logger_Error;
+            _appSettings = appSettings;
         }
 
         private void _logger_Error(Exception obj)
@@ -118,6 +120,12 @@ namespace DependencyFinder.UI.ViewModels
 
                 await foreach (var s in solutions)
                 {
+                    var solutionName = Path.GetFileName(s);
+                    if (_appSettings.SkipSolutions.Any(skip => skip.Equals(solutionName, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        continue;
+                    }
+
                     var projects = await _solutionManager.ReadSolution(s);
                     var solutionViewModel = new SolutionViewModel(s, _solutionManager, false);
                     foreach (var p in projects.OrderBy(x => x.Name))
