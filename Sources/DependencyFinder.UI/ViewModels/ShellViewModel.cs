@@ -54,7 +54,7 @@ namespace DependencyFinder.UI.ViewModels
             if (Debugger.IsAttached)
             {
                 SolutionsRoot = Path.Combine((new DirectoryInfo(Directory.GetCurrentDirectory())).Parent.Parent.Parent.Parent.Parent.ToString(), "Test");
-                SolutionsRoot = @"c:\Source\ArcheoFork\humbak_archeo\";
+                //SolutionsRoot = @"c:\Source\ArcheoFork\humbak_archeo\";
             }
             else
             {
@@ -221,17 +221,19 @@ namespace DependencyFinder.UI.ViewModels
 
         public async void OpenSolutionClick()
         {
+            //TODO get parent solutions view
+
             var solution = string.Empty;
             if (SelectedSolutionItem is ProjectViewModel pvm)
             {
-                solution = pvm.Project.Solution;
+               // solution = pvm.Project.Solution;
             }
             else if (SelectedSolutionItem is ProjectDirectRefViewModel pdr)
             {
                 var pd = await _solutionManager.GetProject(pdr.ProjectReference.FilePath);
                 if (pd != ProjectDetails.Empty)
                 {
-                    solution = pd.Solution;
+                   // solution = pd.Solution;
                 }
             }
             else if (SelectedSolutionItem is ProjectRefViewModel prv)
@@ -239,12 +241,12 @@ namespace DependencyFinder.UI.ViewModels
                 var pd = await _solutionManager.GetProject(prv.ProjectReference.FilePath);
                 if (pd != ProjectDetails.Empty)
                 {
-                    solution = pd.Solution;
+                   // solution = pd.Solution;
                 }
             }
             else if (SelectedSolutionItem is ReferencedViewModel rvm)
             {
-                solution = rvm.Solution;
+                //solution = rvm.Solution;
             }
 
             if (solution != string.Empty)
@@ -292,9 +294,11 @@ namespace DependencyFinder.UI.ViewModels
 
         public void GoToProjectClick()
         {
+            //TODO get parent solution view
+
             if (SelectedSolutionItem is ReferencedViewModel referenced)
             {
-                ShowProject(referenced.Solution, referenced.Name);
+                //ShowProject(referenced.Solution, referenced.Name);
             }
             else if (SelectedSolutionItem is ProjectRefViewModel projectRef)
             {
@@ -302,7 +306,9 @@ namespace DependencyFinder.UI.ViewModels
             }
             else if (SelectedSolutionItem is NugetReferenceViewModel nugetRef)
             {
-                ShowProject(nugetRef.Map.Project.Solution, nugetRef.Map.Project.Name);
+                
+
+                //ShowProject(nugetRef.Map.Project.Solution, nugetRef.Map.Project.Name);
             }
         }
 

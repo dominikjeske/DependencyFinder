@@ -24,6 +24,7 @@ namespace DependencyFinder.Core
         private readonly ConcurrentDictionary<string, Dictionary<string, ProjectDetails>> _projectUsedByCache = new ConcurrentDictionary<string, Dictionary<string, ProjectDetails>>();
         private readonly ConcurrentDictionary<string, Dictionary<string, NugetProjectMap>> _nugetCache = new ConcurrentDictionary<string, Dictionary<string, NugetProjectMap>>();
         private readonly ConcurrentDictionary<string, AsyncLazy<ProjectDetails>> _projectsCache = new ConcurrentDictionary<string, AsyncLazy<ProjectDetails>>();
+        private readonly ConcurrentDictionary<string, List<string>> _projectToSolutionMap = new ConcurrentDictionary<string, List<string>>(); 
         private readonly ILogger _logger;
 
         static SolutionManager()
@@ -64,7 +65,6 @@ namespace DependencyFinder.Core
         public async Task<IEnumerable<TypeDetails>> GetProjectTypes(string projectPath, string solutionPath)
         {
             IEnumerable<TypeDetails> typesList;
-            //var projectName = Path.GetFileNameWithoutExtension(projectPath);
 
             var solution = await OpenSolution(solutionPath);
 
@@ -107,7 +107,11 @@ namespace DependencyFinder.Core
             var projects = _projectUsedByCache[project.AbsolutePath];
             int current = 0;
 
-            foreach (var solution in projects.Values.Select(p => p.Solution).Distinct())
+            var solutions = projects.Values
+                                    .SelectMany(s => _projectToSolutionMap[s.AbsolutePath])
+                                    .Distinct();
+
+            foreach (var solution in solutions)
             {
                 current++;
                 progress.Report($"Searching for {searchElement.Name} in {solution} [{current}/{projects.Count}]");
@@ -147,6 +151,19 @@ namespace DependencyFinder.Core
         public async Task<IEnumerable<ProjectDetails>> ReadSolution(string solutionPath)
         {
             var projects = ReadProjectsFromSolution(solutionPath);
+
+            foreach(var p in projects)
+            {
+                _projectToSolutionMap.AddOrUpdate(p.AbsolutePath, new List<string> { solutionPath }, (p, list) =>
+                {
+                    if (!list.Contains(solutionPath))
+                    {
+                        list.Add(solutionPath);
+                    }
+                    return list;
+                });
+            }
+
             var result = await ReadProjectDetails(projects);
 
             return result;
@@ -316,8 +333,7 @@ namespace DependencyFinder.Core
                                Name = p.Name,
                                RelativePath = p.Path,
                                AbsolutePath = Path.GetFullPath(Path.Combine(solutionDirectory, p.Path)),
-                               Type = p.Type?.Description,
-                               Solution = solutionPath
+                               Type = p.Type?.Description
                            });
         }
 
@@ -443,26 +459,11 @@ namespace DependencyFinder.Core
 
         public async Task Test(ProjectDetails project, IEnumerable<ProjectDetails> destinationProjects)
         {
-            var srcProject = await OpenProject(project);
-
-            if (srcProject != null)
-            {
-                foreach (var dst in destinationProjects)
-                {
-                    var dstSolution = await OpenSolution(dst.Solution);
-                    dstSolution = dstSolution.AddProjectReference(srcProject.Id, new Microsoft.CodeAnalysis.ProjectReference(srcProject.Id));
-                }
-            }
-
-
-            //_projectsCache.
+            
         }
 
-        private async Task<Project> OpenProject(ProjectDetails project)
-        {
-            var solution = await OpenSolution(project.Solution);
-            var srcProject = solution.Projects.FirstOrDefault(p => p.FilePath == project.AbsolutePath);
-            return srcProject;
-        }
+        //TODO it is depend on cache that could be not initialized
+        public List<string> GetSolutions(string projectFullPath) => _projectToSolutionMap[projectFullPath];
+        
     }
 }

@@ -14,7 +14,7 @@ namespace DependencyFinder.Core.Models
         public string RelativePath { get; set; }
         public string AbsolutePath { get; set; }
         public string Type { get; set; }
-        public string Solution { get; set; }
+        //public string Solution { get; set; }
         public bool IsNetCore { get; set; }
         public bool IsMultiTarget { get; set; }
 

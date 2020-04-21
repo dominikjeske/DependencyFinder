@@ -20,7 +20,6 @@ namespace DependencyFinder.UI.Models
             Project = project;
             Name = Path.GetFileName(project.Name);
             FullName = project.AbsolutePath;
-
             IsNetCore = project.IsNetCore;
 
             Children.Add(new NugetCollectionViewModel(Project.Nugets, this, solutionManeger));

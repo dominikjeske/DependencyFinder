@@ -24,5 +24,6 @@ namespace DependencyFinder.Core
         int GetNumberOfCachedProjects();
         Task Test(ProjectDetails project, IEnumerable<ProjectDetails> destinationProjects);
         Task<ProjectDetails> GetProject(string projectFullPath);
+        List<string> GetSolutions(string projectFullPath);
     }
 }
