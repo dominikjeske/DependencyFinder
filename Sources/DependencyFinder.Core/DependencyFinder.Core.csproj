@@ -7,13 +7,13 @@
 
   <ItemGroup>
     <PackageReference Include="AsyncEnumerator" Version="4.0.2" />
-    <PackageReference Include="CSharpFunctionalExtensions" Version="2.7.1" />
+    <PackageReference Include="CSharpFunctionalExtensions" Version="2.8.0" />
     <PackageReference Include="Microsoft.Build.Framework" Version="16.5.0" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.Build.Locator" Version="1.2.6" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.6.0-4.final" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="3.6.0-4.final" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.6.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="3.6.0" />
     <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
-    <PackageReference Include="System.Threading.Channels" Version="4.7.0" />
+    <PackageReference Include="System.Threading.Channels" Version="4.7.1" />
     <PackageReference Include="Nito.AsyncEx" Version="5.0.0" />
     <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.82" />
   </ItemGroup>
