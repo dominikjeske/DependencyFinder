@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="AvalonEdit" Version="6.0.1" />
     <PackageReference Include="Caliburn.Micro" Version="4.0.125-alpha" />
+    <PackageReference Include="DataGridExtensions" Version="2.3.0" />
     <PackageReference Include="Dirkster.AvalonDock" Version="4.20.0" />
     <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.82" />
     <PackageReference Include="Fluent.Ribbon" Version="7.1.0" />

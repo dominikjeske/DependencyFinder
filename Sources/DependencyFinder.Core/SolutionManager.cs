@@ -5,6 +5,7 @@ using DependencyFinder.Core.Models;
 using DependencyFinder.Search;
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.MSBuild;
@@ -12,9 +13,11 @@ using Nito.AsyncEx;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xaml;
 
 namespace DependencyFinder.Core
 {
@@ -399,36 +402,42 @@ namespace DependencyFinder.Core
                 searchedSymbol = containingTypeSymbol.GetMembers().FirstOrDefault(x => x.Kind == symbol.Kind && x.Name == symbol.Name);
             }
 
+            
             var results = await SymbolFinder.FindReferencesAsync(searchedSymbol, solution);
 
             foreach (var reference in results)
             {
                 foreach (ReferenceLocation location in reference.Locations)
                 {
+                    
                     int spanStart = location.Location.SourceSpan.Start;
                     var doc = location.Document;
 
                     var root = await doc.GetSyntaxRootAsync();
+                    var semantic = await doc.GetSemanticModelAsync();
+
                     var node = root.DescendantNodes()
-                                    .FirstOrDefault(node => node.GetLocation().SourceSpan.Start == spanStart);
+                                   .FirstOrDefault(node => node.GetLocation().SourceSpan.Start == spanStart);
 
                     var line = node.SyntaxTree.GetLineSpan(location.Location.SourceSpan);
 
                     var definitionClassName = node.Ancestors()
-                                        .OfType<ClassDeclarationSyntax>()
-                                        .FirstOrDefault()
-                                        ?.Identifier.Text ?? string.Empty;
+                                                  .OfType<ClassDeclarationSyntax>()
+                                                  .FirstOrDefault()
+                                                  ?.Identifier.Text ?? string.Empty;
 
                     var @namespace = node.Ancestors()
-                                            .OfType<NamespaceDeclarationSyntax>()
-                                            .FirstOrDefault()
+                                         .OfType<NamespaceDeclarationSyntax>()
+                                         .FirstOrDefault()
                                         ?.Name.ToString() ?? String.Empty;
 
                     var block = node.Ancestors()
-                                            .OfType<BlockSyntax>()
-                                            .FirstOrDefault()
-                                        ?.ToString() ?? String.Empty;
+                                    .OfType<BlockSyntax>()
+                                    .FirstOrDefault()
+                                    ?.ToString() ?? String.Empty;
 
+                    var nodeKind = node.Kind();
+                    
                     var objectReference = new Reference
                     {
                         FileName = doc.Name,
@@ -440,8 +449,24 @@ namespace DependencyFinder.Core
                         Block = block,
                         LineNumber = line.EndLinePosition.Line,
                         SelectionStart = spanStart,
-                        SelectionLenght = location.Location.SourceSpan.Length
+                        SelectionLenght = location.Location.SourceSpan.Length,
+                        Kind = nodeKind.ToString()
                     };
+
+                    if (nodeKind == SyntaxKind.SimpleBaseType)
+                    {
+                        var derivedSyntax = node.Ancestors().FirstOrDefault(x => x.IsKind(SyntaxKind.InterfaceDeclaration) || x.IsKind(SyntaxKind.ClassDeclaration));
+                        var searched = semantic.GetDeclaredSymbol(derivedSyntax);
+
+                        if (searched != null)
+                        {
+                            objectReference.DerivedReference = new DerivedReference
+                            {
+                                DerivedTypeName = searched.ToDisplayString(),
+                                DerivedSymbol = searched
+                            };
+                        }
+                    }
 
                     yield return objectReference;
                 }

@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using System.Windows.Threading;
 
 namespace DependencyFinder.UI.ViewModels
@@ -34,6 +35,7 @@ namespace DependencyFinder.UI.ViewModels
         public string SolutionsStatus { get; set; }
         public string OperationsStatus { get; set; }
         public Reference SelectedSearchResult { get; set; }
+
         public bool IsSearching { get; set; }
         public bool IsFindAllReferencesVisible { get; set; }
         public int RibbonSelectedTabIndex { get; set; }
@@ -54,7 +56,7 @@ namespace DependencyFinder.UI.ViewModels
             if (Debugger.IsAttached)
             {
                 SolutionsRoot = Path.Combine((new DirectoryInfo(Directory.GetCurrentDirectory())).Parent.Parent.Parent.Parent.Parent.ToString(), "Test");
-                //SolutionsRoot = @"c:\Source\ArcheoFork\humbak_archeo\";
+                SolutionsRoot = @"E:\Projects\Dependency\DependencyFinder\Test2\";
             }
             else
             {
@@ -351,11 +353,15 @@ namespace DependencyFinder.UI.ViewModels
         {
             try
             {
-                var pi = SelectedSolutionItem as IProjectInfo;
-                if (pi != null)
+                var view = CollectionViewSource.GetDefaultView(FindReferencesResult);
+
+                foreach(var item in view)
                 {
-                    await _solutionManager.Test(pi.Project, SelectedProjects.Select(x => x.Project));
+
                 }
+
+                var ss = view.Cast<Reference>();
+                
             }
             catch (Exception ee)
             {

@@ -13,6 +13,7 @@
                      xmlns:templates="clr-namespace:DependencyFinder.UI.TemplateSelectors"
                      xmlns:e="http://schemas.microsoft.com/xaml/behaviors"
                      xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
+                     xmlns:dgx="clr-namespace:DataGridExtensions;assembly=DataGridExtensions"
                      cal:Message.Attach="[Event Loaded] = [Action OnLoaded()]"
                      xmlns:notyfications="clr-namespace:Notifications.Wpf.Core.Controls;assembly=Notifications.Wpf.Core"
                      mc:Ignorable="d"
@@ -488,39 +489,28 @@
                                                          FloatingHeight="300"
                                                          x:Name="BottomPanel"
                                                          >
-                                <ListView Style="{StaticResource ListViewStyle}"
-                                          ItemsSource="{Binding FindReferencesResult}"
+                                <DataGrid ItemsSource="{Binding FindReferencesResult}" 
+                                          dgx:DataGridFilter.IsAutoFilterEnabled="True"
                                           SelectedItem="{Binding SelectedSearchResult}"
-                                          cal:Message.Attach="[Event MouseDoubleClick] = [Action SearchResultDoubleClick()]">
-                                    <ListView.View>
-                                        <GridView>
-                                            <GridViewColumn Header="Solution" Width="150" DisplayMemberBinding="{Binding SolutionName}" />
-                                            <GridViewColumn Header="Project" Width="150" DisplayMemberBinding="{Binding ProjectName}" />
-                                            <GridViewColumn Header="ClassName" Width="150" DisplayMemberBinding="{Binding ClassName}" />
-                                            <GridViewColumn Header="FileName" Width="150" DisplayMemberBinding="{Binding FileName}" />
-                                            <GridViewColumn Header="Namespace" Width="150" DisplayMemberBinding="{Binding Namespace}" />
-                                            <GridViewColumn Header="Line" Width="50" DisplayMemberBinding="{Binding LineNumber}" />
-                                            <GridViewColumn Header="Path" Width="500" DisplayMemberBinding="{Binding FilePath}" />
-                                        </GridView>
-                                    </ListView.View>
+                                          cal:Message.Attach="[Event MouseDoubleClick] = [Action SearchResultDoubleClick()]"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          >
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Solution" Width="150" Binding="{Binding SolutionName}"/>
+                                        <DataGridTextColumn Header="Project" Width="150" Binding="{Binding ProjectName}"/>
+                                        <DataGridTextColumn Header="ClassName" Width="150" Binding="{Binding ClassName}"/>
+                                        <DataGridTextColumn Header="Kind" Width="100" Binding="{Binding Kind}"/>
+                                        <DataGridTextColumn Header="Containing Type" Width="100" Binding="{Binding DerivedReference.DerivedTypeName}"/>
+                                        <DataGridTextColumn Header="FileName" Width="150" Binding="{Binding FileName}"/>
+                                        <DataGridTextColumn Header="Namespace" Width="150" Binding="{Binding Namespace}"/>
+                                        <DataGridTextColumn Header="Line" Width="50" Binding="{Binding LineNumber}"/>
+                                        <DataGridTextColumn Header="Path" Width="500" Binding="{Binding FilePath}"/>
+                                    </DataGrid.Columns>
+                                    
+                                </DataGrid>
+                   
 
-                                    <ListView.ItemContainerStyle>
-                                        <Style TargetType="{x:Type ListViewItem}">
-                                            <Setter Property="ToolTip">
-                                                <Setter.Value>
-                                                    <UniformGrid Columns="1">
-                                                        <TextBlock Text="{Binding Block}"/>
-                                                    </UniformGrid>
-                                                </Setter.Value>
-                                            </Setter>
-                                            <Style.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="Black" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </ListView.ItemContainerStyle>
-                                </ListView>
                             </avalondock:LayoutAnchorable>
                             <avalondock:LayoutAnchorable Title="Errors"
                                                          ContentId="errors"
